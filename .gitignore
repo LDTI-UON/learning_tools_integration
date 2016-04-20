@@ -3,3 +3,4 @@
 *.log
 /data/*
 /cache/*
+.brackets.json
