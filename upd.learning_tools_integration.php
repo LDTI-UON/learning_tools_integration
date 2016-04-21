@@ -175,7 +175,7 @@
 										'constraint' => '5000',
 										'null' => TRUE
 								),
-                                'last_launched_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                                'last_launched_on TIMESTAMP DEFAULT 0',
                                 'imported_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
 						);
 
@@ -338,11 +338,7 @@
 										'type' => 'LONGTEXT',
 										'null' => TRUE,
 								),
-                                'last_update' => array (
-										'type' => 'TIMESTAMP',
-										'null' => TRUE,
-                                        'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
-								),
+                                'last_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL',
 						);
 
                         /*
@@ -374,7 +370,6 @@ CREATE TABLE IF NOT EXISTS `expstg_lti_instructor_settings` (
 										'type' => 'INT',
 										'constraint' => '11',
 										'null' => FALSE,
-                                     'auto_increment' => TRUE
 								),
 								'guid' => array (
 										'type' => 'VARCHAR',
@@ -514,23 +509,6 @@ CREATE TABLE IF NOT EXISTS `expstg_lti_instructor_settings` (
 					 * @return boolean TRUE
 					 */
 					public function uninstall() {
-
-                        /* drop indexes first */
-                        $table_name = ee ()->db->dbprefix ( "blti_keys" );
-						$sql = "DROP INDEX url_segment_index ON $table_name";
-						ee ()->db->query ( $sql );
-
-                        $table_name = ee ()->db->dbprefix ( "lti_member_contexts" );
-						$sql = "DROP INDEX member_context_guid_index ON $table_name";
-						ee ()->db->query ( $sql );
-
-                        $course_table = ee ()->db->dbprefix("lti_course_link_resources");
-						$sql = "DROP INDEX course_id ON $course_table";
-						ee()->db->query ( $sql );
-
-                        $table_name = ee ()->db->dbprefix ( "lti_group_contexts" );
-						$sql = "DROP INDEX member_internal_index ON $table_name";
-						ee ()->db->query ( $sql );
 
                         /* drop tables and remove module ref */
 						$mod_id = ee ()->db->select ( 'module_id' )->get_where ( 'modules', array (

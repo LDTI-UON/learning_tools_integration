@@ -1399,6 +1399,10 @@ class Learning_tools_integration {
                 $vars['students'][$row['member_id']]['group_no'] = $row['group_no'];
                 $vars['students'][$row['member_id']]['group_name'] = $row['group_name'];
             }
+
+            foreach(static::$lti_plugins as $plugin) {
+	                include(PATH_THIRD."$plugin/libraries/".$plugin."_student_table.php");
+	        }
         }
 
         $vars['include_groups'] = $this -> include_groups;
@@ -1663,11 +1667,11 @@ class Learning_tools_integration {
         if($direct === TRUE && $name !== "") {
         	include_once ("js/$name.js");
         } else {
-	        foreach(static::$lti_plugins as $pearl) {
+	        foreach(static::$lti_plugins as $plugin) {
 	            if(strlen($name) > 0) {
-	                include_once (PATH_THIRD."$pearl/js/".$pearl."_".$name.".js");
+	                include_once (PATH_THIRD."$plugin/js/".$plugin."_".$name.".js");
 	            } else {
-	                include_once (PATH_THIRD."$pearl/js/$pearl.js");
+	                include_once (PATH_THIRD."$plugin/js/$plugin.js");
 	            }
 	        }
         }
