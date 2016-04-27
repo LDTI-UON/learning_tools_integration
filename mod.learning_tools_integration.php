@@ -68,6 +68,8 @@ class Learning_tools_integration {
     public $group_id = '6';
     public $internal_context_id = 0;
     public $isInstructor = 0;
+    public $lti_url_host = "";
+    public $lti_url_path = "";
 
     public $institution;
     public $institution_id;
@@ -296,6 +298,8 @@ class Learning_tools_integration {
             $this -> ext_launch_presentation_css_url = $this -> session_info['ext_launch_presentation_css_url'];
             $this->institution_id = $this -> session_info['institution_id'];
             $this->course_id = $this -> session_info['course_id'];
+            $this->lti_url_host = ee() -> TMPL -> fetch_param('lti_url_host');
+            $this->lti_url_path = $_SERVER["REQUEST_URI"];
         }
 
         /* process feedback on targeted resource for student */
@@ -369,6 +373,9 @@ class Learning_tools_integration {
        		 $tools = explode(',', $param_tools);
         }
 
+        // re-enable CSRF (extension disables it temporarily)
+        ee()->config->set_item('disable_csrf_protection', 'n');
+
         return array_merge(array('error_messages' =>  ee() -> load -> view('lti-context-messages', $view_data, TRUE)), $tag_data);
     }
 
@@ -418,7 +425,7 @@ class Learning_tools_integration {
                    if(!isset($_POST['email_optout'])) {
                        $div = $style."<div id=\"emailmsg\" class=\"receipt good\"><p>".lang('email_opt_out')."</p>%form%</div>";
 
-                       $form = form_open(current_url());
+                       $form = form_open($this->base_url);
 
                        $data = array(
                                               'name'        => 'optout',
@@ -442,7 +449,7 @@ class Learning_tools_integration {
                        $view_data['email_settings'] = $form;
                      } else {
                         ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'disabled' => ee()->input->post('optout')));
-                        redirect(current_url());
+                        redirect($this->lti_url_host);
 
                         return;
                     }
@@ -821,7 +828,7 @@ class Learning_tools_integration {
         ee() -> load -> helper('form');
 
         $form .= "<p>&nbsp;</p><p><em>Upload smaller resource zip files here (50MB max). $errors</br></br>";
-        $form .= form_open_multipart(ee() -> config -> site_url() . '/' .   ee() -> uri -> uri_string());
+        $form .= form_open_multipart(current_url());
         $form .= form_upload('userfile', 'userfile');
         $form .= form_hidden('do_resource_upload', 'yep');
         $form .= form_hidden('ee_lti_token', $this -> cookie_name);
@@ -974,7 +981,7 @@ class Learning_tools_integration {
     	$form .= "<p>By clicking the button below you will randomly assign all remaining resource to students that don't yet have a resource allocated,
     	this resource will appear when they click on the link in the $this->context_label course.</p>";
         $form .= !empty($message) ? "<p>$message</p>" : "";
-    	$form .= form_open_multipart($this->EE -> config -> site_url() . '/' .   $this->EE -> uri -> uri_string());
+    	$form .= form_open_multipart(current_url());
     	$form .= form_hidden('do_random_remainder', 'yep');
     	$form .= form_submit("Randomly", "Assign a unique resource to each student");
     	$form .= form_close();
@@ -1573,7 +1580,7 @@ class Learning_tools_integration {
         $iv = base64_encode($iv);
         $enc = base64_encode($enc);
 
-        $vars['current_uri'] =   ee() -> functions -> fetch_current_uri();
+        $vars['current_uri'] =  ee() -> functions -> fetch_current_uri();
         $vars['screen_name'] =  ee() -> session -> userdata('screen_name');
         $vars['filename'] = rawurlencode($enc);
         $vars['iv'] = rawurlencode($iv);

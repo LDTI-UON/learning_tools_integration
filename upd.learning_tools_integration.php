@@ -303,22 +303,15 @@
 										'constraint' => '20',
 										'null' => FALSE
 								),
-								'show_grade_column' => array (
-										'type' => 'TINYINT',
-										'constraint' => '1',
-										'null' => FALSE
-								),
-								'show_comments' => array (
-										'type' => 'TINYINT',
-										'constraint' => '1',
-										'null' => FALSE
-								),
                                 'enable_group_import' => array(
                                      'type' => 'TINYINT',
                                      'constraint' => '1',
                                      'null' => FALSE
                                 ),
-
+                                'plugins_active' => array (
+										'type' => 'VARCHAR',
+										'constraint' => '500',
+								),
 								'course_key' => array (
 										'type' => 'VARCHAR',
 										'constraint' => '255',
@@ -329,11 +322,6 @@
 										'constraint' => '5',
 										'null' => FALSE
 								),
-								'user_access' => array (
-										'type' => 'VARCHAR',
-										'constraint' => '5000',
-										'null' => TRUE
-								),
                                 'gradebook' => array (
 										'type' => 'LONGTEXT',
 										'null' => TRUE,
@@ -341,29 +329,34 @@
                                 'last_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL',
 						);
 
-                        /*
-                        DROP TABLE IF EXISTS `expstg_lti_instructor_settings`;
-CREATE TABLE IF NOT EXISTS `expstg_lti_instructor_settings` (
-  `problem_prefix` varchar(20) NOT NULL DEFAULT 'problem_',
-  `solution_prefix` varchar(20) NOT NULL DEFAULT 'solution_',
-  `show_grade_column` tinyint(1) NOT NULL DEFAULT '1',
-  `show_comments` tinyint(1) NOT NULL DEFAULT '1',
-  `allow_self_assessment` tinyint(1) NOT NULL DEFAULT '0',
-  `enable_group_import` tinyint(1) NOT NULL DEFAULT '1',
-  `plugins_active` varchar(500) DEFAULT NULL,
-  `course_key` varchar(255) NOT NULL,
-  `institution_id` mediumint(5) NOT NULL,
-  `user_access` varchar(5000) DEFAULT NULL COMMENT 'non super-users with access to the download and settings links (comma separated user ids)',
-  `gradebook` longtext NOT NULL,
-  `last_update` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`course_key`,`institution_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-                        */
 
 						ee ()->dbforge->add_field ( $fields );
 						ee ()->dbforge->add_key ( 'course_key', TRUE );
 						ee ()->dbforge->add_key ( 'institution_id', TRUE );
 						ee ()->dbforge->create_table ( 'lti_instructor_settings', TRUE );
+
+                        $fields = array (
+								'id' => array (
+										'type' => 'INT',
+										'constraint' => '11',
+										'null' => FALSE,
+                                        'auto_increment' => TRUE,
+								),
+                                'institution_id' => array (
+										'type' => 'INT',
+										'constraint' => '11',
+										'null' => FALSE,
+								),
+								'context_id' => array (
+										'type' => 'CHAR',
+										'constraint' => '255',
+										'null' => FALSE
+								)
+						);
+
+                        ee ()->dbforge->add_field ( $fields );
+						ee ()->dbforge->add_key ( 'id', TRUE );
+                        ee ()->dbforge->create_table ( 'lti_course_contexts', TRUE );
 
 						$fields = array (
 								'id' => array (
@@ -475,7 +468,7 @@ CREATE TABLE IF NOT EXISTS `expstg_lti_instructor_settings` (
 						ee ()->dbforge->create_table ( 'lti_course_link_resources', TRUE );
 
                         $course_table = ee ()->db->dbprefix("lti_course_link_resources");
-						$sql = "CREATE INDEX course_id ON $course_table( resource_link_id(10) )";
+						$sql = "ALTER TABLE $course_table ADD INDEX ( resource_link_id(10) )";
 
 						ee()->db->query ( $sql );
 
@@ -484,19 +477,18 @@ CREATE TABLE IF NOT EXISTS `expstg_lti_instructor_settings` (
 								'class' => $this->mod_class,
 								'method' => 'message_preference'
 						);
-						ee ()->db->insert ( 'exp_actions', $data );
+						ee ()->db->insert ( 'actions', $data );
 
 						$data = array (
 								'class' => $this->mod_class,
 								'method' => 'save_user_grade'
 						);
-						ee ()->db->insert ( 'exp_actions', $data );
+						ee ()->db->insert ( 'actions', $data );
 
 						$data = array (
 								'class' => $this->mod_class,
 								'method' => 'read_user_grade'
 						);
-						ee ()->db->insert ( 'exp_actions', $data );
 
 						return TRUE;
 					}
@@ -528,6 +520,9 @@ CREATE TABLE IF NOT EXISTS `expstg_lti_instructor_settings` (
 						ee ()->dbforge->drop_table ( 'lti_tool_consumer_instances' );
 						ee ()->dbforge->drop_table ( 'lti_institutions' );
 						ee ()->dbforge->drop_table ( 'lti_member_resources' );
+
+                        ee ()->dbforge->drop_table ( 'lti_course_contexts' );
+                        ee ()->dbforge->drop_table ( 'lti_course_link_resources' );
 
 						ee ()->db->delete ( 'actions', array (
 								'class' => $this->mod_class,

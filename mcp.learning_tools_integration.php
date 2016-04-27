@@ -426,7 +426,8 @@ class Learning_tools_integration_mcp {
                 ee()->session->set_flashdata('message_success', lang('link_added'));
 
                 //redirect to index
-                ee()->functions->redirect('addons/settings/learning_tools_integration');
+                ee()->functions->redirect(ee('CP/URL')->make('addons/settings/learning_tools_integration'));
+
     		}
 		}
 

@@ -13,6 +13,8 @@ class Learning_tools_integration_ext {
 	var $settings_exist = 'n';
 	var $docs_url       = '';
 
+    //var $settings = array();
+
 	private $mod_class = "Learning_tools_integration";
 	private $remember_me = FALSE;
 
@@ -77,9 +79,15 @@ class Learning_tools_integration_ext {
 	{
         //var_dump(posix_getpwuid(posix_geteuid()));
 		$this->settings = $settings;
+
+        ee()->config->set_item('disable_csrf_protection', 'y');
 	}
 
 	function authenticate($session) {
+
+        if(!isset($session) || empty($session)) {
+            die("A small issue, I'm unable to retrieve EE session object in sessions_end hook.");
+        }
 
 		// don't use in the CP
 		if(strpos(@$_SERVER['REQUEST_URI'], 'admin.php') !== FALSE) {
@@ -135,9 +143,13 @@ class Learning_tools_integration_ext {
 		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['context_id']);
 
 		if (!$new_launch && empty(static::$session_info)) {
+
+            // TODO: this relied on a bug in EE 2, which no longer exists in EE 3!
+            // we need to persist this id in EVERY form so that we can POST data!
+
 			$_m = $session->userdata('member_id');
 
-			if($_m != FALSE) {
+			if(!empty($_m)) {
 				static::$session_info = $this -> unserializeSession($_m, $session);
 
 				// session was FALSE, so session_id was not set on first round...
@@ -145,7 +157,7 @@ class Learning_tools_integration_ext {
 					die("<span class='session_expired'><h2>I couldn't retrieve your session details. Please return to the course and click the link again [".__LINE__."].</h2></span>");
 				}
 			} else {
-				die("<h2>Your session has expired, please return to the course and click the link again [".__LINE__."].</h2>");
+               die("<span class='session_expired'><h2>Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
 			}
 		}
 
@@ -235,7 +247,9 @@ class Learning_tools_integration_ext {
 			echo lang('not_launch_request');
 		}
 		//echo "GOT ".__LINE__;
-		$ee_uri =   ee() -> functions -> fetch_current_uri();
+        ee()->load->helper('url');
+		$ee_uri = uri_string();  //ee() -> functions -> fetch_current_uri();
+
 		require_once ('ims-blti/blti.php');
 		$context = new BLTI( array('table' => 'exp_blti_keys', 'key_column' => 'oauth_consumer_key', 'secret_column' => 'secret',
 				'context_column' => 'context_id', 'url_segment_column' => 'url_segment', 'force_ssl' => $this->use_SSL, 'url_segment' => static::$base_segment, 'ee_uri' => $ee_uri),
@@ -338,8 +352,11 @@ class Learning_tools_integration_ext {
 						$this->email = $this->vle_username."@".$this->session_domain;
 					}
 
-					ee()->db->insert('members', array('username' => $this->vle_username, 'screen_name' => $this->screen_name, 'group_id' => $this->group_id, 'email' => $this->email, 'last_visit' => time(), 'last_activity' => time(), 'join_date' => time()));
-					$id = ee()->db->insert_id();
+                    $member = ee('Model')->make('Member', array('username' => $this->vle_username, 'screen_name' => $this->screen_name, 'group_id' => $this->group_id, 'email' => $this->email, 'last_visit' => time(), 'last_activity' => time(), 'join_date' => time()));
+
+                    $member->save();
+
+					$id = $member->member_id;
 				} else {
 					die("We were not able to verify the user identity.  To fix this please set the vle_username parameter in the custom LTI launch settings.");
 				}
@@ -388,7 +405,7 @@ class Learning_tools_integration_ext {
 				'context_label' => $this -> context_label, 'ext_lms' => $this -> ext_lms, 'isInstructor' => $this -> isInstructor, 'course_key' => $this -> course_key,
 				'course_name' => $this -> course_name, 'user_short_name' => $this -> user_short_name, 'resource_title' => $this -> resource_title,
 				'resource_link_description' => $this -> resource_link_description, 'ext_launch_presentation_css_url' => $this -> ext_launch_presentation_css_url,
-                                'institution_id' => $this->institution_id, 'course_id' => $this->course_id, 'pk_string' =>$this->vle_pk_string
+                                'institution_id' => $this->institution_id, 'course_id' => $this->course_id, 'pk_string' =>$this->vle_pk_string, 'base_url' => base_url(),
 				 );
 
 		// persist base segment for future tag calls
@@ -399,7 +416,8 @@ class Learning_tools_integration_ext {
 		$this -> username =   $session -> userdata('username');
 		$this -> screen_name =   $session -> userdata('screen_name');
 
-		//echo "GOT ".__LINE__;
+       // $dough = $session->userdata('session_id').'_'.$session->userdata('member_id');
+
 		/* set global variables */
 		ee()->config->_global_vars['launch_presentation_return_url'] = $this -> launch_presentation_return_url;
 		ee()->config->_global_vars['tool_consumer_instance_name'] = $this -> tool_consumer_instance_name;
@@ -483,7 +501,7 @@ class Learning_tools_integration_ext {
 				'class'     => __CLASS__,
 				'method'    => 'authenticate',
 				'hook'      => 'sessions_end',
-				'settings'  => serialize($this->settings),
+				//'settings'  => serialize($this->settings),
 				'priority'  => 1,
 				'version'   => $this->version,
 				'enabled'   => 'y'
