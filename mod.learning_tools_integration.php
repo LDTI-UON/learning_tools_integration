@@ -205,7 +205,7 @@ class Learning_tools_integration {
         $this -> group_id = empty($group_id) ? $this -> group_id : $group_id;
 
         ee()->load->helper('url');
-        $this -> base_url .=  site_url() . DIRECTORY_SEPARATOR . $this -> base_segment;
+        $this -> base_url .=  site_url() . DIRECTORY_SEPARATOR . $this -> base_segment; //.$this->get_query_string();
 
         $this -> context_vars[] = $this -> lti_context();
 
@@ -263,6 +263,9 @@ class Learning_tools_integration {
         return (json_last_error() == JSON_ERROR_NONE);
     }
 
+    private function get_query_string() {
+        return "?lti_u=".ee()->session->userdata('member_id')."&lti_s=".ee()->session->userdata('session_id');
+    }
 
     private function lti_context() {
         $error = "";
@@ -299,7 +302,7 @@ class Learning_tools_integration {
             $this->institution_id = $this -> session_info['institution_id'];
             $this->course_id = $this -> session_info['course_id'];
             $this->lti_url_host = ee() -> TMPL -> fetch_param('lti_url_host');
-            $this->lti_url_path = $_SERVER["REQUEST_URI"];
+            $this->lti_url_path = $_SERVER["REQUEST_URI"];//.$this->get_query_string();
         }
 
         /* process feedback on targeted resource for student */
@@ -449,7 +452,7 @@ class Learning_tools_integration {
                        $view_data['email_settings'] = $form;
                      } else {
                         ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'disabled' => ee()->input->post('optout')));
-                        redirect($this->lti_url_host);
+                        redirect($this->base_url);
 
                         return;
                     }
@@ -468,7 +471,7 @@ class Learning_tools_integration {
                         $div = $style."<div id=\"emailmsg\" class=\"receipt good\"><div>%form%</div><div><p>".lang('outlook_instructions')."</div></p></div>";
 
 
-                        $form = form_open(current_url());
+                        $form = form_open($this->base_url);
 
                         $form .= "<h1>".lang('password_title')."</h1>";
                         //$form .= form_hidden("set_password", "1");
@@ -511,7 +514,7 @@ class Learning_tools_integration {
                         ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id));
                         ee()->db->update('lti_instructor_credentials', array('password' => $crypted_password, 'state' => '1'));
 
-                        redirect(current_url());
+                        redirect($this->base_url);
                         return;
                     }
                 }
@@ -566,7 +569,7 @@ class Learning_tools_integration {
                                         }
 
                                         $form .= "<p><br><b>Manual Sync</b><br><br><em>Your Groups will automatically sync everytime you access this tool from Blackboard.</em><br><br>  Use this button for manual sync.</p><br>";
-                                        $form .= form_open(current_url(), "", array("force_sync" => 1));
+                                        $form .= form_open($this->base_url, "", array("force_sync" => 1));
                                         $form .= form_submit('syncSubmit', "Syncronise Group Members");
                                         $form .= form_close();
                                     }
@@ -697,7 +700,7 @@ class Learning_tools_integration {
         $plugins_active = $settings["plugins_active"];
 
         $form .= "<span id='manualUploadInfo'><p>".lang('upload_student_list')."<br><strong>".lang('upload_tip')."</strong></p>";
-        $form .= form_open_multipart(current_url());
+        $form .= form_open_multipart($this->base_url);
         $form .= form_upload('userfile', 'userfile');
         $form .= "<br><br><p>Change these settings in <b>General Settings for Groups &amp; Plugins</b><br><br>If selected, will include group columns in upload<br>";
         $form .= form_checkbox(array('name'=>'group_students', 'id' => 'group_students', 'value' =>'1', 'checked' => $enable_group_import == 1, "disabled" => "disabled"));
@@ -828,7 +831,7 @@ class Learning_tools_integration {
         ee() -> load -> helper('form');
 
         $form .= "<p>&nbsp;</p><p><em>Upload smaller resource zip files here (50MB max). $errors</br></br>";
-        $form .= form_open_multipart(current_url());
+        $form .= form_open_multipart($this->base_url);
         $form .= form_upload('userfile', 'userfile');
         $form .= form_hidden('do_resource_upload', 'yep');
         $form .= form_hidden('ee_lti_token', $this -> cookie_name);
@@ -900,7 +903,7 @@ class Learning_tools_integration {
 
         $form .= "<p>By clicking the button below you will randomly assign a unique resource to each student,
 							this resource will appear when they click on the link in the $this->context_label course.</p>";
-        $form .= form_open_multipart(ee() -> config -> site_url() . '/' .   ee() -> uri -> uri_string());
+        $form .= form_open_multipart($this->base_url);
         $form .= form_hidden('do_random', 'yep');
         $form .= form_submit("Randomly", "Assign a unique resource to each student");
         $form .= form_close();
@@ -981,7 +984,7 @@ class Learning_tools_integration {
     	$form .= "<p>By clicking the button below you will randomly assign all remaining resource to students that don't yet have a resource allocated,
     	this resource will appear when they click on the link in the $this->context_label course.</p>";
         $form .= !empty($message) ? "<p>$message</p>" : "";
-    	$form .= form_open_multipart(current_url());
+    	$form .= form_open_multipart($this->base_url);
     	$form .= form_hidden('do_random_remainder', 'yep');
     	$form .= form_submit("Randomly", "Assign a unique resource to each student");
     	$form .= form_close();
@@ -1014,7 +1017,7 @@ class Learning_tools_integration {
         ee() -> load -> helper('form');
 
         $form = "<p>ZIP file problem and solution settings for $this->context_label.</p>";
-        $form .= form_open_multipart(ee() -> config -> site_url() . '/' .   ee() -> uri -> uri_string());
+        $form .= form_open_multipart($this->base_url);
         $form .= form_hidden('save_settings', '1');
         $form .= lang('problem_prefix') . " ";
         $form .= form_input(array('name' => 'problem_prefix', 'id' => 'problem_prefix', 'value' => $problem_prefix, 'maxlength' => '20', 'size' => '20'));
@@ -1061,7 +1064,7 @@ class Learning_tools_integration {
         $table = "lti_instructor_settings";
 
         ee() -> load -> helper('form');
-        $form = form_open(current_url());
+        $form = form_open($this->base_url);
 
         if(!empty(static::$lti_plugins)) {
             foreach(static::$lti_plugins as $plugin) {
@@ -1239,7 +1242,7 @@ class Learning_tools_integration {
     		$options[$id] = $title;
     	}
 
-    	$form = form_open_multipart($this->base_segment);
+    	$form = form_open_multipart($this->base_url);
     	$form .= form_label("Rubric ZIP file:", "userfile");
     	$form .= form_hidden("do_upload_rubric", "1");
     	$form .= form_upload('userfile', 'userfile');
@@ -1247,7 +1250,7 @@ class Learning_tools_integration {
     	$form .= "<p> $errors $msg </p>";
     	$form .= form_close();
     	$form .= "<br><br>";
-    	$form .= form_open_multipart($this->base_segment);
+    	$form .= form_open_multipart($this->base_url);
     	$form .= form_label("Available Rubrics:  ", "rubric_dd");
 
     	$form .= form_dropdown("rubrics", $options, $init_rubric, "id='rubric_dd'");
@@ -1427,7 +1430,7 @@ class Learning_tools_integration {
 
 		ee() -> load -> helper('form');
 
-		$ppage_output = form_open_multipart(current_url(), array("id" => "filters"));
+		$ppage_output = form_open_multipart($this->base_url, array("id" => "filters"));
 		$ppage_output .= lang('student_rows_per_page') . ":&nbsp;".form_input(array('name' => 'per_page', 'id' => 'per_page', 'value' => $ppage, 'maxlength' => '5', 'size' => '5'));
 		$ppage_output .= "&nbsp;".lang('search_students') . ":&nbsp;".form_input(array('name' => 'st_search', 'id' => 'st_search', 'value' => empty($st_search) || $st_search === "__empty__" ? "" : $st_search, 'maxlength' => '20', 'size' => '9'));
 

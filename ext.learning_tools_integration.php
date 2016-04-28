@@ -84,28 +84,32 @@ class Learning_tools_integration_ext {
 	}
 
 	function authenticate($session) {
+        // don't use in the CP
+		if(strpos(@$_SERVER['REQUEST_URI'], 'admin.php') !== FALSE) {
+			return FALSE;
+		}
+
+        if(ee()->config->item('website_session_type') !== 'c') {
+            die("Please set the website session type to 'Cookies only'.");
+        }
 
         if(!isset($session) || empty($session)) {
             die("A small issue, I'm unable to retrieve EE session object in sessions_end hook.");
         }
 
-		// don't use in the CP
-		if(strpos(@$_SERVER['REQUEST_URI'], 'admin.php') !== FALSE) {
-			return FALSE;
-		}
-
 		if(!ee()->input->post("segment")) { // if not an ajax request
 			$segs = ee()->uri->segment_array();
+
 			$myseg = array_pop($segs);
 
 			$result = ee()->db->get_where('blti_keys', array('url_segment' => $myseg));
 
 			if($result->num_rows() == 0) {
-				$set = implode("'/'", $segs);
-				$set = "'%$set%'";
+				$set = implode("|", $segs);
+				$set = "'$set'";
 
 				// may be a sub-page
-				ee()->db->where("url_segment LIKE ($set)");
+				ee()->db->where("url_segment REGEXP ($set)");
 				$result = ee()->db->get('blti_keys');
 
 				if($result->num_rows() == 0) {
@@ -148,6 +152,19 @@ class Learning_tools_integration_ext {
             // we need to persist this id in EVERY form so that we can POST data!
 
 			$_m = $session->userdata('member_id');
+
+            if(empty($_m)) {
+                // EE3 fix
+
+                $orig_sessid = $session->userdata('session_id');
+
+                $_m = $session->userdata['member_id'] = $_GET['lti_u'];
+                $session->userdata['session_id'] = $_GET['lti_s'];
+
+                $session->update_session();
+
+                echo "<h1>Updated session, should now stick... $_GET[lti_s] &amp; $orig_sessid<br></h1>";
+            }
 
 			if(!empty($_m)) {
 				static::$session_info = $this -> unserializeSession($_m, $session);
@@ -335,15 +352,18 @@ class Learning_tools_integration_ext {
 			$_temp_id = $_temp_r->member_id;
 
 			$rows = ee() -> db -> get_where('members', array('member_id' => $_temp_id));
+
 			$count = $rows -> num_rows();
 		}
 
 		// if the member record doesn't exist create it
 		if (empty($count)) {
 			// ... but first check that the member username doesn't already exist    (@TODO add institution prefix for usernames...)
-			$query = ee()->db->get_where('members', array('username' => $this->vle_username));
+			//$query = ee()->db->get_where('members', array('username' => $this->vle_username));
 
-			if($query->num_rows() == 0) {
+            $current_member = ee('Model')->get('Member')->filter('username', '==', $this->vle_username)->first();
+
+			if(!$current_member) {
 				$this->screen_name = ee()->security->xss_clean($_REQUEST['lis_person_name_given']).' '.ee()->security->xss_clean($_REQUEST['lis_person_name_family']);
 
 				if(!empty($this->vle_username)) {
@@ -361,8 +381,8 @@ class Learning_tools_integration_ext {
 					die("We were not able to verify the user identity.  To fix this please set the vle_username parameter in the custom LTI launch settings.");
 				}
 			} else {
-				$id = $query->row()->member_id;
-				$this->screen_name = $query->row()->screen_name;
+				$id = $current_member->member_id; //$query->row()->member_id;
+				$this->screen_name = $current_member->screen_name; //query->row()->screen_name;
 			}
 		} else {
 			$row = $rows -> row();

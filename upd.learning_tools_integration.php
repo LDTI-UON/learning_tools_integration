@@ -423,13 +423,17 @@
 										'default' => '1',
 										'null' => FALSE
 								),
+                            'lastLogEntryTS' => array (
+										'type' => 'BIGINT',
+										'constraint' => '20',
+								),
 								'check_next' => array (
 										'type' => 'TINYINT',
 										'constraint' => '1',
 										'default' => '1',
 										'null' => FALSE
 								),
-								    'uploaded TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+								'uploaded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
 						);
 
 						ee ()->dbforge->add_field ( $fields );
