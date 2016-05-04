@@ -33,6 +33,7 @@ button#openRubric {
 
         $("#rubric_wrapper").on("change", "select[name=\'rubrics\']", function(e) {
             var id = $(e.target).find("option:selected").val();
+
             $cb = $("#preview_cb:checked");
 
             if(id != "del") {
@@ -56,5 +57,10 @@ button#openRubric {
                    session_expired(data);
             });
         });
+        <?php if ($disable_instructor_score_setting): ?>
+        $(document).ready(function() {
+            $("#total_score").attr('disabled', 'disabled').after(" (<em>Overriden by rubric total score</em>)");
+        });
+        <?php endif; ?>
 </script>
 </div>

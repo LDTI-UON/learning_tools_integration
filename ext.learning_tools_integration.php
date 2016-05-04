@@ -77,17 +77,21 @@ class Learning_tools_integration_ext {
 	*/
 	function __construct($settings='')
 	{
-        //var_dump(posix_getpwuid(posix_geteuid()));
+        if(isset($_GET['URL'])) return FALSE;
+
 		$this->settings = $settings;
 
         ee()->config->set_item('disable_csrf_protection', 'y');
 	}
 
 	function authenticate($session) {
-        // don't use in the CP
+        // **** don't use in the CP ****
 		if(strpos(@$_SERVER['REQUEST_URI'], 'admin.php') !== FALSE) {
 			return FALSE;
 		}
+
+        if(isset($_GET['URL'])) return FALSE;
+        // *** end don't use in CP ****
 
         if(ee()->config->item('website_session_type') !== 'c') {
             die("Please set the website session type to 'Cookies only'.");

@@ -48,7 +48,9 @@ class BB_Rubrics {
 
 		foreach($this->doms as $key => $item) {
 			$rubrics[$key] = array("title" => $this->titles[$key], "grid_html" => $item["grid"]->saveHTML($item["grid_index"]["table"]),
-								"list_html" => $item["list"]->saveHTML($item["list_index"]["div_list"]));
+								"list_html" => $item["list"]->saveHTML($item["list_index"]["div_list"]),
+                                  "total_score" => $item["total_score"]
+                                );
 		}
 
 		return $rubrics;
@@ -142,7 +144,7 @@ class BB_Rubrics {
 				$this->init["rubricid"] = $params["id"];
 
 				if(!isset($this->grid_dom)) {
-					$this->doms[(string)$this->init["rubricid"]] = array("grid" => new DOMDocument('1.0'), "grid_index" => array(), "list" =>  new DOMDocument('1.0'), "list_index" => array());
+					$this->doms[(string)$this->init["rubricid"]] = array("grid" => new DOMDocument('1.0'), "grid_index" => array(), "list" =>  new DOMDocument('1.0'), "list_index" => array(), "total_score" => 0);
 
 					$this->grid_dom_index = & $this->doms[(string)$this->init["rubricid"]]["grid_index"];
 
@@ -175,6 +177,8 @@ class BB_Rubrics {
 			break;
 			case "maxvalue":
 				$this->init["maxvalue"] = $params["value"];
+                // set at top level for ease of access
+                $this->doms[(string)$this->init["rubricid"]]["total_score"] = (int) $params['value'];
 
 				$this->grid_dom_index['table'] = & $this->grid_dom_index['body']->appendChild($this->grid_dom->createElement("table"));
 				$this->grid_dom_index['thead'] = & $this->grid_dom_index['table']->appendChild($this->grid_dom->createElement("thead"));

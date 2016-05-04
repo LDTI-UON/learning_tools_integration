@@ -140,8 +140,6 @@ class Learning_tools_integration {
      * Constructor
      */
     public function __construct() {
-       // echo phpinfo();
-
        static::$instance =& $this;
 
        $this->mod_path = PATH_THIRD.DIRECTORY_SEPARATOR.strtolower($this->mod_class);
@@ -348,9 +346,7 @@ class Learning_tools_integration {
                                            ), $tag_data);
 
             // prompt for import settings on launch only
-           // if(isset($_POST['force_sync']) || (!empty($_REQUEST['user_id']) && !empty($_REQUEST['context_id']))) {
-                $this->grade_centre_import_prompt($view_data);
-            //}
+            $this->grade_centre_import_prompt($view_data);
 
             if(!empty($this->use_resources)) {
             	$tag_data["resource_settings_form"] = $this -> resource_settings_form();
@@ -592,6 +588,8 @@ class Learning_tools_integration {
                             } else {
                                 ee()->db->delete("lti_instructor_credentials");
                             }
+                        } else {
+                            $view_data['css_special'] = ".contentPane { margin: 0 12px 0 12px; }";
                         }
             }
         }
@@ -1210,11 +1208,12 @@ class Learning_tools_integration {
 	    	$rubrics = $rubric_builder->getRubrics();
 
 	    	foreach($rubrics as $key => $rub) {
-	    		$file_name = $rubric_html_dir.DIRECTORY_SEPARATOR.$rub['title']."|grid|".$key.".html";
+	    		$file_name = $rubric_html_dir.DIRECTORY_SEPARATOR.$rub['title']."|grid|$rub[total_score]|$key.html";
 	    		file_put_contents($file_name, $rub["grid_html"]);
 
-	    		$file_name = $rubric_html_dir.DIRECTORY_SEPARATOR.$rub['title']."|list|".$key.".html";
-	    		file_put_contents($file_name, $rub["list_html"]);
+	    		$file_name = $rubric_html_dir.DIRECTORY_SEPARATOR.$rub['title']."|list|$rub[total_score]|$key.html";
+
+                file_put_contents($file_name, $rub["list_html"]);
 	    	}
     	}
 
@@ -1238,7 +1237,16 @@ class Learning_tools_integration {
     	foreach($dir as $item) {
     		$filename = explode("|", $item);
     		$title = $filename[0];
-    		$id = explode(".", $filename[count($filename)-1])[0];
+            $score = $filename[2];
+
+            $id = explode(".", $filename[count($filename)-1])[0];
+
+            if($init_rubric == $id) {
+    		  $init_rubric = $init_rubric."|".$score;
+            }
+
+            $id = $id."|".$score;
+
     		$options[$id] = $title;
     	}
 
@@ -1268,11 +1276,17 @@ class Learning_tools_integration {
     	$vars['form'] = $form;
     	$vars['base_url'] = $this->base_url;
 
+        if(!empty($init_rubric)) {
+            $vars['disable_instructor_score_setting'] = TRUE;
+        }
+
     	return ee() -> load -> view('instructor/rubric-interface.php', $vars, TRUE);
     }
 
     public function render_blackboard_rubric() {
-    	$id = ee()->input->post("id");
+        $raw_id = ee()->input->post("id");
+        $id = explode("|", $raw_id)[0];
+
 		$user = ee()->input->post("user");
 		$input_id = ee()->input->post("input_id");
 		$pre_pop =  ee()->input->post('pre_pop');//ee()->TMPL->fetch_param("pre_pop");
@@ -1411,7 +1425,7 @@ class Learning_tools_integration {
             }
 
             foreach(static::$lti_plugins as $plugin) {
-	                include(PATH_THIRD."$plugin/libraries/".$plugin."_student_table.php");
+	               // include(PATH_THIRD."$plugin/libraries/".$plugin."_student_table.php");
 	        }
         }
 
@@ -1671,17 +1685,17 @@ class Learning_tools_integration {
         return substr(str_shuffle(str_repeat($pool, 5)), 0, $length);
     }
 
-    public static function outputJavascript($name = "", $direct = FALSE) {
+    public static function outputJavascript($js_vars = array(), $name = "", $direct = FALSE) {
 
         ob_start();
         if($direct === TRUE && $name !== "") {
         	include_once ("js/$name.js");
         } else {
-	        foreach(static::$lti_plugins as $plugin) {
+	        foreach(static::$lti_plugins as $pearl) {
 	            if(strlen($name) > 0) {
-	                include_once (PATH_THIRD."$plugin/js/".$plugin."_".$name.".js");
+	                include_once (PATH_THIRD."$pearl/js/".$pearl."_".$name.".js");
 	            } else {
-	                include_once (PATH_THIRD."$plugin/js/$plugin.js");
+	                include_once (PATH_THIRD."$pearl/js/$pearl.js");
 	            }
 	        }
         }

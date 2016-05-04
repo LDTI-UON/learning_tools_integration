@@ -10,3 +10,7 @@
                                         display: block; margin: 5px;padding: 5px;
                             font-family:arial,helvetica,sans-serif;font-weight:bold;text-align:justify'> $error
              <a href='#' id='hide_error' style='font-size: 10px'>Don't show this again on this device.</a></div>": "" ?>
+
+<style>
+    <?= $css_special ?>
+</style>
