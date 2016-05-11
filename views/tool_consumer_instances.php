@@ -4,7 +4,6 @@
 
 <?=form_open($action_url, '', $form_hidden)?>
 
-
 <?php
     ee()->table->set_template($cp_table_template);
     ee()->table->set_heading(
@@ -21,6 +20,11 @@
 
 echo ee()->table->generate();
 ?>
+<?php else: ?>
+
+    <?=lang('no_instances_registered')?>
+
+<?php endif; ?>
 
 <div class="tableFooter">
     <div class="tableSubmit">
@@ -29,6 +33,8 @@ echo ee()->table->generate();
     </div>
     <?= form_open($action_add_instance, '', null) ?>
     <?= form_hidden('type', 'render_form') ?>
+    <?= form_hidden('inid', $inid) ?>
+    <?= form_hidden('inname', $institution_name) ?>
     <?= form_submit(array('name'=> 'submit', 'value' => lang('add_instance'), 'class' => 'submit')) ?>
     <?= form_close() ?>
     <span class="js_hide"><?=$pagination?></span>
@@ -37,6 +43,5 @@ echo ee()->table->generate();
 
 
 
-<?php else: ?>
-<?=lang('no_instances_registered')?>
-<?php endif; ?>
+
+

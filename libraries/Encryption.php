@@ -58,7 +58,7 @@ class Encryption {
      		//mkdir($cwd."/secret");
             if(ee()->session->userdata('group_id') == 1) {
                   $process_name = posix_getpwuid(posix_geteuid())['name'];
-                die("<pre>To the super user:\n\nPlease create the /secret folder in:\n\n \t".dirname(__FILE__)."\n\nand chmod to 700 ensure the current process ($process_name)\nowns this folder.</pre>");
+                die("<pre>To the super user:\n\nPlease create the /secret folder in:\n\n \t".str_replace(SYSDIR, "#########", dirname(__FILE__))."\n\nand chmod to 700 ensure the current process ($process_name)\nowns this folder.</pre>");
             }
      	}
 

@@ -21,7 +21,7 @@
  * @subpackage	Addons
  * @category	Module
  * @author		Paul Sijpkes
- * @link		http://sijpkes.site11.com
+ * @link		http://doingisknowing.blogspot.com.au/
  */
 
 class Learning_tools_integration_mcp {
@@ -65,30 +65,6 @@ class Learning_tools_integration_mcp {
             .AMP.'module='.$this->module_name.AMP.'method=list_institutions'
     	));
 
-		$cronfig = PATH_THIRD.$this->module_name.'/libraries/cron/cronfig.php';
-		/* setup BASEPATH for cron job */
-		if(!file_exists($cronfig)) {
-			$bp = BASEPATH;
-			$b = array();
-
-			// remove codeigniter system folder path, we want the ee system folder path
-			if(strpos(BASEPATH,'codeigniter') !== FALSE) {
-				$a = explode(DIRECTORY_SEPARATOR, BASEPATH);
-				foreach($a as $d) {
-					if($d === 'codeigniter') {
-						break;
-					}
-
-					$b[] = $d;
-				}
-
-				$bp = implode(DIRECTORY_SEPARATOR, $b);
-			}
-
-			$str = "<?php \n\$cronfig['env_path'] = '".$bp."';\n";
-			file_put_contents($cronfig, $str);
-		}
-
 		$query = ee()->db->get_where("lti_member_contexts",array("member_id" => ee()->session->userdata('member_id')));
 
 		// create dummy context for admin user
@@ -103,12 +79,10 @@ class Learning_tools_integration_mcp {
 					'context_label' => 'EE LTI TestContext Label',
 					'ext_lms' => 'bb-1.1.1',
 					'tool_consumer_instance_id' => '1', // this will change once institution context is included in launch
-					'tool_consumer_instance_name' => 'EE LTI Test Tool Consumer',
+					'tool_consumer_instance_name' => 'EE LTI Test Tool Provider',
 					'is_instructor' => '1',
                     'course_name' => 'EE LTI Test Course',
 			);
-			//print "<pre>";
-			//var_dump($data);
 
 			ee()->db->insert('lti_member_contexts', $data);
 		}
@@ -119,7 +93,7 @@ class Learning_tools_integration_mcp {
 
         $lti_config_list = $lti_config->addBasicList();
 
-       $this->default_sidebar_item = $lti_config_list->addItem('Tool Consumers', ee('CP/URL', 'addons/settings/learning_tools_integration/index'));
+       $this->default_sidebar_item = $lti_config_list->addItem('Tool Providers', ee('CP/URL', 'addons/settings/learning_tools_integration/index'));
         $lti_config_list->addItem('User Contexts', ee('CP/URL', 'addons/settings/learning_tools_integration/list_contexts'));
         $lti_config_list->addItem('Institutions', ee('CP/URL', 'addons/settings/learning_tools_integration/list_institutions'));
 	}
@@ -197,15 +171,6 @@ class Learning_tools_integration_mcp {
         $vars['upload_path'] = '';
 
         $vars['maintenance_key'] = $this->maintenance_key;
-
-        $cronpath = PATH_THIRD.$this->module_name."/libraries/cron";
-        $vars['cron_php_call'] = "* * * * * ".PHP_BINDIR."/php -f\n$cronpath/export_check.php\n>> $cronpath/export.log\n";
-		$vars['cron_command'] = "<p>In the terminal type:<pre>sudo crontab -e</pre>Press ENTER</p><p>This will take you to the Vi editor, press <b>I</b> and paste in:<pre>$vars[cron_php_call]</pre><br>then press ZZ (must be capitals).</p>";
-
-
-
-       // $vars['sidebar'] = $sidebar;
-      //  return ee()->load->view('index', $vars, TRUE);
 
         return ee('View')->make('learning_tools_integration:index')->render($vars);
 	}
@@ -345,13 +310,22 @@ class Learning_tools_integration_mcp {
             'delete'    => lang('delete_selected')
         );
 
-        if ( ! $rownum = ee()->input->get_post('rownum'))
+        if ( ! $rownum = ee()->input->post('rownum'))
         {
             $rownum = 0;
         }
 
-        $vars['institution_name'] = ee()->input->get_post('inname');
-        $query = ee()->db->get_where('lti_tool_consumer_instances', array('id' =>  ee()->input->get_post('inid')), $this->perpage, $rownum);
+        if(!isset($_POST['inid'])) {
+            $inid = ee()->session->flashdata('inid');
+            $institution_name = ee()->session->flashdata('institution_name');
+        } else {
+            $inid = ee()->input->post('inid');
+            $institution_name = ee()->input->post('inname');
+        }
+
+        $vars['inid'] = $inid;
+        $vars['institution_name'] = $institution_name;
+        $query = ee()->db->get_where('lti_tool_consumer_instances', array('id' =>  $inid), $this->perpage, $rownum);
 
         $vars['instances'] = array();
         foreach($query->result_array() as $row) {
@@ -364,7 +338,7 @@ class Learning_tools_integration_mcp {
             );
         }
 
-        ee()->db->where(array('id' =>  ee()->input->get_post('inid')));
+        ee()->db->where(array('id' =>  $inid));
         ee()->db->from('lti_tool_consumer_instances');
         $total = ee()->db->count_all_results();
         //echo "total: $total";
@@ -378,6 +352,42 @@ class Learning_tools_integration_mcp {
         return ee()->load->view('tool_consumer_instances', $vars, TRUE);
     }
 
+    public function add_instances() {
+        // TODO: pass institution ID....
+        if (version_compare(APP_VER, '2.6', '>=')) {
+            ee()->view->cp_page_title = lang('add_institution');
+        } else {
+            ee()->cp->set_variable('cp_page_title', lang('add_institution'));
+        }
+        $vars['inid'] = ee()->input->post('inid');
+        $vars['institution_name'] = ee()->input->post('inname');
+        $vars['action'] = ee('CP/URL')->make('addons/settings/learning_tools_integration/add_instances');
+        ee()->load->library('form_validation');
+        ee()->form_validation->set_rules('add_guid', lang('add_consumer_guid'), 'required')->set_error_delimiters(
+                        '<div class="notice">', '</div>');
+
+        if(!ee()->input->post('type') ==  'render_form') {
+            if (ee()->form_validation->run())
+            {
+                $data = array(
+                    'id' => ee()->input->post('inid'),
+                    'guid' => ee()->input->post('add_guid')
+                );
+
+                ee()->db->insert('lti_tool_consumer_instances', $data);
+
+                $id = ee()->db->insert_id();
+
+                ee()->session->set_flashdata('message_success', lang('guid_added'));
+
+                ee()->session->set_flashdata('inid', $vars['inid']);
+                ee()->session->set_flashdata('institution_name', $vars['institution_name']);
+                ee()->functions->redirect(ee('CP/URL')->make('addons/settings/learning_tools_integration/list_tool_consumer_instances')); //redirect to index //redirect to list institutions
+            }
+        }
+
+    return ee()->load->view('add-tool-consumer-instance-guid', $vars, TRUE);
+    }
     /* from Justin Richer - http://php.net/manual/en/function.rand.php*/
     private function randomString() {
         $arr = str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*'); // get all the characters into an array
@@ -431,12 +441,19 @@ class Learning_tools_integration_mcp {
     		}
 		}
 
-        $vars['key'] = ee()->input->post('add_secret') ? ee()->input->post('add_secret') : $this->randomString();
+    if(!isset($_POST['add_secret'])) {
+        $vars['key'] = $this->randomString();
+    } else {
+        $vars['key'] = ee()->input->post('add_secret');
+    }
+    if(!isset($_POST['add_key'])) {
+        $vars['secret'] = $this->randomString();
+    } else {
+        $vars['secret'] = ee()->input->post('add_key');
+    }
 
-        $vars['secret'] = ee()->input->post('add_key') ? ee()->input->post('add_key') : $this->randomString();
-
-		return ee()->load->view('add-consumer', $vars, TRUE);
-	}
+return ee()->load->view('add-consumer', $vars, TRUE);
+    }
 
     public function add_institution() {
 
@@ -501,6 +518,7 @@ class Learning_tools_integration_mcp {
     }
 
     public function tool_launch() {
+        $array_url = parse_url(ee()->config->item('site_url'));
         $context_id = ee()->input->post('context_id');
 
         if(!isset($_POST['segment'])) {
@@ -511,7 +529,9 @@ class Learning_tools_integration_mcp {
 
         $vars['key'] = $data[1];
         $vars['secret'] = $data[2];
-        $vars['launch_url'] = site_url().'/'.$data[3];
+        $index = strlen(ee()->config->item('index_page')) > 0 ? ee()->config->item('index_page')."/" : '';
+
+        $vars['launch_url'] = "$array_url[scheme]://$array_url[host]$array_url[path]$index$data[3]";
 
         $vars['username'] = ee()->input->post('username');
         $vars['email'] = ee()->input->post('email');
@@ -573,7 +593,24 @@ class Learning_tools_integration_mcp {
 		ee()->functions->redirect(ee('CP/URL')->make('addons/settings/learning_tools_integration'));
 
 	}
+  function delete_instances() {
+     if ( ! ee()->input->post('delete'))
+     {
+         ee()->functions->redirect(ee('CP/URL')->make('addons/settings/learning_tools_integration/list_tool_consumer_instances'));
+     }
 
+     foreach ($_POST['delete'] as $key => $val)
+     {
+         ee()->db->or_where('guid', $val);
+     }
+
+     ee()->db->delete('lti_tool_consumer_instances');
+
+     $message = (count($_POST['delete']) == 1) ? ee()->lang->line('member_context_deleted') : ee()->lang->line('member_context_deleted');
+
+     ee()->session->set_flashdata('message_success', $message);
+     ee()->functions->redirect( ee('CP/URL')->make('addons/settings/learning_tools_integration/list_tool_consumer_instances'));
+  }
     function edit_contexts() {
 
         if ( ! ee()->input->post('action') == 'delete')
@@ -616,6 +653,27 @@ class Learning_tools_integration_mcp {
         }
     }
 
+        function edit_instances() {
+            if (ee()->input->post('action') == 'delete')
+            {
+                 if (version_compare(APP_VER, '2.6', '>=')) {
+                        ee()->view->cp_page_title = lang('delete_instances');
+                 } else {
+                        ee()->cp->set_variable('cp_page_title', lang('delete_instances'));
+                 }
+
+                foreach ($_POST['toggle'] as $key => $val)
+                {
+                    $vars['binned'][] = $val;
+                }
+
+                $vars['form_action'] = ee('CP/URL')->make('addons/settings/learning_tools_integration/delete_instances');
+
+                $vars['type'] = 'instances';
+
+                return ee()->load->view('delete-confirm', $vars, TRUE);
+            }
+        }
     function delete_institutions() {
         if ( ! ee()->input->post('delete'))
         {

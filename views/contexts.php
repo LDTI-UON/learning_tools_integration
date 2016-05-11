@@ -1,6 +1,5 @@
-
 <h1><?= lang('contexts_title') ?></h1>
-
+<p><em><?= lang('contexts_description') ?></em></p>
 <?php if (count($contexts) > 0): ?>
 
 <?=form_open($action_url, '', $form_hidden)?>
@@ -55,7 +54,6 @@ echo ee()->table->generate();
 <script type='text/javascript'>
     $(document).ready(function() {
         $('a.launcher').click('click', function(e) {
-            //console.log("facakldfjglk");
             e.preventDefault();
             var a = $(e.target).attr('href').split('|');
 

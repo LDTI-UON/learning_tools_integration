@@ -11,11 +11,11 @@ private $lti_plugin_setups = array();
  *
  * */
 private $col_headers = array(
-		"group_name" => "group",
-		"user_name" => "user",
-		"student_id" => "student",
-		"first_name" => "first name",
-		"last_name" => "last name",
+		"group_name" => "Group Code",
+		"user_name" => "User Name",
+		"student_id" => "Student Id",
+		"first_name" => "First Name",
+		"last_name" => "Last Name",
 );
 
 private $col_header_indexes = array();
@@ -406,6 +406,4 @@ private function import_data(& $file_rows, & $errors = "", $group_students, $sta
 	}
 
 }
-
-
 

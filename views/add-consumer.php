@@ -21,7 +21,8 @@
               'maxlength'   => '100',
               'size'        => '20',
 			  'style' => 'width: 200px')) ?></p>
-	<p><?=lang('add_consumer_secret')?></p>
+<p><?=lang('add_consumer_secret')?></p>
+<p>
 	<?= form_input(array(
               'name'        => 'add_secret',
               'id'          => 'add_secret',
@@ -29,7 +30,8 @@
               'maxlength'   => '100',
               'size'        => '20',
 			  'style' => 'width: 200px')) ?></p>
-	<p><?=lang('add_url_segment')?></p>
+<p><?=lang('add_url_segment')?></p>
+<p>
 	<?= form_input(array(
               'name'        => 'add_url_segment',
               'id'          => 'add_url_segment',

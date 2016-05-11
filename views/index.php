@@ -83,9 +83,9 @@ overflow: auto;
 <?= lang('blackboard_custom_vars').$maintenance_key ?></pre>
 </div>
 
-<div class='server_instructions'>
+<!-- <div class='server_instructions'>
 To setup automatic email checking on this server:
-<?= $cron_command; ?>
+<!-- //<//?= //$cron_command; ?> -->
 
 
-</div>
+<!-- </div> -->

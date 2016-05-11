@@ -163,6 +163,7 @@ class Learning_tools_integration {
 
         if($this->maintenance_message === TRUE) {
             if(empty($_REQUEST['custom_maint']) || $_REQUEST['custom_maint'] !== $this->maintenance_key) {
+                // TODO: replace with language file...
                 echo "<h1>Under Maintenance</h1>";
                 echo "<p>This tool is temporarily under maintenance, please try again shortly</p>";
                 return FALSE;
@@ -380,6 +381,7 @@ class Learning_tools_integration {
 
 
     private function grade_centre_import_prompt(&$view_data) {
+        //return false;
        // if(isset($view_data['email_settings']) && strlen($view_data['email_settings']) > 0) return;
         ee() -> load -> helper('url');
                 $view_data['email_settings'] = "";
@@ -622,7 +624,7 @@ class Learning_tools_integration {
     }
 
     private function upload_student_list() {
-
+        
         $form = "";
         $errors = "";
 
@@ -1721,7 +1723,7 @@ class Learning_tools_integration {
 
         $id = uniqid();
 
-        include_once ("xml/replace-grade-envelope.php");
+        require_once ("xml/replace-grade-envelope.php");
         $xml_length = strlen($xml);
 
         $url = $this -> lis_outcome_service_url;
@@ -1845,6 +1847,7 @@ class Learning_tools_integration {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_str);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FRESH_CONNECT, TRUE);
 
         $page = curl_exec($ch);
 

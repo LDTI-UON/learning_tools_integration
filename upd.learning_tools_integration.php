@@ -392,7 +392,7 @@
 						ee ()->dbforge->add_field ( $fields );
 						ee ()->dbforge->add_key ( 'id', TRUE );
 						ee ()->dbforge->create_table ( 'lti_institutions', TRUE );
-
+                        
 						// instructor credentials table
 						$fields = array (
 								'member_id' => array (
@@ -493,7 +493,8 @@
 								'class' => $this->mod_class,
 								'method' => 'read_user_grade'
 						);
-
+                        ee ()->db->insert ( 'actions', $data );
+                        
 						return TRUE;
 					}
 

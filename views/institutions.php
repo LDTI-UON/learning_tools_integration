@@ -47,12 +47,11 @@ echo ee()->table->generate();
 <script type='text/javascript'>
     $(document).ready(function() {
         $('a.contexts').click('click', function(e) {
-            //console.log("facakldfjglk");
             e.preventDefault();
             var a = $(e.target).attr('href').split('_');
 
             $('#show_instances input#inid').attr('value', a[1]);
-             $('#show_instances input#inname').attr('value', $(e.target).text());
+            $('#show_instances input#inname').attr('value', $(e.target).text());
             $('#show_instances').submit();
         });
     });

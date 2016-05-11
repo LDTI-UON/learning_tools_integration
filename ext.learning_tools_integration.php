@@ -5,6 +5,7 @@ if (!defined('BASEPATH'))
 require_once ("libraries/utils.php");
 
 class Learning_tools_integration_ext {
+    
 	var $settings        = array();
 
 	var $name       = 'Learning Tools Integration';
@@ -40,6 +41,7 @@ class Learning_tools_integration_ext {
 	public $group_id = '6';
 	public $internal_context_id = 0;
 	public $isInstructor = 0;
+    public $preview_member_id;
 
 	public $institution;
 
@@ -76,7 +78,8 @@ class Learning_tools_integration_ext {
 	 * @param   mixed   Settings array or empty string if none exist.
 	*/
 	function __construct($settings='')
-	{
+	{   
+        // don't use in CP or when loading external...
         if(isset($_GET['URL'])) return FALSE;
 
 		$this->settings = $settings;
@@ -321,7 +324,9 @@ class Learning_tools_integration_ext {
         if(!empty($_REQUEST['custom_vle_pk_string'])) {
 			$this->vle_pk_string = ee()->security->xss_clean($_REQUEST['custom_vle_pk_string']);
 		}
-
+        
+        $this->preview_member_id = isset($_REQUEST['custom_preview_member_id']) ? $_REQUEST['custom_preview_member_id'] : 0;    
+            
 		$this -> user_short_name = $context -> getUserShortName();
 		$this -> resource_title = $context -> getResourceTitle();
 		$this -> resource_link_description = $context -> getResourceLinkDescription();
@@ -462,6 +467,7 @@ class Learning_tools_integration_ext {
 		ee()->config->_global_vars['resource_title'] = $this->resource_title;
 		ee()->config->_global_vars['resource_link_description'] = $this->resource_link_description;
 		ee()->config->_global_vars['ext_launch_presentation_css_url'] = $this->ext_launch_presentation_css_url;
+        ee()->config->_global_vars['preview_member_id'] = $this->preview_member_id;
 		}
 	}
 
