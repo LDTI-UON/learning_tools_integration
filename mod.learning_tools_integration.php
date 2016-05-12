@@ -226,7 +226,6 @@ class Learning_tools_integration {
             $this -> do_download($_GET['f'], $_GET['i'], $_GET['t']);
             return;
         }
-
         if (ee()->TMPL) {
             $this -> return_data =     ee() -> TMPL -> parse_variables(ee() -> TMPL -> tagdata, $this -> context_vars);
         }
@@ -246,24 +245,9 @@ class Learning_tools_integration {
         }
     }
 
-    private function css_link_tags() {
-        $consumer_css = explode(",", $this -> ext_launch_presentation_css_url);
-
-        $consumer_css_header = "";
-        foreach ($consumer_css as $css) {
-            $consumer_css_header .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"$css\">\n";
-        }
-
-        return $consumer_css_header;
-    }
-
     function isJson($string) {
         json_decode($string);
         return (json_last_error() == JSON_ERROR_NONE);
-    }
-
-    private function get_query_string() {
-        return "?lti_u=".ee()->session->userdata('member_id')."&lti_s=".ee()->session->userdata('session_id');
     }
 
     private function lti_context() {
@@ -624,7 +608,7 @@ class Learning_tools_integration {
     }
 
     private function upload_student_list() {
-        
+
         $form = "";
         $errors = "";
 

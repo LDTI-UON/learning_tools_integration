@@ -5,11 +5,11 @@ if (!defined('BASEPATH'))
 require_once ("libraries/utils.php");
 
 class Learning_tools_integration_ext {
-    
+
 	var $settings        = array();
 
 	var $name       = 'Learning Tools Integration';
-	var $version        = '1.4';
+	var $version        = '2.0';
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
 	var $docs_url       = '';
@@ -78,12 +78,8 @@ class Learning_tools_integration_ext {
 	 * @param   mixed   Settings array or empty string if none exist.
 	*/
 	function __construct($settings='')
-	{   
-        // don't use in CP or when loading external...
-        if(isset($_GET['URL'])) return FALSE;
-
-		$this->settings = $settings;
-
+	{
+			$this->settings = $settings;
         ee()->config->set_item('disable_csrf_protection', 'y');
 	}
 
@@ -101,7 +97,7 @@ class Learning_tools_integration_ext {
         }
 
         if(!isset($session) || empty($session)) {
-            die("A small issue, I'm unable to retrieve EE session object in sessions_end hook.");
+            die("I'm unable to retrieve EE session object in sessions_end hook.");
         }
 
 		if(!ee()->input->post("segment")) { // if not an ajax request
@@ -160,19 +156,6 @@ class Learning_tools_integration_ext {
 
 			$_m = $session->userdata('member_id');
 
-            if(empty($_m)) {
-                // EE3 fix
-
-                $orig_sessid = $session->userdata('session_id');
-
-                $_m = $session->userdata['member_id'] = $_GET['lti_u'];
-                $session->userdata['session_id'] = $_GET['lti_s'];
-
-                $session->update_session();
-
-                echo "<h1>Updated session, should now stick... $_GET[lti_s] &amp; $orig_sessid<br></h1>";
-            }
-
 			if(!empty($_m)) {
 				static::$session_info = $this -> unserializeSession($_m, $session);
 
@@ -180,6 +163,8 @@ class Learning_tools_integration_ext {
 				if(static::$session_info === FALSE) {
 					die("<span class='session_expired'><h2>I couldn't retrieve your session details. Please return to the course and click the link again [".__LINE__."].</h2></span>");
 				}
+				  /* set global variables */
+					$this->set_globals(static::$session_info);
 			} else {
                die("<span class='session_expired'><h2>Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
 			}
@@ -275,7 +260,7 @@ class Learning_tools_integration_ext {
 		$ee_uri = uri_string();  //ee() -> functions -> fetch_current_uri();
 
 		require_once ('ims-blti/blti.php');
-		$context = new BLTI( array('table' => 'exp_blti_keys', 'key_column' => 'oauth_consumer_key', 'secret_column' => 'secret',
+		$context = new BLTI( array('key_column' => 'oauth_consumer_key', 'secret_column' => 'secret',
 				'context_column' => 'context_id', 'url_segment_column' => 'url_segment', 'force_ssl' => $this->use_SSL, 'url_segment' => static::$base_segment, 'ee_uri' => $ee_uri),
 				false, false);
 
@@ -308,7 +293,7 @@ class Learning_tools_integration_ext {
           //      unset($result);
 
 		if ($context -> isInstructor() == 0) {
-			$this -> lis_result_sourcedid = isset($_REQUEST["lis_result_sourcedid"]) ? $_REQUEST["lis_result_sourcedid"] : 'not set';
+			$this -> lis_result_sourcedid = isset($_REQUEST["lis_result_sourcedid"]) ? ee()->security->xss_clean($_REQUEST["lis_result_sourcedid"]) : 'not set';
 		}
 
 		$this -> isInstructor = $context -> isInstructor();
@@ -324,9 +309,9 @@ class Learning_tools_integration_ext {
         if(!empty($_REQUEST['custom_vle_pk_string'])) {
 			$this->vle_pk_string = ee()->security->xss_clean($_REQUEST['custom_vle_pk_string']);
 		}
-        
-        $this->preview_member_id = isset($_REQUEST['custom_preview_member_id']) ? $_REQUEST['custom_preview_member_id'] : 0;    
-            
+
+        $this->preview_member_id = isset($_REQUEST['custom_preview_member_id']) ? ee()->security->xss_clean($_REQUEST['custom_preview_member_id']) : 0;
+
 		$this -> user_short_name = $context -> getUserShortName();
 		$this -> resource_title = $context -> getResourceTitle();
 		$this -> resource_link_description = $context -> getResourceLinkDescription();
@@ -344,20 +329,16 @@ class Learning_tools_integration_ext {
 		$context_rows = ee() -> db -> get_where('lti_member_contexts', $sql_data);
 		$_temp_r = $context_rows->row();
 
-		$count = 0;
-
 		// if this user wasn't imported, check if this context already exists
-		if($context_rows->num_rows() == 0) {
+		if(! $_temp_r) {
 			$sql_data['user_id'] = $this->user_id;
 
 			$context_rows = ee() -> db -> get_where('lti_member_contexts', $sql_data);
 			$_temp_r = $context_rows->row();
 		}
 
-		$count = 0;
-
 		// if the context exists, then get the member record
-		if($context_rows->num_rows() > 0) {
+		if($temp_r) {
 			$_temp_id = $_temp_r->member_id;
 
 			$rows = ee() -> db -> get_where('members', array('member_id' => $_temp_id));
@@ -368,9 +349,7 @@ class Learning_tools_integration_ext {
 		// if the member record doesn't exist create it
 		if (empty($count)) {
 			// ... but first check that the member username doesn't already exist    (@TODO add institution prefix for usernames...)
-			//$query = ee()->db->get_where('members', array('username' => $this->vle_username));
-
-            $current_member = ee('Model')->get('Member')->filter('username', '==', $this->vle_username)->first();
+      $current_member = ee('Model')->get('Member')->filter('username', '==', $this->vle_username)->first();
 
 			if(!$current_member) {
 				$this->screen_name = ee()->security->xss_clean($_REQUEST['lis_person_name_given']).' '.ee()->security->xss_clean($_REQUEST['lis_person_name_family']);
@@ -434,7 +413,7 @@ class Learning_tools_integration_ext {
 				'context_label' => $this -> context_label, 'ext_lms' => $this -> ext_lms, 'isInstructor' => $this -> isInstructor, 'course_key' => $this -> course_key,
 				'course_name' => $this -> course_name, 'user_short_name' => $this -> user_short_name, 'resource_title' => $this -> resource_title,
 				'resource_link_description' => $this -> resource_link_description, 'ext_launch_presentation_css_url' => $this -> ext_launch_presentation_css_url,
-                                'institution_id' => $this->institution_id, 'course_id' => $this->course_id, 'pk_string' =>$this->vle_pk_string, 'base_url' => base_url(),
+                                'institution_id' => $this->institution_id, 'course_id' => $this->course_id, 'pk_string' =>$this->vle_pk_string, 'base_url' => ee()->config->item('site_url'), 'css_link_tags' => $this->css_link_tags(), 'user_email' => $this->email,
 				 );
 
 		// persist base segment for future tag calls
@@ -445,32 +424,47 @@ class Learning_tools_integration_ext {
 		$this -> username =   $session -> userdata('username');
 		$this -> screen_name =   $session -> userdata('screen_name');
 
-       // $dough = $session->userdata('session_id').'_'.$session->userdata('member_id');
-
 		/* set global variables */
-		ee()->config->_global_vars['launch_presentation_return_url'] = $this -> launch_presentation_return_url;
-		ee()->config->_global_vars['tool_consumer_instance_name'] = $this -> tool_consumer_instance_name;
-		ee()->config->_global_vars['lis_outcome_service_url'] = $this->lis_outcome_service_url;
-		ee()->config->_global_vars['tool_consumer_instance_guid'] = $this->tool_consumer_instance_guid;
-		ee()->config->_global_vars['tool_consumer_instance_id'] = $this->tool_consumer_instance_id;
-		ee()->config->_global_vars['lti_internal_context_id'] = $this->internal_context_id;
-		ee()->config->_global_vars['lti_user_id'] = $this->user_id;
-		ee()->config->_global_vars['lti_user_key'] = $this->user_key;
-		ee()->config->_global_vars['lti_context_id'] = $this->context_id;
-		ee()->config->_global_vars['lti_context_label'] = $this->context_id;
-		ee()->config->_global_vars['ext_lms'] = $this->ext_lms;
-		ee()->config->_global_vars['is_instructor'] = $this->isInstructor;
-		ee()->config->_global_vars['course_key'] = $this->course_key;
-		ee()->config->_global_vars['course_name'] = $this->course_name;
-        ee()->config->_global_vars['pk_string'] = $this->vle_pk_string;
-		ee()->config->_global_vars['lti_user_short_name'] = $this->user_short_name;
-		ee()->config->_global_vars['resource_title'] = $this->resource_title;
-		ee()->config->_global_vars['resource_link_description'] = $this->resource_link_description;
-		ee()->config->_global_vars['ext_launch_presentation_css_url'] = $this->ext_launch_presentation_css_url;
-        ee()->config->_global_vars['preview_member_id'] = $this->preview_member_id;
-		}
+		$this->set_globals(static::$session_info);
+			}
+	}
+	private function set_globals($session_info) {
+			ee()->config->_global_vars['launch_presentation_return_url'] = $session_info['launch_presentation_return_url'];
+	ee()->config->_global_vars['tool_consumer_instance_name'] = $session_info['tool_consumer_instance_name'];
+	ee()->config->_global_vars['lis_outcome_service_url'] = $session_info['lis_outcome_service_url'];
+	ee()->config->_global_vars['tool_consumer_instance_guid'] = $session_info['tool_consumer_instance_guid'];
+	ee()->config->_global_vars['tool_consumer_instance_id'] = $session_info['tool_consumer_instance_id'];
+	ee()->config->_global_vars['lti_internal_context_id'] = $session_info['user_key'];
+	ee()->config->_global_vars['lti_user_id'] = $session_info['user_id'];
+	ee()->config->_global_vars['lti_user_key'] = $session_info['user_key'];
+	ee()->config->_global_vars['lti_context_id'] = $session_info['context_id'];
+	ee()->config->_global_vars['lti_context_label'] = $session_info['context_label'];
+	ee()->config->_global_vars['ext_lms'] = $session_info['ext_lms'];
+	ee()->config->_global_vars['is_instructor'] = $session_info['isInstructor'];
+	ee()->config->_global_vars['course_key'] = $session_info['course_key'];
+	ee()->config->_global_vars['course_name'] = $session_info['course_name'];
+			ee()->config->_global_vars['pk_string'] = $session_info['user_key'];
+	ee()->config->_global_vars['lti_user_short_name'] = $session_info['user_short_name'];
+	ee()->config->_global_vars['resource_title'] = $session_info['resource_title'];
+	ee()->config->_global_vars['resource_link_description'] = $session_info['resource_link_description'];
+			ee()->config->_global_vars['lti_user_email'] = $session_info['user_email'];
+			ee()->config->_global_vars['lti_username'] = $session_info['user_key'];
+	ee()->config->_global_vars['ext_launch_presentation_css_url'] = $session_info['ext_launch_presentation_css_url'];
+			ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];;
+			//experimental student preview for use with Blackboard (not implemented in this version)
+			ee()->config->_global_vars['preview_member_id'] = $this->preview_member_id;
 	}
 
+	 private function css_link_tags() {
+			$consumer_css = explode(",", $this -> ext_launch_presentation_css_url);
+
+			$consumer_css_header = "";
+			foreach ($consumer_css as $css) {
+					$consumer_css_header .= "<link rel=\"stylesheet\" type=\"text/css\" href=\"$css\">\n";
+			}
+
+			return $consumer_css_header;
+	}
 	public static function session_info() {
 			return static::$session_info;
 	}
@@ -501,18 +495,6 @@ class Learning_tools_integration_ext {
 		ee() -> db -> where($this->_session_where_clause($session));
 		ee() -> db -> update('lti_member_contexts', $ser_session);
 	}
-
-	/*private function renew_session($member_id, $session) {
-		$session->create_new_session($member_id);
-
-		$query = ee()->db->get_where('members', array('member_id' => $member_id));
-
-		$session->userdata['username'] = $query->row()->username;
-		$session->userdata['screen_name'] = $query->row()->screen_name;
-		$session->userdata['group_id'] = $query->row()->group_id;
-		$this->member_id = $session->userdata('member_id');
-		//ee() -> session -> set_cache('learning_tools_integration', 'LTI_OBJECT', $this);
-	}*/
 
 	/**
 	 * Activate Extension
