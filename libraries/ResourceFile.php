@@ -27,16 +27,25 @@ function __construct($full_path,
             if(!mkdir($course_dir)) { die("unable to create course directory: $course_dir"); }
         }
 
+				// try to chmod course folder for big file upload.  can supress this because this can be done manually.
+				@chmod($course_dir, 0777);
+
         $this->working = $course_dir.DIRECTORY_SEPARATOR."working".DIRECTORY_SEPARATOR;
 
         if(!file_exists($this->working)) {
                 if(!mkdir($this->working)) { die('cache is not writable'); }
-	}
+				}
 
         $this->data_dir = $course_dir.DIRECTORY_SEPARATOR."data".DIRECTORY_SEPARATOR;
 
 	if(!file_exists($this->data_dir)) {
                 if(!mkdir($this->data_dir)) { die('cache is not writable'); }
+	}
+
+	if(file_exists($full_path)) {
+		if(!rename($full_path, $course_dir.DIRECTORY_SEPARATOR.$this->file_name)) {
+				die("Problem renaming the uploaded file, check that the <pre>$course_dir</pre> folder exists and has write permissions.");
+		};
 	}
 
 	$this->full_path = $course_dir.DIRECTORY_SEPARATOR.$this->file_name;
@@ -52,8 +61,6 @@ function __construct($full_path,
 }
 
 public function import() {
-	//echo "<pre>";
-	//echo $this->file_name.", ".$this->full_path.", ".$this->$this->working."\n";
 $feedback = "";
 $errors = "";
 $ext = strtoupper(end(explode(".", $this->file_name)));
@@ -120,13 +127,13 @@ if (empty($errors)) {
 						$type = 'P';
 						$index = $i + strlen($this->problem_prefix) - 1;
 					} else {
-                                            $si = strpos($name, $this->solution_prefix);
+              $si = strpos($name, $this->solution_prefix);
 
-                                            if ($si !== FALSE) {
-                                                    $type = 'S';
-                                                    $index = $si + strlen($this->solution_prefix) - 1;
-                                            }
-                                        }
+              if ($si !== FALSE) {
+                      $type = 'S';
+                      $index = $si + strlen($this->solution_prefix) - 1;
+              }
+          }
 
 					$base_name = substr($name, $index);
 					$ba = explode('.', $base_name);
@@ -134,14 +141,15 @@ if (empty($errors)) {
 					$ba = explode('-', $ba[0]);
 					$base_name = $ba[0];
 
-					//echo "$name $base_name $index $this->problem_prefix $solution_prefix<br>";
 					if ($index > -1) {
 						$where = array('base_name' => $base_name, 'type' => $type, 'course_id' => $this->course_id);
 
 						$cr = ee()->db->get_where('lti_member_resources', $where);
 
 						if($cr->num_rows() == 0) {
-							$where = array('file_name' => $new_filename, 'uploader_internal_context_id' => $this -> internal_context_id, 'base_name' => $base_name, 'display_name' => $name, 'type' => $type, 'course_id' => $this->course_id);
+							// salt used for encrypting file redirect to reduce chance of cheating.
+							$salt = $this->generateRandomString(10);
+							$where = array('file_name' => $new_filename, 'salt' => $salt, 'uploader_internal_context_id' => $this -> internal_context_id, 'base_name' => $base_name, 'display_name' => $name, 'type' => $type, 'course_id' => $this->course_id);
 
 							ee() -> db -> insert('lti_member_resources', $where);
 						}

@@ -80,11 +80,11 @@ class Learning_tools_integration_ext {
 	function __construct($settings='')
 	{
 			$this->settings = $settings;
-        ee()->config->set_item('disable_csrf_protection', 'y');
+      ee()->config->set_item('disable_csrf_protection', 'y');
 	}
 
 	function authenticate($session) {
-        // **** don't use in the CP ****
+    // **** don't use in the CP ****
 		if(strpos(@$_SERVER['REQUEST_URI'], 'admin.php') !== FALSE) {
 			return FALSE;
 		}
@@ -100,19 +100,27 @@ class Learning_tools_integration_ext {
             die("I'm unable to retrieve EE session object in sessions_end hook.");
         }
 
-		if(!ee()->input->post("segment")) { // if not an ajax request
+		if(!ee()->input->post("segment") && !isset($_GET['s'])) { // if not an ajax or download request
 			$segs = ee()->uri->segment_array();
-
+			$oauth_key = ee()->input->post('oauth_consumer_key');
 			$myseg = array_pop($segs);
 
-			$result = ee()->db->get_where('blti_keys', array('url_segment' => $myseg));
+			if(strlen($myseg) == 0) {
+						die('This URL is only accessible via a legitimate LTI launch.');
+			}
 
+			$result = ee()->db->get_where('blti_keys', array('url_segment' => $myseg, 'oauth_consumer_key' => $oauth_key));
+
+			// may be a sub-page
 			if($result->num_rows() == 0) {
 				$set = implode("|", $segs);
 				$set = "'$set'";
 
-				// may be a sub-page
-				ee()->db->where("url_segment REGEXP ($set)");
+				if(strlen($set) == 0) {
+						die('This URL is only accessible via a legitimate LTI launch.');
+				}
+
+				ee()->db->where("url_segment REGEXP ($set) AND oauth_consumer_key = '$oauth_key'");
 				$result = ee()->db->get('blti_keys');
 
 				if($result->num_rows() == 0) {
@@ -123,7 +131,11 @@ class Learning_tools_integration_ext {
 				}
 			}
 		} else {
-			$myseg = ee()->input->post("segment");
+			if(ee()->input->post("segment")) {
+				$myseg = ee()->input->post("segment");
+			} else if(isset($_GET['s'])) {
+				$myseg = ee()->input->get("s");
+			}
 		}
 
 		static::$base_segment = $myseg;
@@ -182,18 +194,18 @@ class Learning_tools_integration_ext {
 
 		ee() -> load -> helper('url');
 
-		if (isset($_REQUEST["resource_link_description"])) {
-			$string = $_REQUEST["resource_link_description"];
+	/*	if (isset($_REQUEST["resource_link_description"])) {
+			$string = htmlspecialchars($_REQUEST["resource_link_description"]);
 		} else {
 			$string = "";
-		}
+		}*/
 
-		if (strlen($string) > 0) {
+	/*	if (strlen($string) > 0) {
 			if (strlen($string) != strlen(strip_tags($string))) {
 				ee() -> lang -> loadfile('learning_tools_integration');
 				$error = lang("error_html_in_resource_link_description");
 			}
-		}
+		}*/
 
 		$this -> resource_link_id = $_REQUEST["resource_link_id"];
 		$this -> user_id = $_REQUEST['user_id'];
@@ -310,11 +322,11 @@ class Learning_tools_integration_ext {
 			$this->vle_pk_string = ee()->security->xss_clean($_REQUEST['custom_vle_pk_string']);
 		}
 
-        $this->preview_member_id = isset($_REQUEST['custom_preview_member_id']) ? ee()->security->xss_clean($_REQUEST['custom_preview_member_id']) : 0;
+    $this->preview_member_id = isset($_REQUEST['custom_preview_member_id']) ? ee()->security->xss_clean($_REQUEST['custom_preview_member_id']) : 0;
 
 		$this -> user_short_name = $context -> getUserShortName();
 		$this -> resource_title = $context -> getResourceTitle();
-		$this -> resource_link_description = $context -> getResourceLinkDescription();
+		$this -> resource_link_description = htmlspecialchars($context -> getResourceLinkDescription());
 
 		$_tkey = explode(":", $context->getUserKey());
 		$this->user_id = $_tkey[1];

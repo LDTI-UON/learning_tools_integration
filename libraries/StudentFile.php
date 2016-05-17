@@ -41,7 +41,7 @@ public function __construct($member_id, $context_id, $lti_plugin_setups = array(
         $this->lti_plugin_setups = $lti_plugin_setups;
 }
 
-public function import_from_blackboard($json) {
+public function import_from_blackboard($group_students, $json) {
 
     $usernames = array();
     $duplicate_groups = array();
@@ -61,8 +61,8 @@ public function import_from_blackboard($json) {
         }
     }
 
-    if(!isset($gradeBook['groups'])) {
-            return (array("errors" => "No Smart Views defined in Blackboard.  Please define Smart Views for all of your groups"));
+    if($group_students === TRUE && !isset($gradeBook['groups'])) {
+            return (array("errors" => "No Smart Views defined in Blackboard.  For group import, please define Smart Views for all of your groups"));
     }
 
     // column definitions for grade book
@@ -126,7 +126,7 @@ public function import_from_blackboard($json) {
 
     $errors = "";
 
-    return $this->import_data($file_rows, $errors, TRUE);
+    return $this->import_data($file_rows, $errors, $group_students);
 }
 
 
@@ -380,30 +380,30 @@ private function import_data(& $file_rows, & $errors = "", $group_students, $sta
 			}
 		}
 
-		$message .= "<h2>Group Import Complete</h2><h3>".$this->context->course_name."</h3><p>" . $affr . " students were added. $dupcount students were already in the database, but I've made sure they are members of the correct group &amp; this course.</p>";
+		$message .= "<h2>Import Complete</h2><h3>".$this->context->course_name."</h3><p>" . $affr . " students were added. $dupcount students were already in the database, but I've made sure they are members of the correct group and are in this course.</p>";
 
+		if($group_students) {
+			if(count($duplicate_groups) > 0) {
+				$errors .= "<p style='color: darkgreen'><b>The following students are in multiple groups.  Please amend this in Blackboard.</b><br><ol>";
+				foreach ($duplicate_groups as $username => $student) {
+					$errors .= "<li>".$student['full_name']." (".$username.")<ol>";
 
-		if(count($duplicate_groups) > 0) {
-			$errors .= "<p style='color: darkgreen'><b>The following students are in multiple groups.  Please amend this in Blackboard.</b><br><ol>";
-			foreach ($duplicate_groups as $username => $student) {
-				$errors .= "<li>".$student['full_name']." (".$username.")<ol>";
-
-				$c = count($student['groups']) - 1;
-				foreach($student['groups'] as $i => $group) {
-					$g = $group;
-					if($i == $c) {
-						$g = "<strong>$group</strong>";
+					$c = count($student['groups']) - 1;
+					foreach($student['groups'] as $i => $group) {
+						$g = $group;
+						if($i == $c) {
+							$g = "<strong>$group</strong>";
+						}
+						$errors .= "<li>$g</li>";
 					}
-					$errors .= "<li>$g</li>";
-				}
 
-				$errors.= "</ol></li>";
+					$errors.= "</ol></li>";
+				}
+				$errors .= "</ol><br> These students are currently assigned to the last (bolded) group they were listed with in Blackboard Groups.</p>";
 			}
-			$errors .= "</ol><br> These students are currently assigned to the last (bolded) group they were listed with in Blackboard Groups.</p>";
-		}
+	}
 
 		return array('message' => $message, 'errors' => $errors);
 	}
 
 }
-

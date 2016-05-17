@@ -186,19 +186,13 @@
 						$table_name = ee ()->db->dbprefix ( "lti_member_contexts" );
 						$sql = "CREATE UNIQUE INDEX member_context_guid_index ON $table_name(member_id, context_id(10), tool_consumer_instance_id)";
 						ee ()->db->query ( $sql );
-
+						
 						$fields = array (
 								'id' => array (
 										'type' => 'MEDIUMINT',
 										'constraint' => '5',
 										'null' => FALSE,
 										'auto_increment' => TRUE
-								),
-								'member_id' => array (
-										'type' => 'MEDIUMINT',
-										'constraint' => '5',
-										'null' => FALSE,
-										'auto_increment' => FALSE
 								),
 								'internal_context_id' => array (
 										'type' => 'MEDIUMINT',
@@ -210,9 +204,19 @@
 										'constraint' => '5',
 										'null' => FALSE
 								),
+								'course_id' => array (
+										'type' => 'MEDIUMINT',
+										'constraint' => '5',
+										'null' => FALSE
+								),
 								'file_name' => array (
 										'type' => 'VARCHAR',
 										'constraint' => '85',
+										'null' => FALSE
+								),
+								'salt' => array (
+										'type' => 'VARCHAR',
+										'constraint' => '10',
 										'null' => FALSE
 								),
 								'display_name' => array (
@@ -392,7 +396,7 @@
 						ee ()->dbforge->add_field ( $fields );
 						ee ()->dbforge->add_key ( 'id', TRUE );
 						ee ()->dbforge->create_table ( 'lti_institutions', TRUE );
-                        
+
 						// instructor credentials table
 						$fields = array (
 								'member_id' => array (
@@ -494,7 +498,7 @@
 								'method' => 'read_user_grade'
 						);
                         ee ()->db->insert ( 'actions', $data );
-                        
+
 						return TRUE;
 					}
 

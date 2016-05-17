@@ -40,11 +40,9 @@ function build_course_upload_path($full_path, $context_id, $institution_id, $cou
 	$course_upload_dir = $base_path.DIRECTORY_SEPARATOR.$context_id.$institution_id.$course_id;
 	if(!file_exists($course_upload_dir)) {
 		if(!mkdir($course_upload_dir)) {
-			die("Unable to create course upload directory, check folder permissions. ($course_upload_dir)");
+			die("<p>Unable to create course upload directory, check folder permissions.</p> <p><strong>($course_upload_dir)</strong></p>");
 		}
 	}
 
 	return $course_upload_dir;
 }
-
-

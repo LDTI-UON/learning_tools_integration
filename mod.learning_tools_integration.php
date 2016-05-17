@@ -7,7 +7,7 @@ if (!defined('BASEPATH'))
  *
  * @package		ExpressionEngine
  * @author		ExpressionEngine Dev Team
- * @copyright	Copyright (c) 2003 - 2011, EllisLab, Inc.
+ * @copyright	Copyright (c) 2003 - 2016, EllisLab, Inc.
  * @license		http://expressionengine.com/user_guide/license.html
  * @link		http://expressionengine.com
  * @since		Version 2.0
@@ -25,7 +25,7 @@ if (!defined('BASEPATH'))
  * @author		Paul Sijpkes
  * @link
  */
-//require_once ("ims-blti/OAuth.php");
+
 require_once ("libraries/utils.php");
 require_once ("libraries/EmailImport.php");
 require_once ("libraries/Encryption.php");
@@ -98,7 +98,7 @@ class Learning_tools_integration {
 
     private $context_vars;
     private $random_form_error = "";
-   // private $download_redirect;
+    private $download_redirect;
     private $cookie_name = "ee_lti_plugin";
     private $session_info;
    // private $tool_id;
@@ -136,15 +136,82 @@ class Learning_tools_integration {
     private $grade_centre_auth;
     private $cachedGradeBook;
 
+    private $extension_launch = array("instructor" => array(), "student" => array());
+    private $lib_path;
+    private $hook_path;
+
     /**
      * Constructor
      */
-    public function __construct() {
+  public function __construct() {
        static::$instance =& $this;
-
        $this->mod_path = PATH_THIRD.DIRECTORY_SEPARATOR.strtolower($this->mod_class);
-	   $this->init();
+       $this->lib_path = $this->mod_path.DIRECTORY_SEPARATOR.'libraries';
+       $this->hook_path = $this->lib_path.DIRECTORY_SEPARATOR.'extension_hooks';
+
+       $this->_load_hooks();
+       $this->init();
 	}
+
+    public function __call($method, $args)
+    {
+        if (isset($this->$method) === true) {
+            $func = $this->$method;
+            return $func($args);
+        }
+    }
+
+    private function _is_hook_dir($path, $entry) {
+          return is_dir($path) && $entry != '.' && $entry != '..';
+    }
+
+    private function _include_hook_files($path) {
+      $dir = dir($path);
+
+      while (FALSE !== ($entry = $dir->read())) {
+        $entry_path = $path.DIRECTORY_SEPARATOR.$entry;
+
+        if(is_file($entry_path)) {
+              $this->_require_hook_file($entry, $entry_path);
+         } else if ($this->_is_hook_dir($entry_path, $entry)) {
+              $this->_load_hooks($entry_path);
+         }
+      }
+    }
+
+    private function _require_hook_file($entry, $entry_path) {
+      $method_name = explode('.', $entry)[0];
+
+      require_once($entry_path);
+
+      $this->$method_name = $method;
+
+      if(isset($launch_instructor)) {
+            $this->extension_launch["instructor"][$method_name] = $launch_instructor;
+      }
+
+      if(isset($launch_student)) {
+            $this->extension_launch["student"][$method_name] = $launch_student;
+      }
+    }
+
+    private function _load_hooks($hook_dir = NULL) {
+
+      if(empty($hook_dir)) {
+          $hook_dir = $this->hook_path;
+      }
+
+      $dir = dir($hook_dir);
+
+      while (FALSE !== ($entry = $dir->read())) {
+            $contextual_path = $hook_dir.DIRECTORY_SEPARATOR.$entry;
+            if(is_file($contextual_path)) {
+                  $this->_require_hook_file($entry, $contextual_path);
+             } else if($this->_is_hook_dir($contextual_path, $entry)) {
+                  $this->_include_hook_files($contextual_path);
+            }
+      }
+    }
 
     public static function get_instance() {
         if(static::$instance === NULL) {
@@ -159,7 +226,7 @@ class Learning_tools_integration {
     }
 
 	private function init() {
-	    $this->member_id =   ee() -> session -> userdata('member_id');
+	       $this->member_id =   ee() -> session -> userdata('member_id');
 
         if($this->maintenance_message === TRUE) {
             if(empty($_REQUEST['custom_maint']) || $_REQUEST['custom_maint'] !== $this->maintenance_key) {
@@ -217,15 +284,16 @@ class Learning_tools_integration {
 
         /* download via a clickable link */
         if (isset($_GET['download_lti_resource'])) {
-            $id = $_GET['download_lti_resource'];
+            $id = ee()->input->get('download_lti_resource');
 
             $this -> return_data = $this -> direct_download($id);
         }
 
-        if ($this -> base_segment === 'do_download') {
-            $this -> do_download($_GET['f'], $_GET['i'], $_GET['t']);
+        if (isset($_GET['f']) && isset($_GET['i']) && isset($_GET['t'])) {
+            $this -> do_download(ee()->input->get('f'), ee()->input->get('i'), ee()->input->get('t'));
             return;
         }
+
         if (ee()->TMPL) {
             $this -> return_data =     ee() -> TMPL -> parse_variables(ee() -> TMPL -> tagdata, $this -> context_vars);
         }
@@ -310,51 +378,71 @@ class Learning_tools_integration {
 
         $view_data = array('error' => $error, 'state' => empty($state) ? FALSE : $state, 'is_instructor' => $this -> isInstructor);
 
-        $tag_data = array('course_key' => $this -> course_key, 'course_name' => $this -> course_name, 'user_key' => $this -> user_key, 'is_instructor' => $this -> isInstructor, 'user_email' => empty($this -> email) ? 'noemail@mailnesia.com' : $this -> email, 'user_short_name' => $this -> user_short_name, 'user_name' => $this -> username, 'context_label' => $this -> context_label, 'resource_title' => $this -> resource_title, 'resource_link_description' => $this -> resource_link_description, 'launch_presentation_return_url' => $this -> launch_presentation_return_url, 'tool_consumer_instance_name' => $this -> tool_consumer_instance_name, 'general_message' => $this->general_message, 'student_table_title' => lang('students_table_title'), 'css_link_tags' => $this -> css_link_tags(), 'javascript' => "<script>$('#hide_error').click(function() {
+        //$tag_data = array('course_key' => $this -> course_key, 'course_name' => $this -> course_name, 'user_key' => $this -> user_key, 'is_instructor' => $this -> isInstructor, 'user_email' => empty($this -> email) ? 'noemail@mailnesia.com' : $this -> email, 'user_short_name' => $this -> user_short_name, 'user_name' => $this -> username, 'context_label' => $this -> context_label, 'resource_title' => $this -> resource_title, 'resource_link_description' => $this -> resource_link_description, 'launch_presentation_return_url' => $this -> launch_presentation_return_url, 'tool_consumer_instance_name' => $this -> tool_consumer_instance_name, 'general_message' => $this->general_message, 'student_table_title' => lang('students_table_title'),'javascript' => "<script>$('#hide_error').click(function() {
+        $tag_data = array(
+        'save_grade_example_form' => $this->save_grade_example_form(),
+        'read_grade_example_form' => $this->read_grade_example_form(),
+        'general_message' => $this->general_message,
+            'javascript' => "<script>$('#hide_error').click(function() {
 
-					var state = { hideError : true };
+          var state = { hideError : true };
 
-					$.post('$this->message_pref_url',
-						{ 'key' : '$this->user_key', 'state' : state },
-						function(data){
-							$('.errorBox').hide();
-						}, 'json');
-			 });</script>");
+          $.post('$this->message_pref_url',
+            { 'key' : '$this->user_key', 'state' : state },
+            function(data){
+              $('.errorBox').hide();
+            }, 'json');
+        });</script>",);
+
+        if(isset($_POST['action']) && $_POST['action'] == 'save_user_grade') {
+                $tag_data['save_user_grade_output'] = "<pre>".$this->save_user_grade()."</pre>";
+        } else {
+             $tag_data['save_user_grade_output'] = "";
+        }
+
+        if(isset($_POST['action']) && $_POST['action'] == 'read_user_grade') {
+                $tag_data['read_user_grade_output'] = "<pre>".$this->read_user_grade()."</pre>";
+        } else {
+             $tag_data['read_user_grade_output'] = "";
+        }
+
+        $params = array("view_data" => $view_data, "tag_data" => $tag_data, "error" => $error, "state" => $state);
 
         if (!empty($this -> isInstructor)) {
 
+            foreach($this->extension_launch['instructor'] as $launch) {
+                  $params = $launch($params);
+            }
+
+            $view_data = $params['view_data'];
             /* order by execution order (eg. upload student list needs general settings to run) */
             $tag_data = array_merge(array("general_settings_form" => $this->general_settings_form(),
-                                            "upload_student_list" => $this -> upload_student_list(),
-                                            "student_table" => $this -> student_table(),
-            								"upload_blackboard_rubric" => $this->upload_blackboard_rubric(),
-                                           ), $tag_data);
-
-            // prompt for import settings on launch only
-            $this->grade_centre_import_prompt($view_data);
+                                          "upload_student_list" => $this -> upload_student_list(),
+                                          "student_table" => $this -> student_table(),
+            								              "upload_blackboard_rubric" => $this->upload_blackboard_rubric(),
+                                      ), $tag_data);
 
             if(!empty($this->use_resources)) {
             	$tag_data["resource_settings_form"] = $this -> resource_settings_form();
             	$tag_data["upload_student_resources_form"] = $this -> upload_student_resources_form();
             	$tag_data["random_form"] = $this -> random_form();
-            	$tag_data["download_resource"] = $this -> download_resource();
+              $tag_data["random_remainder_form"] = $this -> random_remainder_form();
             	$tag_data['random_form_error'] = $this -> random_form_error;
             	$tag_data["resource_table"] = $this -> resource_table();
+
+              if (property_exists(ee(), 'TMPL')) {
+                 $this->download_redirect =   ee() -> TMPL -> fetch_param('download_redirect');
+
+                 if(empty($this->download_redirect)) {
+                    die('Please set a download redirect in the template parameters for resource download.');
+                 }
+              }
             }
 
-           // require_once(PATH_THIRD.strtolower($this->mod_class)."/libraries/include/EmailRequestDialog.php");
+        }
 
-        } else if(!empty($this->use_resources) && $this->use_resources === 'download_link') {
+        if(!empty($this->use_resources) && $this->use_resources === 'download_link') {
         	$tag_data["download_resource"] = $this -> download_resource();
-        }
-
-        if(!empty($custom_libs)) {
-            $tag_data = array_merge($custom_libs, $tag_data);
-        }
-
-        if (property_exists(ee(), 'TMPL')) {
-       		 $param_tools =   ee() -> TMPL -> fetch_param('tools');
-       		 $tools = explode(',', $param_tools);
         }
 
         // re-enable CSRF (extension disables it temporarily)
@@ -364,223 +452,7 @@ class Learning_tools_integration {
     }
 
 
-    private function grade_centre_import_prompt(&$view_data) {
-        //return false;
-       // if(isset($view_data['email_settings']) && strlen($view_data['email_settings']) > 0) return;
-        ee() -> load -> helper('url');
-                $view_data['email_settings'] = "";
 
-                $password_req = FALSE;
-                $query = ee()->db->get_where('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id));
-
-                 $style = "<style>
-                    #emailmsg {
-                        display: block;
-                        position: absolute;
-                        width: 190px;
-                        height: auto;
-                        top: 0;
-                       /* border: thin solid black; */
-                        padding: 1em;
-                      /*  background-color: green; */
-                        left: 0;
-                        color: white;
-                        font-family: 'Arial', sans-serif;
-                        z-index: 2;
-                        line-height: 1.2em;
-                    }
-                    #emailmsg h1 {
-                        font-size: 16pt;
-                    }
-                    #emailmsg .validation {
-                       color: #F6F593;
-                    }
-                    #emailmsg div {
-                        float:left;
-                        margin: 0.3em;
-                       /* width: 400px; */
-                    }
-                    #emailmsg div p {
-                        padding: 3px;
-                     }
-                    </style>"; // TODO move to css
-
-                if($query->num_rows() == 0) {
-
-                   if(!isset($_POST['email_optout'])) {
-                       $div = $style."<div id=\"emailmsg\" class=\"receipt good\"><p>".lang('email_opt_out')."</p>%form%</div>";
-
-                       $form = form_open($this->base_url);
-
-                       $data = array(
-                                              'name'        => 'optout',
-                                              'id'          => 'optout',
-                                              'value'       => '1',
-                                              'checked'   => FALSE,
-                                        );
-                         $data1 = array(
-                                              'name'        => 'optout',
-                                              'id'          => 'optout',
-                                              'value'       => '0',
-                                              'checked'   => TRUE,
-                                        );
-
-                       $form.= form_hidden('email_optout', 'posted');
-
-                       $form .= "<p>".form_radio($data).lang('opt-out')."<br>".form_radio($data1).lang('opt-in')."<br>".form_submit('submit', 'Okay')."</p>";
-
-                       $form .= form_close();
-                       $form = str_replace('%form%', $form, $div);
-                       $view_data['email_settings'] = $form;
-                     } else {
-                        ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'disabled' => ee()->input->post('optout')));
-                        redirect($this->base_url);
-
-                        return;
-                    }
-                } else {
-
-                    if($query->row()->disabled == 0) {
-                        if($query->row()->password === NULL) {
-
-                    ee()->load->library('form_validation');
-                    ee()->form_validation->set_rules('password', 'Password', 'required|matches[password_conf]');
-                    ee()->form_validation->set_rules('password_conf', 'Password Confirmation', 'required');
-
-                    $form_valid = ee()->form_validation->run();
-
-                    if (empty($form_valid) || $form_valid === FALSE) {
-                        $div = $style."<div id=\"emailmsg\" class=\"receipt good\"><div>%form%</div><div><p>".lang('outlook_instructions')."</div></p></div>";
-
-
-                        $form = form_open($this->base_url);
-
-                        $form .= "<h1>".lang('password_title')."</h1>";
-                        //$form .= form_hidden("set_password", "1");
-                            $data = array(
-                                          'name'        => 'password',
-                                          'id'          => 'password',
-                                          'value'       => '',
-                                          'maxlength'   => '20',
-                                          'size'        => '20',
-                                          'style'       => 'width: 12em',
-                                    );
-                          $form .= "<br>";
-                        $form .= "Password:".form_password($data);
-
-                         $data = array(
-                                          'name'        => 'password_conf',
-                                          'id'          => 'password_conf',
-                                          'value'       => '',
-                                          'maxlength'   => '20',
-                                          'size'        => '20',
-                                          'style'       => 'width: 12em',
-                                    );
-
-
-                        $form .= "<br>";
-                        $form .= "Confirm Password: ".form_password($data);
-                        $form.="<br>";
-                        $form .= "<span class='validation'>".validation_errors()."</span>";
-                        $form .= form_submit('submit', lang('set_outlook_password'));
-                        $form .= form_close();
-                        $form  =  str_replace('%form%', $form, $div);
-
-                        $view_data['email_settings'] = $form;
-                    } else {
-                        $password = ee()->input->post('password');
-
-                        $salt_key = Encryption::get_salt($this->user_id.$this->context_id);
-                        $crypted_password = Encryption::encrypt($password, $salt_key);
-
-                        ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id));
-                        ee()->db->update('lti_instructor_credentials', array('password' => $crypted_password, 'state' => '1'));
-
-                        redirect($this->base_url);
-                        return;
-                    }
-                }
-
-                $time_diff = 0;
-                if(isset($query->row()->uploaded)) {
-                    $time_diff = (Integer) time() - strtotime($query->row()->uploaded);
-
-                        if((isset($_POST['force_sync']) ||
-                                    (
-                                        !empty($_REQUEST['user_id']) && !empty($_REQUEST['context_id'])
-                                    )
-                            ) && !empty($query->row()->password)) {
-
-                             $div = $style."<div id=\"emailmsg\" class=\"receipt good\">%form%</div>";
-
-                            $decrypted = Encryption::decrypt($query->row()->password, Encryption::get_salt($this->user_id.$this->context_id));
-
-                            ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id));
-
-                            if($decrypted !== FALSE) {
-
-                            $auth = $this->bb_lms_login($this->username, $decrypted);
-                            $this->grade_centre_auth = $auth;
-
-                            $jsstr = "";
-                            $jsfn = "";
-
-                                if (is_array($auth)) {
-                                    $form = "<p>Your Grade Centre connection to this course is active.</p>";
-                                    ee()->db->update('lti_instructor_credentials', array('state' => '0'));
-
-                                    // groups only imported if the grade book has been changed or
-                                    // the syncronize button has been selected
-                                    $lastLogEntryTS = isset($_POST['force_sync']) ? -1 : $query->row()->lastLogEntryTS;
-
-                                    $imported = $this->bb_import_groups_from_grade_book($lastLogEntryTS);
-
-                                    if(is_array($imported)) {
-                                         // if not changed then update
-                                        if(isset($imported['lastLogEntryTS']) && $imported['lastLogEntryTS'] !== FALSE) {
-                                            ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id));
-
-                                            ee()->db->update('lti_instructor_credentials', array('lastLogEntryTS' => $imported['lastLogEntryTS']));
-                                        }
-
-                                        if(!empty($imported['message'])) {
-                                            $form .= "<br><p>".$imported['message']."</p>";
-                                        }
-                                        if(!empty($imported['errors'])) {
-                                            $form .= "<br><p style='color: yellow'><b>ATTENTION!  ".$imported['errors']."</b></p>";
-                                        }
-
-                                        $form .= "<p><br><b>Manual Sync</b><br><br><em>Your Groups will automatically sync everytime you access this tool from Blackboard.</em><br><br>  Use this button for manual sync.</p><br>";
-                                        $form .= form_open($this->base_url, "", array("force_sync" => 1));
-                                        $form .= form_submit('syncSubmit', "Syncronise Group Members");
-                                        $form .= form_close();
-                                    }
-                                } else if($auth == 1) {
-                                    $jsfn = 'var reloadMe = function() { location.reload(true); };';
-                                    $jsstr = ', reloadMe';
-
-                                    ee()->db->update('lti_instructor_credentials', array('password' => NULL, 'state' => '2'));
-
-                                    $form = "<p><h1>Bad Password</h1><b>I could not connect to Grade Centre. You will be asked for your password again in 5 seconds.</p>";
-                                } else if($auth > 1) {
-                                     $form = "<p><h1>UoNline Server Down</h1><b>I could not connect to Grade Centre. The UoNline server may be down, please use manual upload for the time being.</p>";
-                                     ee()->db->update('lti_instructor_credentials', array('password' => NULL, 'state' => '3'));
-                                }
-
-                                $form .= "<script> $jsfn $(document).ready(function() { /*$('#emailmsg').delay(3000).slideUp(2500$jsstr);*/ }); </script>";
-                                $form = str_replace('%form%', $form, $div);
-
-                                $view_data['email_settings'] = $form;
-                            } else {
-                                ee()->db->delete("lti_instructor_credentials");
-                            }
-                        } else {
-                            $view_data['css_special'] = ".contentPane { margin: 0 12px 0 12px; }";
-                        }
-            }
-        }
-    }
-}
 
     private function grade_centre_login()
     {
@@ -778,7 +650,7 @@ class Learning_tools_integration {
 	            $js = file_get_contents(PATH_THIRD.$mod_dir.DIRECTORY_SEPARATOR."js".DIRECTORY_SEPARATOR.'process_file.js');
 
 	            $tokens = array("%suburl%", "%loaderurl%");
-	            $replace = array(ee()->functions->create_url(ee()->uri->uri_string), URL_THIRD_THEMES.$mod_dir.DIRECTORY_SEPARATOR."img".DIRECTORY_SEPARATOR."processing-file.gif");
+	            $replace = array(ee()->uri->uri_string, URL_THIRD_THEMES.$mod_dir.DIRECTORY_SEPARATOR."img".DIRECTORY_SEPARATOR."processing-file.gif");
 
 	            $js = str_replace($tokens, $replace, $js);
 
@@ -877,7 +749,7 @@ class Learning_tools_integration {
             $error = "";
 
             if ($mem_count > $uc_count) {
-                $this -> random_form_error = lang('random_form_error');
+                $this -> random_form_error = lang('_error');
             }
 
             $form .= "<p>$ur_count resources assigned to $uc_count users.</p>";
@@ -886,7 +758,9 @@ class Learning_tools_integration {
         ee() -> load -> helper('form');
 
         $form .= "<p>By clicking the button below you will randomly assign a unique resource to each student,
-							this resource will appear when they click on the link in the $this->context_label course.</p>";
+							this resource will appear when they click on the link in this course.<br> <strong>
+              <span style='color: red;'>WARNING: THIS BUTTON WILL RE-ASSIGN RESOURCES EVERYTIME IT IS CLICKED.
+              Use the <u>remainder</u> button below if you wish to assign resources to remaining students.</strong></p>";
         $form .= form_open_multipart($this->base_url);
         $form .= form_hidden('do_random', 'yep');
         $form .= form_submit("Randomly", "Assign a unique resource to each student");
@@ -901,23 +775,17 @@ class Learning_tools_integration {
     	if (isset($_POST['do_random_remainder'])) {
     		ee() -> db -> where(array('uploader_internal_context_id' => $this -> internal_context_id, 'type' => 'P'));
     		ee()-> db ->where('internal_context_id IS NULL', NULL, FALSE);
-    		$result =  $this->EE -> db -> get('lti_member_resources');
+    		$result =  ee() -> db -> get('lti_member_resources');
     		$res = $result -> result();
 
     		$res_count = $result -> num_rows();
     		shuffle($res);
 
-    		//ee()->db->save_queries = TRUE;
     		ee() -> db -> where(array('context_id' => $this -> context_id, 'tool_consumer_instance_id' => $this -> tool_consumer_instance_id, 'is_instructor' => '0'));
     		ee()->db->where("`id` NOT IN (SELECT `internal_context_id` FROM `".ee()->db->dbprefix."lti_member_resources` WHERE `internal_context_id` IS NOT NULL)", NULL, FALSE);
     		ee() -> db -> from('lti_member_contexts');
 
-
-
     		$_m_res =   ee() -> db -> get();
-
-    		//echo ee()->db->last_query();
-    		//exit;
 
     		$mem_count = $_m_res -> num_rows();
 
@@ -929,7 +797,6 @@ class Learning_tools_integration {
 
     		$used_contexts = array();
     		$used_resources = array();
-    		//$deb = "";
 
     		$batch = array();
     		foreach ($res as $row) {
@@ -957,20 +824,20 @@ class Learning_tools_integration {
     		//$error = "";
 
     		if ($mem_count > $uc_count) {
-    			$this -> random_form_error = lang('random_form_error');
+    			$this -> random_form_error = lang('_error');
     		}
 
     		$form .= "<p>$ur_count resources assigned to $uc_count users.</p>";
     	}
 
-    	$this->EE -> load -> helper('form');
+    	ee() -> load -> helper('form');
 
-    	$form .= "<p>By clicking the button below you will randomly assign all remaining resource to students that don't yet have a resource allocated,
-    	this resource will appear when they click on the link in the $this->context_label course.</p>";
+    	$form .= "<br><p>By clicking the button below you will randomly assign all remaining resource to students that don't yet have a resource allocated,
+    	this resource will appear when they click on the link in this course.</p>";
         $form .= !empty($message) ? "<p>$message</p>" : "";
     	$form .= form_open_multipart($this->base_url);
     	$form .= form_hidden('do_random_remainder', 'yep');
-    	$form .= form_submit("Randomly", "Assign a unique resource to each student");
+    	$form .= form_submit("Randomly", "Assign a unique resource to remaining students");
     	$form .= form_close();
 
     	return $form;
@@ -979,9 +846,6 @@ class Learning_tools_integration {
     public function resource_settings_form() {
         $table = "lti_instructor_settings";
         $result =   ee() -> db -> get_where($table, array("course_key" => $this->course_key, "institution_id" => $this->institution_id));
-
-        $problem_prefix = "problem_";
-        $solution_prefix = "solution_";
         $row_count = $result -> num_rows();
 
         if ($row_count == 1) {
@@ -989,18 +853,26 @@ class Learning_tools_integration {
             $solution_prefix = $result -> row() -> solution_prefix;
         }
 
+        if(isset($_POST['problem_prefix'])) {
+            $problem_prefix = ee() -> input -> post("problem_prefix");
+        }
+
+        if(isset($_POST['solution_prefix'])) {
+            $solution_prefix = ee() -> input -> post("solution_prefix");
+        }
+
         if (isset($_POST['save_settings'])) {
             if ($row_count == 1) {
                 ee() -> db -> where(array("institution_id" => $this->institution_id, "course_key" => $this->course_key));
-                ee() -> db -> update($table, array("problem_prefix" =>   ee() -> input -> post("problem_prefix"), "solution_prefix" =>   ee() -> input -> post("solution_prefix")));
+                ee() -> db -> update($table, array("problem_prefix" => $problem_prefix, "solution_prefix" =>  $solution_prefix));
             } else {
-                ee() -> db -> insert($table, array("course_key" => $this->course_key, "institution_id" => $this->institution_id, "problem_prefix" => ee() -> input -> post("problem_prefix"), "solution_prefix" =>   ee() -> input -> post("solution_prefix")));
+                ee() -> db -> insert($table, array("course_key" => $this->course_key, "institution_id" => $this->institution_id, "problem_prefix" => $problem_prefix, "solution_prefix" => $solution_prefix));
             }
         }
 
         ee() -> load -> helper('form');
 
-        $form = "<p>ZIP file problem and solution settings for $this->context_label.</p>";
+        $form = "<p>ZIP file problem and solution settings for $this->course_name.</p>";
         $form .= form_open_multipart($this->base_url);
         $form .= form_hidden('save_settings', '1');
         $form .= lang('problem_prefix') . " ";
@@ -1034,9 +906,9 @@ class Learning_tools_integration {
 
        return array("enable_group_import" => $enable_group_import, "plugins_active" => $plugins_active, "row_count" => $row_count);
     }
-    /* WORKING: group settings should be placed in instructor settings table, peer assessment tick box removed and
+    /*  THOUGHT: ??group settings should be placed in instructor settings table, peer assessment tick box removed and
                 activated automatically when placed in template
-                plugins parameter
+                plugins parameter??
     */
     private function general_settings_form() {
         $settings = $this->get_general_settings();
@@ -1465,13 +1337,18 @@ class Learning_tools_integration {
 
         $row = $query -> row();
 
-        return $this -> download_file($row -> file_name, $row -> type == 'S' ? 'solution' : 'problem');
+        return $this -> download_file($row -> file_name, $row -> type == 'S' ? 'solution' : 'problem', $row -> salt);
     }
 
     public function download_resource() {
+        if(isset($_GET['f']) || isset($_GET['i']) || isset($_GET['t'])) {
+            // avoids accidental second execution on redirect
+            return FALSE;
+        }
 
         $total = $this -> total_resources();
         if($this -> isInstructor != 0) {
+          echo "<h2>Nothing for instructors yet sorry.</h2>";
         	return FALSE;
         }
 
@@ -1482,22 +1359,10 @@ class Learning_tools_integration {
 
         $type = $this -> is_solution_request() ? 'solution' : 'problem';
 
-        /*$result = ee()->db->get_where('lti_instructor_settings', array('internal_context_id' => $this->internal_context_id));
-
-         if($result->num_rows() > 0) {
-         if(empty($type) || $type='problem') {
-         $file_prefix = $result->row()->problem_prefix;
-         } else {
-         $file_prefix = $result->row()->solution_prefix;
-         }
-         } else {
-         $file_prefix = $type.'_';
-         }	*/
-
         $sqltype = $type == 'solution' ? 'S' : 'P';
 
         //echo "GOT HERE $total<br>";
-        ee() -> db -> select('lti_member_resources.id, lti_member_resources.display_name, lti_member_resources.file_name');
+        ee() -> db -> select('lti_member_resources.id, lti_member_resources.display_name, lti_member_resources.file_name, lti_member_resources.salt');
         ee() -> db -> join('lti_member_contexts', 'lti_member_contexts.id = lti_member_resources.internal_context_id');
         ee() -> db -> where(array("lti_member_resources.internal_context_id" => $this -> internal_context_id, 'type' => $sqltype));
         ee() -> db -> from('lti_member_resources');
@@ -1505,7 +1370,7 @@ class Learning_tools_integration {
 
         $row = $query -> row();
 
-        return $this -> download_file($row -> file_name, $type);
+        return $this -> download_file($row -> file_name, $type, $row -> salt);
     }
 
     public function resource_table() {
@@ -1573,12 +1438,12 @@ class Learning_tools_integration {
         return  ee() -> load -> view('resource-table', $vars, TRUE);
     }
 
-    private function download_file($filename, $type) {
+    private function download_file($filename, $type, $salt) {
 
         $iv_size = mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB);
         $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
 
-        $enc = mcrypt_encrypt(MCRYPT_BLOWFISH, "6^rGfhjk", $filename, MCRYPT_MODE_CBC, $iv);
+        $enc = mcrypt_encrypt(MCRYPT_BLOWFISH, $salt, $filename, MCRYPT_MODE_CBC, $iv);
 
         $iv = base64_encode($iv);
         $enc = base64_encode($enc);
@@ -1589,31 +1454,87 @@ class Learning_tools_integration {
         $vars['iv'] = rawurlencode($iv);
         $vars['ee_lti_token'] = $this -> cookie_name;
         $vars['type'] = $type;
+        $vars['download_redirect'] = $this->download_redirect;
+        $vars['segment'] = $this->base_segment;
+        $vars['return_url'] = $this->launch_presentation_return_url;
 
         return   ee() -> load -> view('download-redirect', $vars, TRUE);
     }
 
     private function do_download($enc_filename, $iv, $type) {
-        if (empty($enc_filename) || $this -> my_segment !== 'do_download') {
+
+        if (empty($enc_filename) || !isset($_GET['t']) || !isset($_GET['i']) || !isset($_GET['f'])) {
             echo "<p>" . lang('download_error') . "</p>";
             return;
         }
 
+        if ($_GET['t'] !== 'solution' && $_GET['t'] !== 'problem') {
+            echo "<p>Download request was in the wrong format.</p>";
+            return;
+        }
+
+        $sqltype = $type == 'solution' ? 'S' : 'P';
+
         $enc_filename = base64_decode($enc_filename);
         $iv = base64_decode($iv);
 
-        $filename = mcrypt_decrypt(MCRYPT_BLOWFISH, "6^rGfhjk", $enc_filename, MCRYPT_MODE_CBC, $iv);
+        $res = ee()->db->get_where('lti_member_resources', array('internal_context_id' => $this->internal_context_id, 'type' => $sqltype));
+        $salt = $res->row()->salt;
 
+        $filename = mcrypt_decrypt(MCRYPT_BLOWFISH, $salt, $enc_filename, MCRYPT_MODE_CBC, $iv);
         $filename = trim($filename);
 
-        //echo $filename." ==== <br>";
         ee() -> load -> helper('download');
 
-        $data = file_get_contents(LTI_FILE_UPLOAD_PATH . '/data/' . $filename);
-        $ext = end(explode(".", $filename));
+        if(is_readable(LTI_FILE_UPLOAD_PATH.DIRECTORY_SEPARATOR.$this->context_id.$this->institution_id.$this->course_id
+                      .DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.$filename)) {
+          //$data = file_get_contents(LTI_FILE_UPLOAD_PATH.DIRECTORY_SEPARATOR.$this->context_id.$this->institution_id.$this->course_id.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.$filename);
+          $ext = end(explode(".", $filename));
+        } else {
+          die("File not readable.");
+        }
 
-        force_download($type . "_" . $this -> context_label . "_data." . $ext, $data);
+        $this->_push_file(LTI_FILE_UPLOAD_PATH.DIRECTORY_SEPARATOR.$this->context_id.$this->institution_id.$this->course_id.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.$filename,
+                          $type . "_" . $this -> context_label . "_data." . $ext);
     }
+
+    private function _push_file($path, $name)
+    {
+      // make sure it's a file before doing anything!
+    if(is_file($path))
+    {
+    // required for IE
+    if(ini_get('zlib.output_compression')) { ini_set('zlib.output_compression', 'Off'); }
+
+      // get the file mime type using the file extension
+      $finfo = finfo_open(FILEINFO_MIME_TYPE);
+      $mime = finfo_file($finfo, $path);
+      $length = sprintf("%u", filesize($path));
+
+      if(strpos(strtolower($mime), "pdf") !== FALSE) {
+          $disposition = 'inline';
+      } else {
+          $disposition = 'attachment';
+      }
+
+      // Build the headers to push out the file properly.
+      header('Pragma: private');     // required
+      header('Expires: 0');
+      header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+      header('Last-Modified: '.gmdate ('D, d M Y H:i:s', filemtime ($path)).' GMT');
+      header('Cache-Control: private',false);
+      header('Content-Type: '.$mime);  // Add the mime type from Code igniter.
+      header('Content-Disposition: $disposition; filename="'.basename($name).'"');  // Add the file name
+      header('Content-Transfer-Encoding: binary');
+      header('Content-Length: '.$length); // provide file size
+      header('Connection: Keep-Alive');
+
+      ob_end_flush();   // <--- instead of ob_clean()
+      set_time_limit(0);
+      readfile($path); // push it out
+      exit();
+    }
+  }
 
     private function pagination_config($method, $total_rows, $per_page = -1, $data_segments = NULL) {
     	$config = array();
@@ -1690,7 +1611,38 @@ class Learning_tools_integration {
 
         return "<script type='text/javascript'>$str</script>";
     }
+    private function save_grade_example_form() {
+        ee()->load->helper('form');
 
+        $form = form_open($this->base_url);
+
+        $data = array(
+              'name'        => 'grade',
+              'id'          => 'grade',
+              'value'       => '0',
+              'maxlength'   => '3',
+              'size'        => '20',
+              'style'       => 'width:10%',
+            );
+
+        $form .= form_input($data);
+        $form .= form_hidden('action', 'save_user_grade');
+        $form .= form_hidden('segment', $this->base_segment);
+        $form .= form_submit('submit', 'Submit Grade');
+        $form .= form_close();
+
+        return $form;
+    }
+    private function read_grade_example_form() {
+        ee()->load->helper('form');
+
+        $form = form_open($this->base_url);
+        $form .= form_hidden('segment', $this->base_segment);
+        $form .= form_hidden('action', 'read_user_grade');
+        $form .= form_submit('submit', 'Read Grade');
+        $form.= form_close();
+        return $form;
+    }
     public function save_user_grade() {
       	if ($this -> isInstructor == 1) {
             return "No grades for instructors, sorry!";
@@ -1888,13 +1840,14 @@ class Learning_tools_integration {
         $stored_gradebook = NULL;
         $row = $this->get_instructor_settings();
 
-        if($row !== FALSE && !empty($row->gradebook)) {
-              $stored_gradebook = unserialize($row->gradebook);
+        if($row !== FALSE) {
+            if(!empty($row->gradebook)) {
+                $stored_gradebook = unserialize($row->gradebook);
+            }
+            $group_students = $row->enable_group_import;
         }
 
         if($full_gradebook) {
-        //$flagTableUpdate = FALSE;
-
         $gbook = isset($full_gradebook['cachedBook']) ? $full_gradebook['cachedBook'] : $full_gradebook;
 
         // update last log entry
@@ -1909,9 +1862,6 @@ class Learning_tools_integration {
                     $parsed['day'],
                     $parsed['year']
             );
-
-         //   echo "<pre>";
-         //   var_dump(array_keys($gbook));
 
             if(array_key_exists('customViews', $gbook) === TRUE) {
                 $gb_signature = array($gbook['customViews'], $gbook['groups']);
@@ -1944,7 +1894,7 @@ class Learning_tools_integration {
 
             $s_file = new StudentFile($this->member_id, $this->context_id, $plugin_settings);
 
-             $arr = $s_file->import_from_blackboard($full_gradebook);
+             $arr = $s_file->import_from_blackboard($group_students, $full_gradebook);
 
              // notify process to update DB table
              $arr['lastLogEntryTS'] = $lastLogEntryTS;
