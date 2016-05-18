@@ -6,11 +6,10 @@
 */
 class Auth {
 
-  private $scheme;
   private $host;
   private $path;
   private $lti_object;
-  
+
   function __construct(&$lti_object)  {
       $this->scheme = $lti_object->use_SSL ? "https" : "http";
       $this->host = $lti_object->lti_url_host;
@@ -21,10 +20,9 @@ class Auth {
 
    public function bb_lms_login($user, $pass) {
     $url = $this->scheme.'://'.$this->host.'/'.$this->path;
-    echo "<pre>$url</pre><hr>";
-    //$url = "https://uonline.newcastle.edu.au/webapps/login/";
+//    $url = "https://uonline.newcastle.edu.au/webapps/login/";
 
-    // update this to contextualise cookies
+    // contextualise cookies
     $cookies = PATH_THIRD.$this->lti_object->mod_class."data/".$this->lti_object->member_id."_".$this->lti_object->context_id."_".$this->lti_object->institution_id."_cookie.txt";
 
     if(file_exists($cookies)) {
@@ -34,12 +32,12 @@ class Auth {
     $data = array('action' => 'login', 'login' => 'Login', 'password' => $pass, 'user_id' => $user, 'new_loc' => '');
     $post_str = http_build_query($data);
     $length = strlen($post_str);
-    $agent = $this -> getRandomUserAgent();
-
+    $agent = getRandomUserAgent();
+    //echo $agent;
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Length: $length", "Content-Type: application/x-www-form-urlencoded", "Cache-Control:max-age=0", "Host: uonline.newcastle.edu.au"));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Length: $length", "Content-Type: application/x-www-form-urlencoded", "Cache-Control:max-age=0", "Host: $this->host"));
     curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
     curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
     curl_setopt($ch, CURLOPT_USERAGENT, $agent);

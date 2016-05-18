@@ -1,4 +1,5 @@
 <?php
+require_once($this->lib_path.DIRECTORY_SEPARATOR.'utils.php');
 require_once($this->lib_path.DIRECTORY_SEPARATOR.'Encryption.php');
 require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'auth'.DIRECTORY_SEPARATOR.'Auth.php');
 
@@ -154,7 +155,7 @@ $hook_method = function($view_data) {
                         ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id));
 
                         if($decrypted !== FALSE) {
-                      
+
                         $bb_auth = new Auth($this);
 
                         $auth = $bb_auth->bb_lms_login($this->username, $decrypted);
