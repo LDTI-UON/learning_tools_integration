@@ -36,15 +36,16 @@ define('LTI_FILE_UPLOAD_PATH', PATH_THIRD."learning_tools_integration/cache"); /
 
 class Learning_tools_integration {
     public $return_data;
-    private $mod_class = 'Learning_tools_integration';
-    private $mod_path;
+    public $mod_class = 'Learning_tools_integration';
+    public $mod_path;
+
     private $theme_folder = "/themes/third_party/";
     public $base_url = "";
     private $base_segment = "";
     private $perpage = 10;
     private $pagination_segment = 3; // default only
     private $allowed_groups;
-    private $use_SSL = TRUE;
+    public $use_SSL = TRUE;
 
     public $launch_presentation_return_url = "";
     public $tool_consumer_instance_name = "";
@@ -129,12 +130,9 @@ class Learning_tools_integration {
 
     private static $instance = NULL;
 
-    private $member_id = -1;
+    public $member_id = -1;
 
-    private $use_resources = 0;
-
-    private $grade_centre_auth;
-    private $cachedGradeBook;
+    public $use_resources = 0;
 
     private $extension_launch = array("instructor" => array(), "student" => array());
     private $lib_path;
@@ -145,7 +143,7 @@ class Learning_tools_integration {
      */
   public function __construct() {
        static::$instance =& $this;
-       $this->mod_path = PATH_THIRD.DIRECTORY_SEPARATOR.strtolower($this->mod_class);
+       $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
        $this->lib_path = $this->mod_path.DIRECTORY_SEPARATOR.'libraries';
        $this->hook_path = $this->lib_path.DIRECTORY_SEPARATOR.'extension_hooks';
 
@@ -184,14 +182,20 @@ class Learning_tools_integration {
 
       require_once($entry_path);
 
-      $this->$method_name = $method;
+      if(isset($hook_method)) {
+        $this->$method_name = $hook_method;
 
-      if(isset($launch_instructor)) {
-            $this->extension_launch["instructor"][$method_name] = $launch_instructor;
-      }
+        if(isset($launch_instructor)) {
+              $this->extension_launch["instructor"][$method_name] = $launch_instructor;
+              //unset($launch_instructor);
+        }
 
-      if(isset($launch_student)) {
-            $this->extension_launch["student"][$method_name] = $launch_student;
+        if(isset($launch_student)) {
+              $this->extension_launch["student"][$method_name] = $launch_student;
+              //unset($launch_student);
+        }
+
+        //unset($hook_method);
       }
     }
 
@@ -295,7 +299,7 @@ class Learning_tools_integration {
         }
 
         if (ee()->TMPL) {
-            $this -> return_data =     ee() -> TMPL -> parse_variables(ee() -> TMPL -> tagdata, $this -> context_vars);
+            $this -> return_data = ee() -> TMPL -> parse_variables(ee() -> TMPL -> tagdata, $this -> context_vars);
         }
     }
 
@@ -352,8 +356,10 @@ class Learning_tools_integration {
             $this -> ext_launch_presentation_css_url = $this -> session_info['ext_launch_presentation_css_url'];
             $this->institution_id = $this -> session_info['institution_id'];
             $this->course_id = $this -> session_info['course_id'];
-            $this->lti_url_host = ee() -> TMPL -> fetch_param('lti_url_host');
-            $this->lti_url_path = $_SERVER["REQUEST_URI"];//.$this->get_query_string();
+
+            // convenience functions
+            $this->lti_url_host = parse_url($this->launch_presentation_return_url, PHP_URL_HOST);
+            $this->lti_url_path = parse_url($this->launch_presentation_return_url, PHP_URL_PATH);//.$this->get_query_string();
         }
 
         /* process feedback on targeted resource for student */
@@ -449,22 +455,6 @@ class Learning_tools_integration {
         ee()->config->set_item('disable_csrf_protection', 'n');
 
         return array_merge(array('error_messages' =>  ee() -> load -> view('lti-context-messages', $view_data, TRUE)), $tag_data);
-    }
-
-
-
-
-    private function grade_centre_login()
-    {
-           $query = ee()->db->get_where('lti_instructor_credentials', array('member_id' => $this->member_id));
-
-        if(!empty($query->row()->password)) {
-            $decrypted = Encryption::decrypt($query->row()->password, Encryption::get_salt($this->user_id.$this->context_id));
-
-           return $this->bb_lms_login($this->username, $decrypted);
-        } else {
-            return 1;
-        }
     }
 
     public static function logToJavascriptConsole($str) {
@@ -1757,60 +1747,9 @@ class Learning_tools_integration {
         return $userAgents[$random];
     }
 
-    public function bb_lms_login($user, $pass) {
-        $url = "https://uonline.newcastle.edu.au/webapps/login/";
 
-        // update this to contextualise cookies
-        $cookies = PATH_THIRD.$this->mod_class."data/".$this->member_id."_".$this->context_id."_".$this->institution_id."_cookie.txt";
 
-        if(file_exists($cookies)) {
-            unlink($cookies);
-        }
-
-        $data = array('action' => 'login', 'login' => 'Login', 'password' => $pass, 'user_id' => $user, 'new_loc' => '');
-        $post_str = http_build_query($data);
-        $length = strlen($post_str);
-        $agent = $this -> getRandomUserAgent();
-
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Length: $length", "Content-Type: application/x-www-form-urlencoded", "Cache-Control:max-age=0", "Host: uonline.newcastle.edu.au"));
-        curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
-        curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
-        curl_setopt($ch, CURLOPT_USERAGENT, $agent);
-        curl_setopt($ch, CURLOPT_POST, 5);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_str);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FRESH_CONNECT, TRUE);
-
-        $page = curl_exec($ch);
-
-        $doc = new DOMDocument();
-
-        $page = htmlspecialchars($page);
-
-        if($doc->loadHTML($page)) {
-            $el = $doc->getELementById("loginErrorMessage");
-
-            if($el !== NULL) {
-                return 1;
-            }
-
-            $el = $doc->getELementById("paneTabs");
-
-            if($el === NULL) {
-               if(strpos($page, "redirect") === FALSE) {
-                    return 2;
-               }
-            }
-        }
-
-        return array("cookies" => $cookies, "url" => $url, "ch" => $ch);
-    }
-
-    public function bb_dump_grade_centre() {
+    public function bb_dump_gradebook() {
 
         $json = $this->bb_fetch_grade_book();
 
@@ -1910,16 +1849,16 @@ class Learning_tools_integration {
     public function bb_fetch_grade_book() {
         if(!empty($this->cachedGradeBook)) return $this->cachedGradeBook;
 
-        if(!$this->grade_centre_auth) {
-            $this -> grade_centre_auth = $this->grade_centre_login();
-            if(!is_array($this->grade_centre_auth)) {
-                return "<p>Unable to connect to Grade Centre.  Try returning to the course and clicking the link again.</p>";
+        if(!$this->gradebook_auth) {
+            $this -> gradebook_auth = $this->gradebook_login();
+            if(!is_array($this->gradebook_auth)) {
+                return "<p>Unable to connect to the gradebook.  Try returning to the course and clicking the link again.</p>";
             }
         }
 
-        $cookies = $this->grade_centre_auth["cookies"];
-        $url = $this->grade_centre_auth["url"];
-        $ch = $this ->grade_centre_auth["ch"];
+        $cookies = $this->gradebook_auth["cookies"];
+        $url = $this->gradebook_auth["url"];
+        $ch = $this ->gradebook_auth["ch"];
 
         $url2 = "https://uonline.newcastle.edu.au/webapps/gradebook/do/instructor/getJSONData?course_id=".$this->pk_string;
 

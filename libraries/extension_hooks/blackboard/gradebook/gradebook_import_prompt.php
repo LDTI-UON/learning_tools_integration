@@ -1,6 +1,8 @@
 <?php
 require_once($this->lib_path.DIRECTORY_SEPARATOR.'Encryption.php');
-$method = function($view_data) {
+require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'auth'.DIRECTORY_SEPARATOR.'Auth.php');
+
+$hook_method = function($view_data) {
         ee() -> load -> helper('url');
             $view_data['email_settings'] = "";
 
@@ -152,9 +154,11 @@ $method = function($view_data) {
                         ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id));
 
                         if($decrypted !== FALSE) {
+                      
+                        $bb_auth = new Auth($this);
 
-                        $auth = $this->bb_lms_login($this->username, $decrypted);
-                        $this->grade_centre_auth = $auth;
+                        $auth = $bb_auth->bb_lms_login($this->username, $decrypted);
+                        $this->gradebook_auth = $auth;
 
                         $jsstr = "";
                         $jsfn = "";
@@ -221,7 +225,7 @@ return $view_data;
 $launch_instructor = function($params) {
         $view_data = $params['view_data'];
 
-        if($data = $this->grade_centre_import_prompt($view_data)) {
+        if($data = $this->gradebook_import_prompt($view_data)) {
               $params['view_data'] = $data;
         }
 
