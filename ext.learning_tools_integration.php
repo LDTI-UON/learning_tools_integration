@@ -102,25 +102,25 @@ class Learning_tools_integration_ext {
 
 		if(!ee()->input->post("segment") && !isset($_GET['s'])) { // if not an ajax or download request
 			$segs = ee()->uri->segment_array();
-			$oauth_key = ee()->input->post('oauth_consumer_key');
+
 			$myseg = array_pop($segs);
 
 			if(strlen($myseg) == 0) {
 						die('This URL is only accessible via a legitimate LTI launch.');
 			}
 
-			$result = ee()->db->get_where('blti_keys', array('url_segment' => $myseg, 'oauth_consumer_key' => $oauth_key));
+			$result = ee()->db->get_where('blti_keys', array('url_segment' => $myseg));
 
 			// may be a sub-page
 			if($result->num_rows() == 0) {
 				$set = implode("|", $segs);
 				$set = "'$set'";
-
+				//echo "Calling set $set";
 				if(strlen($set) == 0) {
 						die('This URL is only accessible via a legitimate LTI launch.');
 				}
 
-				ee()->db->where("url_segment REGEXP ($set) AND oauth_consumer_key = '$oauth_key'");
+				ee()->db->where("url_segment REGEXP ($set)");
 				$result = ee()->db->get('blti_keys');
 
 				if($result->num_rows() == 0) {
@@ -162,10 +162,6 @@ class Learning_tools_integration_ext {
 		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['context_id']);
 
 		if (!$new_launch && empty(static::$session_info)) {
-
-            // TODO: this relied on a bug in EE 2, which no longer exists in EE 3!
-            // we need to persist this id in EVERY form so that we can POST data!
-
 			$_m = $session->userdata('member_id');
 
 			if(!empty($_m)) {

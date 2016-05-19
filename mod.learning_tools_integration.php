@@ -1,6 +1,4 @@
-<?php
-if (!defined('BASEPATH'))
-    exit('No direct script access allowed');
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * ExpressionEngine - by EllisLab
@@ -27,9 +25,6 @@ if (!defined('BASEPATH'))
  */
 
 require_once ("libraries/utils.php");
-require_once ("libraries/EmailImport.php");
-require_once ("libraries/Encryption.php");
-require_once ("libraries/StudentFile.php");
 require_once ("libraries/ResourceFile.php");
 
 define('LTI_FILE_UPLOAD_PATH', PATH_THIRD."learning_tools_integration/cache"); //@TODO: move to control panel settings
@@ -134,10 +129,16 @@ class Learning_tools_integration {
 
     public $use_resources = 0;
 
-    private $extension_launch = array("instructor" => array(), "student" => array());
+    /* launch hook methods */
+    private $extension_launch = array("instructor" => array(), "general" => array());
     private $lib_path;
     private $hook_path;
 
+    /* launch hook variables */
+    private $hook_vars = array();
+
+    // storage for hook toggles
+    private $tmpl_param_tags;
     /**
      * Constructor
      */
@@ -185,17 +186,23 @@ class Learning_tools_integration {
       if(isset($hook_method)) {
         $this->$method_name = $hook_method;
 
+        if(isset($tmpl_params)) {
+            foreach($tmpl_params as $param) {
+                    $this->$param = ee() -> TMPL -> fetch_param($param);
+            }
+        }
+
         if(isset($launch_instructor)) {
               $this->extension_launch["instructor"][$method_name] = $launch_instructor;
-              //unset($launch_instructor);
+              unset($launch_instructor);
         }
 
-        if(isset($launch_student)) {
-              $this->extension_launch["student"][$method_name] = $launch_student;
-              //unset($launch_student);
+        if(isset($launch_general)) {
+              $this->extension_launch["general"][$method_name] = $launch_general;
+              unset($launch_general);
         }
 
-        //unset($hook_method);
+        unset($hook_method);
       }
     }
 
@@ -217,6 +224,41 @@ class Learning_tools_integration {
       }
     }
 
+    /*  These magic methods are used
+    *   to toggle hooks on and off via template variables.
+    */
+    public function __set($name, $value)
+   {
+       $this->hook_vars[$name] = $value;
+   }
+
+   public function __get($name)
+   {
+       if (array_key_exists($name, $this->hook_vars)) {
+           return $this->hook_vars[$name];
+       }
+
+       $trace = debug_backtrace();
+       trigger_error(
+           'Undefined property via __get(): ' . $name .
+           ' in ' . $trace[0]['file'] .
+           ' on line ' . $trace[0]['line'],
+           E_USER_NOTICE);
+       return null;
+   }
+
+   /**  As of PHP 5.1.0  */
+   public function __isset($name)
+   {
+       return isset($this->hook_vars[$name]);
+   }
+
+   /**  As of PHP 5.1.0  */
+   public function __unset($name)
+   {
+       unset($this->hook_vars[$name]);
+   }
+
     public static function get_instance() {
         if(static::$instance === NULL) {
             static::$instance =& $this;
@@ -227,7 +269,7 @@ class Learning_tools_integration {
 
     public function get_base_url() {
     	return $this->base_url;
-    }
+  }
 
 	private function init() {
 	       $this->member_id =   ee() -> session -> userdata('member_id');
@@ -247,18 +289,18 @@ class Learning_tools_integration {
 
         $this -> base_segment = Learning_tools_integration_ext::$base_segment;
 
-    if(ee()->TMPL) {
-        $this -> include_groups = ee() -> TMPL -> fetch_param('include_groups');
-        $this -> use_resources = ee() -> TMPL -> fetch_param('use_resources');
-        $this -> prev_link_url =   ee() -> TMPL -> fetch_param('prev_link_url');
-        $this -> next_link_url =   ee() -> TMPL -> fetch_param('next_link_url');
-        $this -> first_link_url =   ee() -> TMPL -> fetch_param('first_link_url');
-        $this -> last_link_url =   ee() -> TMPL -> fetch_param('last_link_url');
-		        $group_id =    ee() -> TMPL -> fetch_param('group_id');
+        if(ee()->TMPL) {
+              $this -> include_groups = ee() -> TMPL -> fetch_param('include_groups');
+          //    $this -> use_resources = ee() -> TMPL -> fetch_param('use_resources');
+              $this -> prev_link_url =   ee() -> TMPL -> fetch_param('prev_link_url');
+              $this -> next_link_url =   ee() -> TMPL -> fetch_param('next_link_url');
+              $this -> first_link_url =   ee() -> TMPL -> fetch_param('first_link_url');
+              $this -> last_link_url =   ee() -> TMPL -> fetch_param('last_link_url');
+      		        $group_id =    ee() -> TMPL -> fetch_param('group_id');
 
-		        $pls = ee() -> TMPL -> fetch_param('plugins');
-		        static::$lti_plugins = explode(",", strtolower($pls));
-   }
+      		        $pls = ee() -> TMPL -> fetch_param('plugins');
+      		        static::$lti_plugins = explode(",", strtolower($pls));
+        }
 
         $this->plugin_setup_text = array();
 
@@ -415,21 +457,15 @@ class Learning_tools_integration {
         $params = array("view_data" => $view_data, "tag_data" => $tag_data, "error" => $error, "state" => $state);
 
         if (!empty($this -> isInstructor)) {
-
             foreach($this->extension_launch['instructor'] as $launch) {
                   $params = $launch($params);
             }
 
             $view_data = $params['view_data'];
-            /* order by execution order (eg. upload student list needs general settings to run) */
-            $tag_data = array_merge(array("general_settings_form" => $this->general_settings_form(),
-                                          "upload_student_list" => $this -> upload_student_list(),
-                                          "student_table" => $this -> student_table(),
-            								              "upload_blackboard_rubric" => $this->upload_blackboard_rubric(),
-                                      ), $tag_data);
+            $tag_data = $params['tag_data'];
 
             if(!empty($this->use_resources)) {
-            	$tag_data["resource_settings_form"] = $this -> resource_settings_form();
+            //	$tag_data["resource_settings_form"] = $this -> resource_settings_form();
             	$tag_data["upload_student_resources_form"] = $this -> upload_student_resources_form();
             	$tag_data["random_form"] = $this -> random_form();
               $tag_data["random_remainder_form"] = $this -> random_remainder_form();
@@ -444,7 +480,6 @@ class Learning_tools_integration {
                  }
               }
             }
-
         }
 
         if(!empty($this->use_resources) && $this->use_resources === 'download_link') {
@@ -469,133 +504,6 @@ class Learning_tools_integration {
         return lang('student_resource_table_heading');
     }
 
-    private function upload_student_list() {
-
-        $form = "";
-        $errors = "";
-
-        $setup = array();
-
-        if (isset($_POST['do_upload'])) {
-        	$group_students = isset($_POST['group_students']) ? $_POST['group_students'] : '';
-
-
-        	if(!empty(Learning_tools_integration::$lti_plugins)) {
-        		foreach(Learning_tools_integration::$lti_plugins as $plugin) {
-        			$setup[$plugin] = !empty($_POST["setup_$plugin"]) ? $_POST["setup_$plugin"] : '';
-        		}
-        	}
-
-        	$config['upload_path'] = LTI_FILE_UPLOAD_PATH;
-        	$config['allowed_types'] = 'csv';
-        	$config['max_size'] = '5242880';
-
-        	ee() -> load -> library('upload', $config);
-
-        	if (! ee() -> upload -> do_upload()) {
-        		$errors =   ee() -> upload -> display_errors();
-        	} else {
-
-        		$file_data =    ee() -> upload -> data();
-        		$file_name = $file_data['file_name'];
-        		$ext = strtoupper(end(explode(".", $file_name)));
-
-        		/*if (!in_array($ext, array("CSV"))) {
-        			$errors .= "<br>'$ext' Filetype not allowed.";
-        		}*/
-
-        		if (!$errors) {
-        			$form .= "<h1>Upload Successful</h1>";
-
-        			// instantiate file import object
-        			$importer = new StudentFile($this->member_id, $this->context_id, $setup);
-
-        			$result = $importer->import($group_students, $file_data['full_path']);
-        		}
-
-        	$errors .= $result['errors'];
-        	$form .= $result['message'];
-        	}
-        } else {
-
-	        $query = ee()->db->get_where('lti_instructor_credentials', array('member_id' => $this->member_id));
-
-	        if($query->num_rows() > 0) {
-		        if($query->row()->state == 0) {
-		        		$email_export_message = "<p tyle='color: darkblue; font-weight: 900'>".lang('email_export_message')." <a href='#' id='manual'>".lang('access_manual_upload_link')."</a></p>";
-		        		$email_export_message .= get_js_file_for_output('upload_student_list');
-
-
-		        } else if ($query->row()->state == 2){
-		        	$email_export_message = "<p style='color: white; font-weight: 900; background-color: red'>".lang('email_export_bad_password')."</p>";
-		        } else if ($query->row()->state == 3){
-		        	$email_export_message = "<p style='color: white; font-weight: 900; background-color: red'>".lang('email_export_not_functional')."</p>";
-		        }
-		        if(isset($email_export_message)) {
-		        	$form .= $email_export_message;
-		        }
-	        }
-        }
-
-        ee() -> load -> helper('form');
-        ee() -> load -> helper('url');
-
-        $settings = $this->get_general_settings();
-
-        $enable_group_import = $settings["enable_group_import"];
-        $plugins_active = $settings["plugins_active"];
-
-        $form .= "<span id='manualUploadInfo'><p>".lang('upload_student_list')."<br><strong>".lang('upload_tip')."</strong></p>";
-        $form .= form_open_multipart($this->base_url);
-        $form .= form_upload('userfile', 'userfile');
-        $form .= "<br><br><p>Change these settings in <b>General Settings for Groups &amp; Plugins</b><br><br>If selected, will include group columns in upload<br>";
-        $form .= form_checkbox(array('name'=>'group_students', 'id' => 'group_students', 'value' =>'1', 'checked' => $enable_group_import == 1, "disabled" => "disabled"));
-        $form .= " include user groups columns<br></p>";
-
-        if(!empty(static::$lti_plugins)) {
-            foreach(static::$lti_plugins as $plugin) {
-            	if(!empty($plugin)) {
-                    $active = FALSE;
-                    if($settings['row_count'] == 1) {
-                        $active = isset($plugins_active[$plugin]) && $plugins_active[$plugin] == 1;
-                    }
-
-                    $form .= "<br><p>".$this->plugin_setup_text[$plugin."_description"];
-	                $form .= form_checkbox(array('name' => 'setup_'.$plugin, 'id'=>'setup_'.$plugin, "value" =>'1', "checked" => $active, 'disabled' => 'disabled'));
-	                $form .= $this->plugin_setup_text[$plugin]."</p>";
-            	}
-            }
-        }
-
-        $form .= "<br>";
-        $form .= form_hidden('do_upload', 'yep');
-        $form .= form_submit("upload", "Upload");
-        $form .= form_close();
-
-        if(!empty($errors)) {
-
-            $form .= "<span id='lti_peer_assess_error_field' class='errorTextField' style='display: block; color: white; font-size: 10pt; font-family: courier, monospace; background-color: black; padding: 0.5em'>
-                        $errors
-                      </span><script type='application/javascript'>$(document).ready(function() { $(\"html,body\").animate({
-        scrollTop: $(\"span#lti_peer_assess_error_field\").offset().top
-    }, 1000);  }); </script>";
-            $form .= "<br>";
-        }
-        $form .= "</span>";
-
-    return $form;
-    }
-
-    public function get_instructor_settings() {
-        $result =  ee() -> db -> get_where("lti_instructor_settings", array("course_key" => $this -> course_key, "institution_id" => $this->institution_id));
-
-        if ($result -> num_rows() == 1) {
-            return($result -> row());
-        } else {
-            return FALSE;
-        }
-    }
-
     public function upload_student_resources_form() {
 
         $errors = "";
@@ -608,7 +516,8 @@ class Learning_tools_integration {
         $problem_prefix = 'problem_';
         $solution_prefix = 'solution_';
 
-        $row = $this->get_instructor_settings();
+        $settings = new Settings($this);
+        $row = $settings->get_instructor_settings();
 
         if($row) {
              $problem_prefix = $row -> problem_prefix;
@@ -833,126 +742,6 @@ class Learning_tools_integration {
     	return $form;
     }
 
-    public function resource_settings_form() {
-        $table = "lti_instructor_settings";
-        $result =   ee() -> db -> get_where($table, array("course_key" => $this->course_key, "institution_id" => $this->institution_id));
-        $row_count = $result -> num_rows();
-
-        if ($row_count == 1) {
-            $problem_prefix = $result -> row() -> problem_prefix;
-            $solution_prefix = $result -> row() -> solution_prefix;
-        }
-
-        if(isset($_POST['problem_prefix'])) {
-            $problem_prefix = ee() -> input -> post("problem_prefix");
-        }
-
-        if(isset($_POST['solution_prefix'])) {
-            $solution_prefix = ee() -> input -> post("solution_prefix");
-        }
-
-        if (isset($_POST['save_settings'])) {
-            if ($row_count == 1) {
-                ee() -> db -> where(array("institution_id" => $this->institution_id, "course_key" => $this->course_key));
-                ee() -> db -> update($table, array("problem_prefix" => $problem_prefix, "solution_prefix" =>  $solution_prefix));
-            } else {
-                ee() -> db -> insert($table, array("course_key" => $this->course_key, "institution_id" => $this->institution_id, "problem_prefix" => $problem_prefix, "solution_prefix" => $solution_prefix));
-            }
-        }
-
-        ee() -> load -> helper('form');
-
-        $form = "<p>ZIP file problem and solution settings for $this->course_name.</p>";
-        $form .= form_open_multipart($this->base_url);
-        $form .= form_hidden('save_settings', '1');
-        $form .= lang('problem_prefix') . " ";
-        $form .= form_input(array('name' => 'problem_prefix', 'id' => 'problem_prefix', 'value' => $problem_prefix, 'maxlength' => '20', 'size' => '20'));
-        $form .= "<br>";
-        $form .= lang('solution_prefix') . " ";
-        $form .= form_input(array('name' => 'solution_prefix', 'id' => 'solution_prefix', 'value' => $solution_prefix, 'maxlength' => '20', 'size' => '20'));
-        $form .= "<br>";
-        $form .= form_submit("Save Settings", "Save");
-        $form .= form_close();
-
-        return $form;
-    }
-
-
-    private function get_general_settings() {
-        $result =   ee() -> db -> get_where("lti_instructor_settings", array("course_key" => $this->course_key, "institution_id" => $this->institution_id));
-
-        $row_count = $result -> num_rows();
-        $plugins_active = array();
-
-        if ($row_count == 1) {
-            $enable_group_import = $result -> row() -> enable_group_import;
-            $pa = $result -> row() -> plugins_active;
-            if(!empty($pa)) {
-                $plugins_active = unserialize($pa);
-            }
-        } else {
-            $enable_group_import = 1;
-        }
-
-       return array("enable_group_import" => $enable_group_import, "plugins_active" => $plugins_active, "row_count" => $row_count);
-    }
-    /*  THOUGHT: ??group settings should be placed in instructor settings table, peer assessment tick box removed and
-                activated automatically when placed in template
-                plugins parameter??
-    */
-    private function general_settings_form() {
-        $settings = $this->get_general_settings();
-
-        $enable_group_import = $settings["enable_group_import"];
-        $plugins_active = $settings["plugins_active"];
-        $row_count = $settings["row_count"];
-
-        $table = "lti_instructor_settings";
-
-        ee() -> load -> helper('form');
-        $form = form_open($this->base_url);
-
-        if(!empty(static::$lti_plugins)) {
-            foreach(static::$lti_plugins as $plugin) {
-            	if(!empty($plugin)) {
-                    if(isset($_POST["enable_$plugin"])) {
-                         $plugins_active[$plugin] = 1;
-                    } else if(isset($_POST['_settings_1'])){
-                         $plugins_active[$plugin] = 0;
-                    }
-
-                    $form .= "<p>".$this->plugin_setup_text[$plugin."_description"];
-                    $form .= form_checkbox(array('name' => "enable_$plugin", 'id' => "enable_$plugin", 'value' => '1', 'checked' => isset($plugins_active[$plugin]) && $plugins_active[$plugin] == 1));
-                    $form .= $this->plugin_setup_text[$plugin];
-                    $form .= "</p><br>";
-            	}
-            }
-        }
-
-        if (isset($_POST['enable_group_import'])) {
-            $enable_group_import = 1;
-        } else if(isset($_POST['_settings_1'])) {
-            $enable_group_import = 0;
-        }
-
-            if ($row_count == 1) {
-                ee() -> db -> where(array("institution_id" => $this->institution_id, "course_key" => $this->course_key));
-                ee() -> db -> update($table, array("enable_group_import" => $enable_group_import, "plugins_active" => serialize($plugins_active)));
-            } else {
-                ee() -> db -> insert($table, array("course_key" => $this->course_key, "institution_id" => $this->institution_id, "enable_group_import" => $enable_group_import, "plugins_active" => serialize($plugins_active)));
-            }
-
-        $form .= lang('enable_group_import') . " ";
-        $form .= "<p>";
-        $form .= form_checkbox(array('name' => 'enable_group_import', 'id' => 'enable_group_import', 'value' => '1', 'checked' => $enable_group_import == 1));
-        $form .= form_hidden("_settings_1", "1");
-        $form .= "Groups will be imported</p><br>";
-        $form .= form_submit("save", "Save Group and Plugin Settings");
-        $form .= form_close();
-
-        return $form;
-    }
-
     private function unpack_rubric_archive($path, $zip_file_name, $rubric_dir) {
         $zip = new ZipArchive;
 	    $res = $zip -> open($path.DIRECTORY_SEPARATOR.$zip_file_name);
@@ -971,165 +760,7 @@ class Learning_tools_integration {
 		unlink($path.DIRECTORY_SEPARATOR.$zip_file_name);
     }
 
-    public function upload_blackboard_rubric() {
-    	if(empty($this->isInstructor)) { return FALSE; }
 
-    	if(isset($_POST['no_reload'])) { return FALSE; }
-
-    	if(isset($_GET['rubric_id'])) {
-    		foreach(static::$lti_plugins as $plugin) {
-    			require_once (PATH_THIRD.$plugin.DIRECTORY_SEPARATOR."libraries".DIRECTORY_SEPARATOR.$plugin."_rubric.php");
-    		}
-    	}
-
-    	require_once('libraries/bb-rubric-import/libs/BB_Resources.php');
-    	require_once('libraries/bb-rubric-import/libs/BB_Rubrics.php');
-
-    	$vars = array();
-    	$config = array();
-    	$errors = "";
-    	$form = "";
-    	$msg = "";
-
-    	$init_rubric_res = ee()->db->get_where("lti_course_link_resources", array("course_id" => $this->course_id, "resource_link_id" => $this->resource_link_id));
-
-    	$init_rubric = 0;
-    	if($init_rubric_res->num_rows() == 1) {
-    		$init_rubric = $init_rubric_res->row()->rubric_id;
-    	}
-
-    	$path = build_course_upload_path(LTI_FILE_UPLOAD_PATH.DIRECTORY_SEPARATOR.'cache', $this->context_id, $this->institution_id, $this->course_id);
-
-    	$rubric_dir = $path.DIRECTORY_SEPARATOR."rubrics";
-
-    	if(!file_exists($rubric_dir)){
-	    	if(!mkdir($rubric_dir)) {
-	    		die("Unable to create rubric folder.");
-	    	} else {
-		    	chmod($rubric_dir, 0775);
-	    	}
-    	}
-
-        $file_name = "";
-
-    	if (isset($_POST['do_upload_rubric'])) {
-    		$config['upload_path'] = $rubric_dir;
-    		$config['allowed_types'] = 'zip';
-    		$config['max_size'] = '';
-
-    		ee() -> load -> library('upload', $config);
-
-    		//ee()->upload->allowed_types = 'zip';
-
-    		if (! ee() -> upload -> do_upload()) {
-    			$errors .=   ee() -> upload -> display_errors();
-    		} else {
-    			$file_data =    ee() -> upload -> data();
-
-    			$file_name = $file_data['file_name'];
-    			$ext = strtoupper(end(explode(".", $file_name)));
-
-    			if (!in_array($ext, array("ZIP"))) {
-    				$errors .= "<br>'$ext' Filetype not allowed.";
-    			}
-
-    			if (!$errors) {
-    				$msg = "Upload Successful";
-                    $this->unpack_rubric_archive($file_data['file_path'], $file_name, $rubric_dir);
-    			}
-    		}
-    	}
-
-    	$resources = new BB_Resources($rubric_dir); // check for imsmanifest.xml
-    	$rubric_html_dir = $rubric_dir.DIRECTORY_SEPARATOR."html";
-
-        // import new rubrics
-    	if($resources->isValid() === TRUE) {
-
-	    	if(!file_exists($rubric_html_dir)){
-	    		if(!mkdir($rubric_html_dir)) {
-	    			die("Unable to create rubric html source folder.");
-	    		}
-	    	}
-
-	    	$rubric_builder = new BB_Rubrics($resources->rubric->bbFile, $rubric_dir);
-	    	$rubrics = $rubric_builder->getRubrics();
-
-	    	foreach($rubrics as $key => $rub) {
-	    		$file_name = $rubric_html_dir.DIRECTORY_SEPARATOR.$rub['title']."|grid|$rub[total_score]|$key.html";
-	    		file_put_contents($file_name, $rub["grid_html"]);
-
-	    		$file_name = $rubric_html_dir.DIRECTORY_SEPARATOR.$rub['title']."|list|$rub[total_score]|$key.html";
-
-                file_put_contents($file_name, $rub["list_html"]);
-	    	}
-    	}
-
-        $dir = array();
-    	if(file_exists($rubric_html_dir)) {
-    		$dir = scandir($rubric_html_dir);
-    	}
-
-    	ee() -> load -> helper('form');
-
-    	$options = array("del" => "-- no rubric --");
-
-    	if(! function_exists("_allowed")) {
-    		function _allowed($_m) {
-    			return (!empty($_m) && $_m !== "." && $_m !== "..");
-    		}
-    	}
-
-    	$dir = array_filter($dir, "_allowed");
-
-    	foreach($dir as $item) {
-    		$filename = explode("|", $item);
-    		$title = $filename[0];
-            $score = $filename[2];
-
-            $id = explode(".", $filename[count($filename)-1])[0];
-
-            if($init_rubric == $id) {
-    		  $init_rubric = $init_rubric."|".$score;
-            }
-
-            $id = $id."|".$score;
-
-    		$options[$id] = $title;
-    	}
-
-    	$form = form_open_multipart($this->base_url);
-    	$form .= form_label("Rubric ZIP file:", "userfile");
-    	$form .= form_hidden("do_upload_rubric", "1");
-    	$form .= form_upload('userfile', 'userfile');
-    	$form .= form_submit("Upload","upload");
-    	$form .= "<p> $errors $msg </p>";
-    	$form .= form_close();
-    	$form .= "<br><br>";
-    	$form .= form_open_multipart($this->base_url);
-    	$form .= form_label("Available Rubrics:  ", "rubric_dd");
-
-    	$form .= form_dropdown("rubrics", $options, $init_rubric, "id='rubric_dd'");
-    	$form .= form_checkbox("preview", "prev", FALSE, "id='preview_cb'");
-    	$form.= form_label("Preview", "preview_cb", array("title" => "Displays rubric for your inspection when selected"));
-
-    	$form .= "<p>";
-    	$form .= form_label('Attach this rubric:  ', 'attach', array('for' => 'attach'));
-
-    	$form .= form_button('attach', 'Attach', "id='attach'");
-        $form .= "<img id='rub_loader' src='".URL_THIRD_THEMES."learning_tools_integration/img/loader.gif' style='display:none'/><span id='loader_msg'></span>";
-    	$form .= "</p>";
-    	$form .= form_close();
-
-    	$vars['form'] = $form;
-    	$vars['base_url'] = $this->base_url;
-
-        if(!empty($init_rubric)) {
-            $vars['disable_instructor_score_setting'] = TRUE;
-        }
-
-    	return ee() -> load -> view('instructor/rubric-interface.php', $vars, TRUE);
-    }
 
     public function render_blackboard_rubric() {
         $raw_id = ee()->input->post("id");
@@ -1173,134 +804,6 @@ class Learning_tools_integration {
 
     public function is_solution_request() {
         return isset($_REQUEST['custom_provide_solution']);
-    }
-
-    public function student_table() {
-        // pagination varies according to input
-        $segments =   ee() -> uri -> segment_array();
-        $my_segment = end($segments);
-
-        if(count($segments) > 3) {
-        	$prev = $segments[count($segments) - 3];
-        } else {
-        	$prev = prev($segments);
-        }
-
-        if ($prev == 'student_table' && is_numeric($my_segment)) {
-            $rownum = $my_segment;
-        } else {
-            $rownum = 0;
-        }
-
-        // is_numeric avoids XSS issues
-        $ppage = isset($_REQUEST['per_page']) && is_numeric($_REQUEST['per_page'])? $_REQUEST['per_page'] : $this->perpage;
-        $st_search = isset($_REQUEST['st_search']) ? ee()->security->xss_clean($_REQUEST['st_search']) : "";
-
-        // check if user went via pagination
-        if(count($segments) > 3) {
-
-        	if(!isset($_REQUEST['per_page'])) {
-		        if($segments[$this->pagination_segment] !== $ppage) {
-		        	$ppage = $segments[$this->pagination_segment];
-		        }
-        	}
-        	if(!isset($_REQUEST['st_search'])) {
-		        if($segments[$this->pagination_segment+1] !== $st_search) {
-		        	$st_search = $segments[$this->pagination_segment+1];
-		        }
-        	}
-        }
-
-        $groups = isset($this -> include_groups) ? ",lti_group_contexts.group_no, lti_group_contexts.group_name" : '';
-        //ee() -> db -> save_queries = true;
-        ee() -> db -> select("members.member_id, members.screen_name, members.username, members.email, lti_member_resources.display_name $groups");
-        ee() -> db -> join("lti_member_contexts", "members.member_id = exp_lti_member_contexts.member_id AND exp_lti_member_contexts.context_id = '$this->context_id'
-                        AND lti_member_contexts.tool_consumer_instance_id = '$this->tool_consumer_instance_id' AND lti_member_contexts.is_instructor = '0'");
-
-        if (!empty($groups)) {
-            ee() -> db -> join('lti_group_contexts', 'lti_member_contexts.id = lti_group_contexts.internal_context_id', 'left outer');
-        }
-
-        ee() -> db -> join('lti_member_resources', 'lti_member_contexts.id = lti_member_resources.internal_context_id', 'left outer');
-
-        $wsql = "(".ee()->db->dbprefix."lti_member_resources.type IS NULL OR ".ee()->db->dbprefix."lti_member_resources.type = 'P')";
-
-        if(!empty($st_search) && $st_search !== "__empty__") {
-        	$gsql = "";
-        	if(isset($this -> include_groups)) {
-        		$gsql = ee()->db->dbprefix."lti_group_contexts.group_name LIKE '%$st_search%' OR";
-        	}
-
-        	$members_table = ee()->db->dbprefix."members";
-        	$wsql .= " AND ($gsql $members_table.screen_name LIKE '%$st_search%' OR $members_table.username LIKE '%$st_search%' OR $members_table.email LIKE '%$st_search%')";
-
-        }
-
-        ee() -> db -> where($wsql);
-
-        ee() -> db -> from('members');
-
-        $total =   ee() -> db -> count_all_results();
-
-        ee() -> db -> select("members.member_id, members.screen_name, members.username, members.email, lti_member_resources.display_name $groups");
-        ee() -> db -> join("lti_member_contexts", "members.member_id = lti_member_contexts.member_id AND exp_lti_member_contexts.context_id = '$this->context_id'
-                        AND lti_member_contexts.tool_consumer_instance_id = '$this->tool_consumer_instance_id' AND lti_member_contexts.is_instructor = '0'");
-
-        if (!empty($groups)) {
-            ee() -> db -> join('lti_group_contexts', 'lti_member_contexts.id = lti_group_contexts.internal_context_id', 'left outer');
-        }
-
-        ee() -> db -> join('lti_member_resources', 'lti_member_contexts.id = lti_member_resources.internal_context_id', 'left outer');
-
-        ee() -> db -> where($wsql);
-        //ee() -> db -> or_where("lti_member_resources.type = 'P'");
-
-        ee() -> db -> from('members');
-        ee() -> db -> limit($ppage, $rownum);
-
-        $query =   ee() -> db -> get();
-        $vars = array();
-
-        foreach ($query->result_array() as $row) {
-            $vars['students'][$row['member_id']]['member_id'] = $row['member_id'];
-            $vars['students'][$row['member_id']]['screen_name'] = $row['screen_name'];
-            $vars['students'][$row['member_id']]['username'] = $row['username'];
-            $vars['students'][$row['member_id']]['email'] = $row['email'];
-            $vars['students'][$row['member_id']]['display_name'] = $row['display_name'];
-            if (!empty($groups)) {
-                $vars['students'][$row['member_id']]['group_no'] = $row['group_no'];
-                $vars['students'][$row['member_id']]['group_name'] = $row['group_name'];
-            }
-
-            foreach(static::$lti_plugins as $plugin) {
-	               // include(PATH_THIRD."$plugin/libraries/".$plugin."_student_table.php");
-	        }
-        }
-
-        $vars['include_groups'] = $this -> include_groups;
-        // Pass the relevant data to the paginate class so it can display the "next page" links
-        ee() -> load -> library('pagination');
-
-        $data_segments = array();
-        $data_segments[] = $ppage;
-        $data_segments[] = empty($st_search) ? "__empty__" : $st_search;
-
-        $p_config = $this -> pagination_config('student_table', $total, $ppage, $data_segments);
-        ee() -> pagination -> initialize($p_config);
-
-        $vars['pagination'] =   ee() -> pagination -> create_links();
-
-		ee() -> load -> helper('form');
-
-		$ppage_output = form_open_multipart($this->base_url, array("id" => "filters"));
-		$ppage_output .= lang('student_rows_per_page') . ":&nbsp;".form_input(array('name' => 'per_page', 'id' => 'per_page', 'value' => $ppage, 'maxlength' => '5', 'size' => '5'));
-		$ppage_output .= "&nbsp;".lang('search_students') . ":&nbsp;".form_input(array('name' => 'st_search', 'id' => 'st_search', 'value' => empty($st_search) || $st_search === "__empty__" ? "" : $st_search, 'maxlength' => '20', 'size' => '9'));
-
-		$ppage_output .= form_close();
-		$ppage_output .= "<script type='text/javascript'>".file_get_contents($this->mod_path.'/js/input_filters.js')."</script>";
-		$vars['per_page'] = $ppage_output;
-
-        return ee() -> load -> view('instructor/student-table', $vars, TRUE);
     }
 
     public function total_resources() {// only counts 'problem' files, solutions not included
@@ -1739,143 +1242,7 @@ class Learning_tools_integration {
 
         die(json_encode($json_response));
     }
-
-    function getRandomUserAgent() {
-        $userAgents = array("Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30)", "Opera/9.20 (Windows NT 6.0; U; en)", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; en) Opera 8.50", "Mozilla/4.0 (compatible; MSIE 6.0; MSIE 5.5; Windows NT 5.1) Opera 7.02 [en]", "Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; fr; rv:1.7) Gecko/20040624 Firefox/0.9", "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/48 (like Gecko) Safari/48");
-        $random = rand(0, count($userAgents) - 1);
-
-        return $userAgents[$random];
-    }
-
-
-
-    public function bb_dump_gradebook() {
-
-        $json = $this->bb_fetch_grade_book();
-
-        if(is_array($json)) {
-            $str = "<h1>Grade Centre Dump</h1>"."<h2>Keys</h2><pre>".var_export(array_keys($json), TRUE)."</pre>".
-            "<h1>Grade Book</h1>";
-
-            $gbook = isset($json['cachedBook']) ? $json['cachedBook'] : $json;
-
-            foreach(array_keys($gbook) as $key) {
-                $str .= "<h2>$key</h2>";
-                $str .= "<pre>".var_export($gbook[$key], TRUE)."</pre>";
-            }
-
-            return $str;
-        } else {
-            return "<h1>You are not authorised to access grade centre for this course</h1>";
-        }
-    }
-
-
-
-    public function bb_import_groups_from_grade_book($lastLogEntryTS) {
-
-        $full_gradebook = $this->bb_fetch_grade_book();
-
-        $stored_gradebook = NULL;
-        $row = $this->get_instructor_settings();
-
-        if($row !== FALSE) {
-            if(!empty($row->gradebook)) {
-                $stored_gradebook = unserialize($row->gradebook);
-            }
-            $group_students = $row->enable_group_import;
-        }
-
-        if($full_gradebook) {
-        $gbook = isset($full_gradebook['cachedBook']) ? $full_gradebook['cachedBook'] : $full_gradebook;
-
-        // update last log entry
-        if(!empty($gbook)) {
-            $parsed = date_parse_from_format("d M Y H:i", $gbook['lastLogEntryTS']);
-
-            $new = mktime(
-                    $parsed['hour'],
-                    $parsed['minute'],
-                    $parsed['second'],
-                    $parsed['month'],
-                    $parsed['day'],
-                    $parsed['year']
-            );
-
-            if(array_key_exists('customViews', $gbook) === TRUE) {
-                $gb_signature = array($gbook['customViews'], $gbook['groups']);
-            } else {
-                return array("errors" => "Please setup Smart Views for the groups you need to import.");
-            }
-
-            if($row === FALSE) {
-                ee()->db->insert("lti_instructor_settings", array("course_key" => $this->course_key, "institution_id" => $this->institution_id, "gradebook" => serialize($gb_signature)));
-
-                $lastLogEntryTS = $new;
-                $stored_gradebook = $gb_signature;
-            }
-
-            if($new != $lastLogEntryTS || $stored_gradebook != $gb_signature) {
-                $lastLogEntryTS = $new;
-
-                ee()->db->where(array("course_key" => $this->course_key, "institution_id" => $this->institution_id));
-                ee()->db->update("lti_instructor_settings", array("gradebook" => serialize($gb_signature)));
-            } else {
-                return array("message" => "Grade Centre is synchronized.", "lastLogEntryTS" => FALSE);
-            }
-
-        } else {
-            return array("errors" => "Unable to get date of last grade centre entry.");
-        }
-            $settings = $this->get_general_settings();
-
-            $plugin_settings = $settings["plugins_active"];
-
-            $s_file = new StudentFile($this->member_id, $this->context_id, $plugin_settings);
-
-             $arr = $s_file->import_from_blackboard($group_students, $full_gradebook);
-
-             // notify process to update DB table
-             $arr['lastLogEntryTS'] = $lastLogEntryTS;
-
-             return $arr;
-        } else {
-            return FALSE;
-        }
-
-
-    }
-
-    public function bb_fetch_grade_book() {
-        if(!empty($this->cachedGradeBook)) return $this->cachedGradeBook;
-
-        if(!$this->gradebook_auth) {
-            $this -> gradebook_auth = $this->gradebook_login();
-            if(!is_array($this->gradebook_auth)) {
-                return "<p>Unable to connect to the gradebook.  Try returning to the course and clicking the link again.</p>";
-            }
-        }
-
-        $cookies = $this->gradebook_auth["cookies"];
-        $url = $this->gradebook_auth["url"];
-        $ch = $this ->gradebook_auth["ch"];
-
-        $url2 = "https://uonline.newcastle.edu.au/webapps/gradebook/do/instructor/getJSONData?course_id=".$this->pk_string;
-
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_URL, $url2);
-        curl_setopt($ch, CURLOPT_REFERER, $url);
-        curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
-        $page2 = curl_exec($ch);
-
-        curl_close($ch);
-
-        $this->cachedGradeBook = json_decode($page2, TRUE);
-
-        return $this->cachedGradeBook;
-    }
-
-}
+  }
 
 //spl_autoload_register(array('Learning_tools_integration', 'autoloader'));
 

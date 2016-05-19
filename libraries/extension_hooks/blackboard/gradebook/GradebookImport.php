@@ -1,6 +1,6 @@
 <?php
 
-class StudentFile {
+class GradebookImport {
 
 private $context;
 private $new_user_group_id; // expressionengine group_id for new members
@@ -38,7 +38,7 @@ public function __construct($member_id, $context_id, $lti_plugin_setups = array(
 
 		$this->new_user_group_id = $new_user_group_id;
 
-        $this->lti_plugin_setups = $lti_plugin_setups;
+    $this->lti_plugin_setups = $lti_plugin_setups;
 }
 
 public function import_from_blackboard($group_students, $json) {
@@ -88,14 +88,14 @@ public function import_from_blackboard($group_students, $json) {
 
     $file_rows = array();
 
-    foreach ($gradeBook['rows'] as $grade_book_row_index => $grade_book_row) {
+    foreach ($gradeBook['rows'] as $gradebook_row_index => $gradebook_row) {
        $row = array();
 
-        $row[$this->col_header_indexes['first_name']] = $grade_book_row[$FN_index]['v'];
-        $row[$this->col_header_indexes['last_name']] = $grade_book_row[$LN_index]['v'];
-        $row[$this->col_header_indexes['student_id']] = empty($grade_book_row[$SI_index]['v']) ? $grade_book_row[$UN_index]['v'] : $grade_book_row[$SI_index]['v'];
-        $row[$this->col_header_indexes['user_name']] = $grade_book_row[$UN_index]['v'];
-        $uid = $grade_book_row[$LN_index]['uid'];
+        $row[$this->col_header_indexes['first_name']] = $gradebook_row[$FN_index]['v'];
+        $row[$this->col_header_indexes['last_name']] = $gradebook_row[$LN_index]['v'];
+        $row[$this->col_header_indexes['student_id']] = empty($gradebook_row[$SI_index]['v']) ? $gradebook_row[$UN_index]['v'] : $gradebook_row[$SI_index]['v'];
+        $row[$this->col_header_indexes['user_name']] = $gradebook_row[$UN_index]['v'];
+        $uid = $gradebook_row[$LN_index]['uid'];
 
         $added_to_group = FALSE;
         foreach ($gradeBook['groups'] as $group_index => $group) {

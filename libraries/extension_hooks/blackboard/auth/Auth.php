@@ -2,20 +2,25 @@
 /*
 *
 *   this class requires the EE config item to be set in the config.php file.
-*  example format:  $config['blackboard_auth_path'] = '/path/to/webapp/auth';
+*   note that Blackboard seems to like a trailing slash...
+*  example format:  $config['blackboard_auth_path'] = '/path/to/webapp/auth/';
 */
 class Auth {
 
   private $host;
   private $path;
-  private $lti_object;
+  private $lti_module;
 
-  function __construct(&$lti_object)  {
-      $this->scheme = $lti_object->use_SSL ? "https" : "http";
-      $this->host = $lti_object->lti_url_host;
+  function __construct(&$lti_module)  {
+      $this->scheme = $lti_module->use_SSL ? "https" : "http";
+      $this->host = $lti_module->lti_url_host;
       $this->path = ee()->config->item('blackboard_auth_path');
 
-      $this->lti_object = $lti_object;
+      $this->lti_module = $lti_module;
+  }
+
+  public function get_blackboard_url() {
+      return $this->scheme.'://'.$this->host;
   }
 
    public function bb_lms_login($user, $pass) {
@@ -23,7 +28,7 @@ class Auth {
 //    $url = "https://uonline.newcastle.edu.au/webapps/login/";
 
     // contextualise cookies
-    $cookies = PATH_THIRD.$this->lti_object->mod_class."data/".$this->lti_object->member_id."_".$this->lti_object->context_id."_".$this->lti_object->institution_id."_cookie.txt";
+    $cookies = PATH_THIRD.$this->lti_module->mod_class."data/".$this->lti_module->member_id."_".$this->lti_module->context_id."_".$this->lti_module->institution_id."_cookie.txt";
 
     if(file_exists($cookies)) {
         unlink($cookies);
@@ -74,12 +79,12 @@ class Auth {
 
 public function gradebook_login()
 {
-       $query = ee()->db->get_where('lti_instructor_credentials', array('member_id' => $this->lti_object->member_id));
+       $query = ee()->db->get_where('lti_instructor_credentials', array('member_id' => $this->lti_module->member_id));
 
     if(!empty($query->row()->password)) {
-        $decrypted = Encryption::decrypt($query->row()->password, Encryption::get_salt($this->lti_object->user_id.$this->lti_object->context_id));
+        $decrypted = Encryption::decrypt($query->row()->password, Encryption::get_salt($this->lti_module->user_id.$this->lti_module->context_id));
 
-       return $this->bb_lms_login($this->lti_object->username, $decrypted);
+       return $this->bb_lms_login($this->lti_module->username, $decrypted);
     } else {
         return 1;
     }

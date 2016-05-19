@@ -20,7 +20,7 @@ $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 require_once($cronfig['env_path']."/expressionengine/third_party/learning_tools_integration/libraries/cron/env.php");
 
 $cwd = PATH_THIRD."learning_tools_integration/libraries";
-require_once($cwd."/StudentFile.php");
+require_once($cwd."/GradebookImport.php");
 require_once($cwd."/EmailImport.php");
 require_once($cwd."/Encryption.php");
 

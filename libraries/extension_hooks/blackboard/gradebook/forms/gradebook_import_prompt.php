@@ -1,7 +1,11 @@
 <?php
 require_once($this->lib_path.DIRECTORY_SEPARATOR.'utils.php');
 require_once($this->lib_path.DIRECTORY_SEPARATOR.'Encryption.php');
+
+require_once($this->hook_path.DIRECTORY_SEPARATOR.'settings'.DIRECTORY_SEPARATOR.'Settings.php');
 require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'auth'.DIRECTORY_SEPARATOR.'Auth.php');
+require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'gradebook'.DIRECTORY_SEPARATOR.'Gradebook.php');
+require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'gradebook'.DIRECTORY_SEPARATOR.'GradebookImport.php');
 
 $hook_method = function($view_data) {
         ee() -> load -> helper('url');
@@ -172,7 +176,8 @@ $hook_method = function($view_data) {
                                 // the syncronize button has been selected
                                 $lastLogEntryTS = isset($_POST['force_sync']) ? -1 : $query->row()->lastLogEntryTS;
 
-                                $imported = $this->bb_import_groups_from_grade_book($lastLogEntryTS);
+                                $bb_groups = new Gradebook($this);
+                                $imported = $bb_groups->bb_import_groups_from_gradebook($lastLogEntryTS);
 
                                 if(is_array($imported)) {
                                      // if not changed then update

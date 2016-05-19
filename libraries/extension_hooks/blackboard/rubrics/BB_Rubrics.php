@@ -1,5 +1,4 @@
 <?php
-
 class BB_Rubrics {
 
 	private $path;

@@ -1,5 +1,4 @@
 <?php
-
 class BB_Resources {
 
 	private $path;

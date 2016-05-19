@@ -57,7 +57,7 @@ button#openRubric {
                    session_expired(data);
             });
         });
-        <?php if ($disable_instructor_score_setting): ?>
+        <?php if ($disable_instructor_score_setting !== FALSE): ?>
         $(document).ready(function() {
             $("#total_score").attr('disabled', 'disabled').after(" (<em>Overriden by rubric total score</em>)");
         });
