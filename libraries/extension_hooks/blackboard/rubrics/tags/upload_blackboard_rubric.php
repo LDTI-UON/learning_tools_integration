@@ -1,4 +1,5 @@
 <?php
+/* TODO: implement spl_autoload_register to get rid of this crap...*/
 require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'BB_Resources.php');
 require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'rubrics'.DIRECTORY_SEPARATOR.'BB_Rubrics.php');
 
@@ -63,7 +64,7 @@ $hook_method = function() {
 
       if (!$errors) {
         $msg = "Upload Successful";
-                $this->unpack_rubric_archive($file_data['file_path'], $file_name, $rubric_dir);
+                BB_RubricArchive::unpack($file_data['file_path'], $file_name, $rubric_dir);
       }
     }
   }

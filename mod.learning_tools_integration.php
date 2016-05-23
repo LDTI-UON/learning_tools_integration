@@ -156,14 +156,12 @@ class Learning_tools_integration {
     {
         if (isset($this->$method) === true) {
             $func = $this->$method;
-            
+
             return $func($args);
         }
     }
 
     private function initialise_hook_toggles() {
-    //  if(!empty($this->tmpl_toggle_tags)) return;
-
       require_once($this->hook_path.DIRECTORY_SEPARATOR.'/tmpl_params.php');
 
       if(isset($tmpl_extension_toggles)) {
@@ -367,17 +365,6 @@ class Learning_tools_integration {
         	}
         }
 
-        /* download via a clickable link */
-        if (isset($_GET['download_lti_resource'])) {
-            $id = ee()->input->get('download_lti_resource');
-
-            $this -> return_data = $this -> direct_download($id);
-        }
-
-      /*  if (isset($_GET['f']) && isset($_GET['i']) && isset($_GET['t'])) {
-            return;
-        } */
-
         if (ee()->TMPL) {
             $this -> return_data = ee() -> TMPL -> parse_variables(ee() -> TMPL -> tagdata, $this -> context_vars);
         }
@@ -511,95 +498,6 @@ class Learning_tools_integration {
     public static function logToJavascriptConsole($str) {
             return "<script>(function() { console.log(\"$str\"); })();</script>";
     }
-
-  /*  private function resource_table_heading() {
-        if ($this -> isInstructor != 0) {
-            return lang('instructor_resource_table_heading');
-        }
-
-        return lang('student_resource_table_heading');
-    }*/
-
-    private function unpack_rubric_archive($path, $zip_file_name, $rubric_dir) {
-        $zip = new ZipArchive;
-	    $res = $zip -> open($path.DIRECTORY_SEPARATOR.$zip_file_name);
-
-	    if ($res === TRUE) {
-            // extract it to the path we determined above
-            for ($i = 0; $i < $zip -> numFiles; $i++) {
-                $filename = $zip -> getNameIndex($i);
-                $fileinfo = pathinfo($filename);
-
-                copy("zip://" . $path.DIRECTORY_SEPARATOR.$zip_file_name ."#". $filename, $rubric_dir . DIRECTORY_SEPARATOR . $fileinfo['basename']);
-            }
-        }
-		$zip -> close();
-
-		unlink($path.DIRECTORY_SEPARATOR.$zip_file_name);
-    }
-
-
-
-    public function render_blackboard_rubric() {
-        $raw_id = ee()->input->post("id");
-        $id = explode("|", $raw_id)[0];
-
-		$user = ee()->input->post("user");
-		$input_id = ee()->input->post("input_id");
-		$pre_pop =  ee()->input->post('pre_pop');//ee()->TMPL->fetch_param("pre_pop");
-
-    	$path = build_course_upload_path(LTI_FILE_UPLOAD_PATH.DIRECTORY_SEPARATOR.'cache', $this->context_id, $this->institution_id, $this->course_id);
-    	$rubric_dir = $path.DIRECTORY_SEPARATOR."rubrics".DIRECTORY_SEPARATOR."html";
-    	$dir = scandir($rubric_dir);
-    	$vars = array();
-
-    	foreach($dir as $item) {
-    		if(strpos($item, $id) !== FALSE) {
-
-	    			if(strpos($item, "|grid|") !== FALSE) {
-	    				$vars['grid'] = file_get_contents($rubric_dir.DIRECTORY_SEPARATOR.$item);
-	    			}
-
-	    			if(strpos($item, "|list|") !== FALSE) {
-    					$vars['list'] = file_get_contents($rubric_dir.DIRECTORY_SEPARATOR.$item);
-	    			}
-    		}
-    	}
-
-    	$vars['js_controls'] = file_get_contents("$this->mod_path/js/rubric_controls.js");
-
-    	if(empty($user)) {
-    		$vars['exit_button_value'] = "Exit";
-    	} else {
-    		$vars['exit_button_value'] = "Save &amp; Close";
-    	}
-    	$vars['input_id'] = $input_id;
-    	$vars['username'] = htmlentities($user['screen_name']);
-    	$vars['pre_pop'] = htmlentities($pre_pop, ENT_QUOTES, 'UTF-8');
-
-    	return ee() -> load -> view('rubric', $vars, TRUE);
-    }
-
-    private function direct_download($id) {
-        ee() -> db -> select('lti_member_resources.id, lti_member_resources.display_name, lti_member_resources.file_name, lti_member_resources.type');
-        //ee() -> db -> join('lti_member_contexts', 'lti_member_contexts.id = lti_member_resources.internal_context_id');
-        ee() -> db -> where(array("lti_member_resources.id" => $id));
-        ee() -> db -> from('lti_member_resources');
-        $query =   ee() -> db -> get();
-
-        $row = $query -> row();
-
-        return $this -> download_file($row -> file_name, $row -> type == 'S' ? 'solution' : 'problem', $row -> salt);
-    }
-
-
-
-
-
-
-
-
-
 
     private function pagination_config($method, $total_rows, $per_page = -1, $data_segments = NULL) {
     	$config = array();

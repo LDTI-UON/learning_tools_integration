@@ -247,67 +247,17 @@ public static function download_file($filename, $type, $salt) {
 
 		return   ee() -> load -> view('download-redirect', $vars, TRUE);
 }
-/**Notice TODO deal with this shit:
 
-Undefined property via __get(): cookie_name in /var/www/html/lti/1WSk0DUCbR/user/addons/learning_tools_integration/libraries/extension_hooks/secure_resource_delivery/ResourceFile.php on line 204
+public static function direct_download($id) {
+		ee() -> db -> select('lti_member_resources.id, lti_member_resources.display_name, lti_member_resources.file_name, lti_member_resources.type');
+		//ee() -> db -> join('lti_member_contexts', 'lti_member_contexts.id = lti_member_resources.internal_context_id');
+		ee() -> db -> where(array("lti_member_resources.id" => $id));
+		ee() -> db -> from('lti_member_resources');
+		$query =   ee() -> db -> get();
 
-user/addons/learning_tools_integration/mod.learning_tools_integration.php, line 276 show details
+		$row = $query -> row();
 
-    Severity: E_USER_NOTICE
-
-Notice
-Undefined property via __get(): download_redirect in /var/www/html/lti/1WSk0DUCbR/user/addons/learning_tools_integration/libraries/extension_hooks/secure_resource_delivery/ResourceFile.php on line 206
-
-user/addons/learning_tools_integration/mod.learning_tools_integration.php, line 276 show details
-
-    Severity: E_USER_NOTICE
-
-Notice
-Undefined property via __get(): base_segment in /var/www/html/lti/1WSk0DUCbR/user/addons/learning_tools_integration/libraries/extension_hooks/secure_resource_delivery/ResourceFile.php on line 207
-
-user/addons/learning_tools_integration/mod.learning_tools_integration.php, line 276 show details
-
-    Severity: E_USER_NOTICE
-
-Warning
-array_merge(): Argument #2 is not an array
-
-user/addons/learning_tools_integration/mod.learning_tools_integration.php, line 496 show details
-
-    Severity: E_WARNING
-
-array ( 'launch_presentation_return_url' => 'https://uonline.newcastle.edu.au/webapps/blackboard/execute/blti/launchReturn?course_id=_1383049_1&content_id=_2927058_1&toGC=false&launch_time=1463718537843&launch_id=dbdb4e97-3139-423b-b1c9-baaf0bd48c8a&link_id=_2927058_1', 'tool_consumer_instance_name' => 'University of Newcastle', 'lis_outcome_service_url' => 'No marking service enabled', 'tool_consumer_instance_guid' => 'uonline.newcastle.edu.au', 'tool_consumer_instance_id' => '1', 'lis_result_sourcedid' => 'not set', 'resource_link_id' => '_2927058_1', 'user_id' => '5904cd513df942e9bb409dc210ddf518', 'user_key' => '3b5QXf:5904cd513df942e9bb409dc210ddf518', 'context_id' => '846b6daccc034fd49c64ae342c7957dd', 'internal_context_id' => '1661', 'context_label' => 'CRS.111910.2015.S2', 'ext_lms' => 'bb-9.1.201410.160373', 'isInstructor' => false, 'course_key' => '3b5QXf:846b6daccc034fd49c64ae342c7957dd', 'course_name' => 'STAT1070 STATISTICS FOR THE SCIENCES (S2 2015)', 'user_short_name' => 'Paul', 'resource_title' => 'Solution File', 'resource_link_description' => '', 'ext_launch_presentation_css_url' => 'https://uonline.newcastle.edu.au/common/shared.css,https://uonline.newcastle.edu.au/themes/as_2012/theme.css,https://uonline.newcastle.edu.au/coursethemes/slate/coursetheme.css', 'institution_id' => '1', 'course_id' => '1', 'pk_string' => '_1383049_1', 'base_url' => 'https://bold-space.newcastle.edu.au/lti/', 'css_link_tags' => ' ', 'user_email' => 'paul.sijpkes@newcastle.edu.au', 'base_segment' => 'stat1070', )
-Please set the template path for this learning tool.
-
-Notice
-Undefined property via __get(): cookie_name in /var/www/html/lti/1WSk0DUCbR/user/addons/learning_tools_integration/libraries/extension_hooks/secure_resource_delivery/ResourceFile.php on line 204
-
-user/addons/learning_tools_integration/mod.learning_tools_integration.php, line 276 show details
-
-    Severity: E_USER_NOTICE
-
-Notice
-Undefined property via __get(): download_redirect in /var/www/html/lti/1WSk0DUCbR/user/addons/learning_tools_integration/libraries/extension_hooks/secure_resource_delivery/ResourceFile.php on line 206
-
-user/addons/learning_tools_integration/mod.learning_tools_integration.php, line 276 show details
-
-    Severity: E_USER_NOTICE
-
-Notice
-Undefined property via __get(): base_segment in /var/www/html/lti/1WSk0DUCbR/user/addons/learning_tools_integration/libraries/extension_hooks/secure_resource_delivery/ResourceFile.php on line 207
-
-user/addons/learning_tools_integration/mod.learning_tools_integration.php, line 276 show details
-
-    Severity: E_USER_NOTICE
-
-Warning
-Cannot modify header information - headers already sent by (output started at /var/www/html/lti/1WSk0DUCbR/user/addons/learning_tools_integration/mod.learning_tools_integration.php:358)
-
-ee/EllisLab/ExpressionEngine/Boot/boot.common.php, line 463 show details
-
-    Severity: E_WARNING
-
-Your download will begin in 2 seconds
-*/
+		return  static::download_file($row -> file_name, $row -> type == 'S' ? 'solution' : 'problem', $row -> salt);
+}
 
 }
