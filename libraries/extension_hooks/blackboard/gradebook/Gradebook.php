@@ -3,6 +3,7 @@ class Gradebook {
 
 private $lti_module;
 private $cachedGradeBook;
+private $settings;
 
 function __construct(&$lti_module) {
       $this->lti_module = $lti_module;
@@ -14,8 +15,8 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
 
     $stored_gradebook = NULL;
 
-    $settings = new Settings($this->lti_module);
-    $row = $settings->get_instructor_settings();
+    $this->settings = new Settings($this->lti_module);
+    $row = $this->settings->get_instructor_settings();
 
     if($row !== FALSE) {
         if(!empty($row->gradebook)) {
@@ -56,7 +57,7 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
         if($new != $lastLogEntryTS || $stored_gradebook != $gb_signature) {
             $lastLogEntryTS = $new;
 
-            ee()->db->where(array("course_key" => $this->course_key, "institution_id" => $this->institution_id));
+            ee()->db->where(array("course_key" => $this->lti_module->course_key, "institution_id" => $this->lti_module->institution_id));
             ee()->db->update("lti_instructor_settings", array("gradebook" => serialize($gb_signature)));
         } else {
             return array("message" => "Grade Centre is synchronized.", "lastLogEntryTS" => FALSE);
@@ -65,11 +66,11 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
     } else {
         return array("errors" => "Unable to get date of last grade centre entry.");
     }
-        $settings = $this->get_general_settings();
+        $settings = $this->settings->get_general_settings();
 
         $plugin_settings = $settings["plugins_active"];
 
-        $s_file = new GradebookImport($this->member_id, $this->context_id, $plugin_settings);
+        $s_file = new GradebookImport($this->lti_module->member_id, $this->lti_module->context_id, $plugin_settings);
 
          $arr = $s_file->import_from_blackboard($group_students, $full_gradebook);
 

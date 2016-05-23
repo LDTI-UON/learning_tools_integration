@@ -4,9 +4,6 @@ require_once($this->hook_path.DIRECTORY_SEPARATOR.'secure_resource_delivery'.DIR
 
 $hook_method = function() {
     if($this -> isInstructor != 0) {
-      if(ee()->session->userdata('group_id') == 1) {
-          echo "<h2>Super User message: No access for instructors</h2>";
-      }
       return FALSE;
     }
 
@@ -14,9 +11,6 @@ $hook_method = function() {
     $total = $model -> total_resources();
 
     if ($total != 1) {
-      if(ee()->session->userdata('group_id') == 1) {
-          echo "<h2>Super User message: No file to download</h2>";
-      }
        return FALSE;
     }
 

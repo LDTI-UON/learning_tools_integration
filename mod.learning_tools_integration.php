@@ -342,7 +342,12 @@ class Learning_tools_integration {
         if(!empty(static::$lti_plugins)) {
             foreach(static::$lti_plugins as $plugin) {
             	if(!empty($plugin)) {
-                	require(PATH_THIRD."$plugin/libraries/".$plugin."_text.php");
+                $plugin_file = PATH_THIRD."$plugin/libraries/".$plugin."_text.php";
+                  if(file_exists($plugin_file)) {
+                      	require_once($plugin_file);
+                  } else {
+                        die("LTI Plugin '$plugin' is specified in your template tag but is not installed.");
+                  }
             	}
             }
         }

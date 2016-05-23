@@ -26,7 +26,7 @@
 				 * @link http://sijpkes.site11.com
 				 */
 				class Learning_tools_integration_upd {
-					public $version = '1.4';
+					public $version = '2.0';
 					public $mod_class = 'Learning_tools_integration';
 					private $EE;
 
@@ -186,7 +186,7 @@
 						$table_name = ee ()->db->dbprefix ( "lti_member_contexts" );
 						$sql = "CREATE UNIQUE INDEX member_context_guid_index ON $table_name(member_id, context_id(10), tool_consumer_instance_id)";
 						ee ()->db->query ( $sql );
-						
+
 						$fields = array (
 								'id' => array (
 										'type' => 'MEDIUMINT',
