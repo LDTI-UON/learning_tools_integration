@@ -97,8 +97,8 @@ $hook_method = function () {
         }
 
         foreach(static::$lti_plugins as $plugin) {
-             // include(PATH_THIRD."$plugin/libraries/".$plugin."_student_table.php");
-      }
+             // include(PATH_THIRD."$plugin/libraries/".$plugin."_student_table.php"); @TODO finish plugin extension
+           }
     }
 
     $vars['include_groups'] = $this -> include_groups;

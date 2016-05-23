@@ -41,6 +41,17 @@ $hook_method = function () {
     $form .= form_close();
 
     return $form;
-}
+};
+/*
+* Generate inline tags for instructor
+*/
+$launch_instructor = function($params) {
+        $tag_data = $params['tag_data'];
 
+        if($data = $this->resource_settings_form()) {
+              $params['tag_data']['resource_settings_form'] = $data;
+        }
+
+        return $params;
+    };
 ?>
