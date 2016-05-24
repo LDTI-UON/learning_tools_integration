@@ -15,7 +15,7 @@ $hook_method = function($view_data) {
             $query = ee()->db->get_where('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id));
 
              $style = "<style>
-                #emailmsg {
+                #sync_message {
                     display: block;
                     position: absolute;
                     width: 190px;
@@ -30,18 +30,18 @@ $hook_method = function($view_data) {
                     z-index: 2;
                     line-height: 1.2em;
                 }
-                #emailmsg h1 {
+                #sync_message h1 {
                     font-size: 16pt;
                 }
-                #emailmsg .validation {
+                #sync_message .validation {
                    color: #F6F593;
                 }
-                #emailmsg div {
+                #sync_message div {
                     float:left;
                     margin: 0.3em;
                    /* width: 400px; */
                 }
-                #emailmsg div p {
+                #sync_message div p {
                     padding: 3px;
                  }
                 </style>"; // TODO move to css
@@ -49,7 +49,7 @@ $hook_method = function($view_data) {
             if($query->num_rows() == 0) {
 
                if(!isset($_POST['email_optout'])) {
-                   $div = $style."<div id=\"emailmsg\" class=\"receipt good\"><p>".lang('email_opt_out')."</p>%form%</div>";
+                   $div = $style."<div id=\"sync_message\" class=\"receipt good\"><p>".lang('email_opt_out')."</p>%form%</div>";
 
                    $form = form_open($this->base_url);
 
@@ -91,7 +91,7 @@ $hook_method = function($view_data) {
                 $form_valid = ee()->form_validation->run();
 
                 if (empty($form_valid) || $form_valid === FALSE) {
-                    $div = $style."<div id=\"emailmsg\" class=\"receipt good\"><div>%form%</div><div><p>".lang('outlook_instructions')."</div></p></div>";
+                    $div = $style."<div id=\"sync_message\" class=\"receipt good\"><div>%form%</div><div><p>".lang('outlook_instructions')."</div></p></div>";
 
 
                     $form = form_open($this->base_url);
@@ -152,7 +152,7 @@ $hook_method = function($view_data) {
                                 )
                         ) && !empty($query->row()->password)) {
 
-                         $div = $style."<div id=\"emailmsg\" class=\"receipt good\">%form%</div>";
+                         $div = $style."<div id=\"sync_message\" class=\"receipt good\">%form%</div>";
 
                         $decrypted = Encryption::decrypt($query->row()->password, Encryption::get_salt($this->user_id.$this->context_id));
 
@@ -211,7 +211,7 @@ $hook_method = function($view_data) {
                                  ee()->db->update('lti_instructor_credentials', array('password' => NULL, 'state' => '3'));
                             }
 
-                            $form .= "<script> $jsfn $(document).ready(function() { /*$('#emailmsg').delay(3000).slideUp(2500$jsstr);*/ }); </script>";
+                            $form .= "<script> $jsfn $(document).ready(function() { /*$('#sync_message').delay(3000).slideUp(2500$jsstr);*/ }); </script>";
                             $form = str_replace('%form%', $form, $div);
 
                             $view_data['email_settings'] = $form;

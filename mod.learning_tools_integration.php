@@ -130,8 +130,12 @@ class Learning_tools_integration {
 
     /* launch hook methods */
     private $extension_launch = array("instructor" => array(), "general" => array(), "no_template" => array());
+    private $direct_hook_methods = array();
     private $lib_path;
     private $hook_path;
+
+    /* efficiency measure to allow simple exp:module:direct_tag notation, without loading wrapped tags */
+    private $direct_tags_only = FALSE;
 
     /* launch hook variables */
     private $hook_vars = array();
@@ -143,7 +147,7 @@ class Learning_tools_integration {
     /**
      * Constructor
      */
-  public function __construct() {
+     public function __construct() {
        static::$instance =& $this;
        $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
        $this->lib_path = $this->mod_path.DIRECTORY_SEPARATOR.'libraries';
@@ -156,10 +160,20 @@ class Learning_tools_integration {
     {
         if (isset($this->$method) === true) {
             $func = $this->$method;
-
-            return $func($args);
         }
+
+        return $func($args);
     }
+
+    public static function __callStatic($name, $args)
+    {
+       // Note: value of $name is case sensitive.
+       if(isset(static::$name)) {
+          $func = static::$method;
+       }
+
+       return $func($args);
+   }
 
     private function initialise_hook_toggles() {
       require_once($this->hook_path.DIRECTORY_SEPARATOR.'/tmpl_params.php');
@@ -204,27 +218,29 @@ class Learning_tools_integration {
       if(isset($hook_method)) {
         $this->$method_name = $hook_method;
 
-        if(isset($launch_no_template)) {
-          if($this->_tmpl_toggle_on($method_name)) {
-            $this->extension_launch["no_template"][$method_name] = $launch_no_template;
-            unset($launch_no_template);
-          }
-        }
+        /* only load if direct tag flag not set.  this speeds up simple templates with a single {exp:module:method} syntax. */
+        if(!$this->direct_tags_only) {
+              if(isset($launch_no_template)) {
+                if($this->_tmpl_toggle_on($method_name)) {
+                  $this->extension_launch["no_template"][$method_name] = $launch_no_template;
+                  unset($launch_no_template);
+                }
+              }
 
-        if(isset($launch_instructor)) {
-          if($this->_tmpl_toggle_on($method_name)) {
-            $this->extension_launch["instructor"][$method_name] = $launch_instructor;
-            unset($launch_instructor);
-          }
-        }
+              if(isset($launch_instructor)) {
+                if($this->_tmpl_toggle_on($method_name)) {
+                  $this->extension_launch["instructor"][$method_name] = $launch_instructor;
+                  unset($launch_instructor);
+                }
+              }
 
-        if(isset($launch_general)) {
-          if($this->_tmpl_toggle_on($method_name)) {
-            $this->extension_launch["general"][$method_name] = $launch_general;
-            unset($launch_general);
-          }
+              if(isset($launch_general)) {
+                if($this->_tmpl_toggle_on($method_name)) {
+                  $this->extension_launch["general"][$method_name] = $launch_general;
+                  unset($launch_general);
+                }
+              }
         }
-
         unset($hook_method);
       }
     }
@@ -280,19 +296,17 @@ class Learning_tools_integration {
        return null;
    }
 
-   /**  As of PHP 5.1.0  */
    public function __isset($name)
    {
        return isset($this->hook_vars[$name]);
    }
 
-   /**  As of PHP 5.1.0  */
    public function __unset($name)
    {
        unset($this->hook_vars[$name]);
    }
 
-    public static function get_instance() {
+  public static function get_instance() {
         if(static::$instance === NULL) {
             static::$instance =& $this;
         }
@@ -323,6 +337,8 @@ class Learning_tools_integration {
         $this -> base_segment = Learning_tools_integration_ext::$base_segment;
 
         if(ee()->TMPL) {
+              $val = ee() -> TMPL -> fetch_param('direct_tags_only');
+              $this->direct_tags_only = !empty($val);
 
               $this->initialise_hook_toggles();
               $this->_load_hooks();
@@ -405,6 +421,7 @@ class Learning_tools_integration {
             $this->username = ee()->session->userdata('username');
             $this->screen_name = ee()->session->userdata('screen_name');
 
+            // convenience variables
             $this -> launch_presentation_return_url = $this -> session_info['launch_presentation_return_url'];
             $this -> tool_consumer_instance_guid = $this -> session_info['tool_consumer_instance_guid'];
             $this -> tool_consumer_instance_id = $this -> session_info['tool_consumer_instance_id'];
@@ -429,7 +446,7 @@ class Learning_tools_integration {
             $this->institution_id = $this -> session_info['institution_id'];
             $this->course_id = $this -> session_info['course_id'];
 
-            // convenience functions
+
             $this->lti_url_host = parse_url($this->launch_presentation_return_url, PHP_URL_HOST);
             $this->lti_url_path = parse_url($this->launch_presentation_return_url, PHP_URL_PATH);
         }

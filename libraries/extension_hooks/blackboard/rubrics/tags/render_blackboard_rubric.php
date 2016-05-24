@@ -1,5 +1,5 @@
 <?php
-$method_hook = function() {
+$hook_method = function() {
       $raw_id = ee()->input->post("id");
       $id = explode("|", $raw_id)[0];
 
@@ -25,6 +25,11 @@ $method_hook = function() {
       }
     }
 
+    $show_scores = ee()->db->get_where("lti_course_link_resources",array("rubric_id" => $id))
+                  ->row()
+                  ->peer_assessment_show_column_scores;
+
+    $vars['hide_scores'] = empty($show_scores) ? file_get_contents("$this->mod_path/js/rubric_hide_scores.js") : "";
     $vars['js_controls'] = file_get_contents("$this->mod_path/js/rubric_controls.js");
 
     if(empty($user)) {
@@ -36,19 +41,14 @@ $method_hook = function() {
     $vars['username'] = htmlentities($user['screen_name']);
     $vars['pre_pop'] = htmlentities($pre_pop, ENT_QUOTES, 'UTF-8');
 
+
     return ee() -> load -> view('rubric', $vars, TRUE);
 };
 
 /*
-* Generate inline tags for instructor
+* Direct method via exp:module:method syntax
 */
-$launch_general = function($params) {
-        $tag_data = $params['tag_data'];
-
-        if($data = $this->upload_blackboard_rubric()) {
-              $params['tag_data']['upload_blackboard_rubric'] = $data;
-        }
-
-        return $params;
-    };
+/*$launch_general = function($params) {
+      return $this->render_blackboard_rubric();
+};*/
 ?>

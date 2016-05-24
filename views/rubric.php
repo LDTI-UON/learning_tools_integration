@@ -108,22 +108,14 @@
 								</div>
 							</div>
 						</div>
-
-
-
-
-
 					</form>
-
-
 				</div>
-
 			</div>
-
 		</div>
 	</div>
 
 
 <script type="text/javascript">
 	<?= $js_controls ?>
+	<?= $hide_scores ?>
 </script>

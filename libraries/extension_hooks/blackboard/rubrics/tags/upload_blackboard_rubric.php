@@ -89,8 +89,7 @@ $hook_method = function() {
       file_put_contents($file_name, $rub["grid_html"]);
 
       $file_name = $rubric_html_dir.DIRECTORY_SEPARATOR.$rub['title']."|list|$rub[total_score]|$key.html";
-
-            file_put_contents($file_name, $rub["list_html"]);
+      file_put_contents($file_name, $rub["list_html"]);
     }
   }
 
@@ -110,22 +109,30 @@ $hook_method = function() {
   }
 
   $dir = array_filter($dir, "_allowed");
+  $show_scores = array();
 
   foreach($dir as $item) {
     $filename = explode("|", $item);
     $title = $filename[0];
-        $score = $filename[2];
+    $score = $filename[2];
 
         $id = explode(".", $filename[count($filename)-1])[0];
 
         if($init_rubric == $id) {
-      $init_rubric = $init_rubric."|".$score;
+            $init_rubric = $init_rubric."|".$score;
+            $raw_init_id = $id;
         }
 
-        $id = $id."|".$score;
 
+        $row = ee()->db->get_where('lti_course_link_resources', array("rubric_id" => $id))->row();
+        $show_col_scores = !empty($row) ? $row->peer_assessment_show_column_scores : NULL;
+        $show_scores[$id] = $show_col_scores !== NULL ? $show_col_scores : 1;
+
+    $id = $id."|".$score;
     $options[$id] = $title;
   }
+
+  $vars['show_scores'] = json_encode($show_scores);
 
   $form = form_open_multipart($this->base_url);
   $form .= form_label("Rubric ZIP file:", "userfile");
@@ -139,8 +146,20 @@ $hook_method = function() {
   $form .= form_label("Available Rubrics:  ", "rubric_dd");
 
   $form .= form_dropdown("rubrics", $options, $init_rubric, "id='rubric_dd'");
-  $form .= form_checkbox("preview", "prev", FALSE, "id='preview_cb'");
-  $form.= form_label("Preview", "preview_cb", array("title" => "Displays rubric for your inspection when selected"));
+
+  $button = array('name' => 'preview', 'id' => 'preview_btn', 'value' => 'true', 'content' => 'Preview');
+  $form .= form_button($button);
+
+  $checkbox = array(
+      'name'        => 'show_scores ',
+      'id'          => 'show_scores',
+      'value'       => 'yes',
+      'checked'     => !empty($show_scores[$raw_init_id]),
+      'style'       => 'margin:10px',
+      );
+
+  $form .= BR.form_checkbox($checkbox);
+  $form .= form_label(' show rubric cell scores.', 'show_scores', array('for' => 'show_scores'));
 
   $form .= "<p>";
   $form .= form_label('Attach this rubric:  ', 'attach', array('for' => 'attach'));

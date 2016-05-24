@@ -31,32 +31,52 @@ button#openRubric {
 			});
 		}
 
-        $("#rubric_wrapper").on("change", "select[name=\'rubrics\']", function(e) {
-            var id = $(e.target).find("option:selected").val();
+    var id;
+    var show_scores_array = <?= $show_scores ?>;
 
-            $cb = $("#preview_cb:checked");
-
+    $("#rubric_wrapper").on("change", "select[name=\'rubrics\']", function(e) {
+           id = $(e.target).find("option:selected").val();
+           var show_scores = show_scores_array[id];
             if(id != "del") {
+                $('#preview_btn').removeAttr("disabled");
                 $("#attach").text("Attach");
-                if($cb.length > 0) {
-                    populate_rubric(id);
-                }
+                $("#show_scores").prop("checked", show_scores);
             } else {
-               // $("#preview_cb, label[for='preview_cb'], #attach, label[for='attach']").hide();
+                $('#preview_btn').prop("disabled", "disabled");
                 $("#attach").text("Clear");
             }
-        }).on("change", "#preview_cb", function(e) {
-            $('select[name=\'rubrics\']').trigger("change");
+        }).on("click", "#preview_btn", function(e) {
+            if(id != "del") {
+              populate_rubric(id);
+            }
+            $('#sync_message').remove();
         }).on("click", 'button#attach', function(e) {
-            var id = $("select[name=\'rubrics\'] option:selected").val();
+
             $("#rub_loader").show();
-             $("#loader_msg").text("");
+            $("#loader_msg").text("");
             $.get("<?= $base_url ?>?rubric_id="+id, function(data) {
                 $("#rub_loader").hide();
                 $("#loader_msg").text(" completed.");
                    session_expired(data);
             });
+        }).on('change', '#show_scores', function(e) {
+          $("#rub_loader").show();
+          $("#loader_msg").text("");
+          var is_checked = $(e.target).is(':checked') ? "1" : "0";
+          var key = id.split('|')[0];
+          show_scores_array[key] = is_checked;
+
+          $.post("<?= $base_url ?>?rubric_id="+id,
+                  { "show_scores" : is_checked },
+            function(data) {
+              $("#rub_loader").hide();
+              $("#loader_msg").text(" updated.");
+                 session_expired(data);
+          });
         });
+
+        $("select[name=\'rubrics\']").trigger("change");
+
         <?php if ($disable_instructor_score_setting !== FALSE): ?>
         $(document).ready(function() {
             $("#total_score").attr('disabled', 'disabled').after(" (<em>Overriden by rubric total score</em>)");
