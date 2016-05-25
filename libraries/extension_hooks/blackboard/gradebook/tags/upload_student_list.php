@@ -72,8 +72,7 @@ $hook_method = function() {
     ee() -> load -> helper('form');
     ee() -> load -> helper('url');
 
-    $settingsOb = new Settings($this);
-    $settings = $settingsOb->get_general_settings();
+    $settings = Settings::get_general_settings();
 
     $enable_group_import = $settings["enable_group_import"];
     $plugins_active = $settings["plugins_active"];

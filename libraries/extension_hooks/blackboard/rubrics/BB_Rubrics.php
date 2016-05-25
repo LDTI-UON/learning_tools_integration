@@ -106,6 +106,8 @@ class BB_Rubrics {
 	private $last_cell_header;
 	private $row_percentage = 0;
 
+	private $list_div;
+
     private $default_headers = array("grid.column1.label" => "Novice",
                                         "grid.column2.label" => "Competent",
                                             "grid.column3.label" => "Proficient",
@@ -291,14 +293,15 @@ class BB_Rubrics {
 				if(!isset($this->list_dom_index['div_cells'])) {
 					$this->list_dom_index['div_cells'] = array();
 				}
+				$cell_id = "cell_".$this->current_cell_id;
 
-				$input = & $div->appendChild($this->list_dom->createElement("input"));
+			/*	$input = & $div->appendChild($this->list_dom->createElement("input"));
 
 				$cell_id = "cell_".$this->current_cell_id;
 				$input->setAttribute("class", "rubricCellRadio");
 				$input->setAttribute("id", $cell_id);
 				$input->setAttribute("type", "radio");
-				$input->setAttribute("name", "radio_".$this->current_row_id);
+				$input->setAttribute("name", "radio_".$this->current_row_id);*/
 
 				if($this->init["type"] == "NUMERIC_RANGE") {
 					$input->setAttribute("disabled", "disabled");
@@ -309,7 +312,7 @@ class BB_Rubrics {
 				$label->setAttribute("for", $cell_id);
 
 				$this->list_dom_index['div_cells'][$this->current_cell_id] = & $div;
-
+				$this->list_div = &$div;
 			break;
 			case "celldescription":
 
@@ -356,6 +359,16 @@ class BB_Rubrics {
 				$this->list_dom_index['numpointsval'][$this->current_cell_id] = & $params["value"];
 
 				$num_points = & $this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
+
+				// moved from line 295
+				$input = &$this->list_div->appendChild($this->list_dom->createElement("input"));
+
+					$cell_id = "cell_".$this->current_cell_id;
+					$input->setAttribute("class", "rubricCellRadio");
+					$input->setAttribute("id", $cell_id);
+					$input->setAttribute("type", "radio");
+					$input->setAttribute("value", $params["value"]);
+					$input->setAttribute("name", "radio_".$this->current_row_id);
 
 				if(!isset($this->list_dom_index['numpoints'])) {
 					$this->list_dom_index['numpoints'] = array();

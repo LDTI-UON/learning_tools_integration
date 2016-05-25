@@ -160,9 +160,8 @@ class Learning_tools_integration {
     {
         if (isset($this->$method) === true) {
             $func = $this->$method;
+            return $func($args);
         }
-
-        return $func($args);
     }
 
     public static function __callStatic($name, $args)
@@ -496,9 +495,6 @@ class Learning_tools_integration {
                         $params = $data;
                     }
             }
-
-            $view_data = $params['view_data'];
-            $tag_data = $params['tag_data'];
         }
 
         foreach($this->extension_launch['general'] as $launch) {

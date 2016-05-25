@@ -1,4 +1,4 @@
-$.fn.removeText = function(){
+$.fn.removeText = function(numeric = false){
   this.each(function(){
 
      // Get elements contents
@@ -10,12 +10,19 @@ $.fn.removeText = function(){
 
           // If it's a text node
           if(this.nodeType == 3){
-            $this.remove(); // Remove it
+            // only remove numeric values
+            if(numeric == true) {
+                  if(!isNaN($this.text())){
+                      $this.remove();
+                  }
+            } else {
+                    $this.remove(); // Remove it
+            }
           } else if(this.nodeType == 1){ // If its an element node
-            $this.removeText(); //Recurse
+                $this.removeText(numeric); //Recurse
           }
       });
   });
 }
 
-$(document).ready(function() { $('.rangeValue').removeText(); });
+$(document).ready(function() { $('.rangeValue').removeText(); $('.rubricGradingCell').removeText(true);});

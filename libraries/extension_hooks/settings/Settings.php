@@ -1,13 +1,17 @@
 <?php
 class Settings {
-  private $lti_module;
+  private static $lti_module;
 
-  function __construct($lti_module) {
-      $this->lti_module = &$lti_module;
+  private static function _load_lti() {
+      if(empty(static::$lti_module)) {
+            static::$lti_module = Learning_tools_integration::get_instance();
+        }
   }
 
-  public function get_instructor_settings() {
-      $result =  ee() -> db -> get_where("lti_instructor_settings", array("course_key" => $this->lti_module->course_key, "institution_id" => $this->lti_module->institution_id));
+  public static function get_instructor_settings() {
+      static::_load_lti();
+
+      $result =  ee() -> db -> get_where("lti_instructor_settings", array("course_key" => static::$lti_module->course_key, "institution_id" => static::$lti_module->institution_id));
 
       if ($result -> num_rows() == 1) {
           return($result -> row());
@@ -16,8 +20,10 @@ class Settings {
       }
   }
 
-  public function get_general_settings() {
-      $result =   ee() -> db -> get_where("lti_instructor_settings", array("course_key" => $this->lti_module->course_key, "institution_id" => $this->lti_module->institution_id));
+  public static function get_general_settings() {
+      static::_load_lti();
+
+      $result =  ee() -> db -> get_where("lti_instructor_settings", array("course_key" => static::$lti_module->course_key, "institution_id" => static::$lti_module->institution_id));
 
       $row_count = $result -> num_rows();
       $plugins_active = array();

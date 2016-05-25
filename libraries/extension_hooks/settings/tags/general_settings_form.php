@@ -7,8 +7,7 @@ $hook_method = function() {
     $token = base64_encode($this->institution_id.$this->course_key);
     $token_valid = isset($_POST['token']) && $_POST['token'] === $token;
 
-    $settingsOb = new Settings($this);
-    $settings = $settingsOb->get_general_settings();
+    $settings = Settings::get_general_settings();
 
     $enable_group_import = $settings["enable_group_import"];
     $plugins_active = $settings["plugins_active"];
@@ -46,7 +45,9 @@ $hook_method = function() {
             ee() -> db -> where(array("institution_id" => $this->institution_id, "course_key" => $this->course_key));
             ee() -> db -> update($table, array("enable_group_import" => $enable_group_import, "plugins_active" => serialize($plugins_active)));
         } else {
-            ee() -> db -> insert($table, array("course_key" => $this->course_key, "institution_id" => $this->institution_id, "enable_group_import" => $enable_group_import, "plugins_active" => serialize($plugins_active)));
+          if($enable_group_import !== NULL) {
+              ee() -> db -> insert($table, array("course_key" => $this->course_key, "institution_id" => $this->institution_id, "enable_group_import" => $enable_group_import, "plugins_active" => serialize($plugins_active)));
+          }
         }
 
     $form .= lang('enable_group_import') . " ";

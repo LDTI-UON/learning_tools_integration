@@ -55,7 +55,6 @@ class Encryption {
      	$cwd = PATH_THIRD.'/learning_tools_integration/libraries';
 
      	if(!file_exists($cwd.'/secret')) {
-     		//mkdir($cwd."/secret");
             if(ee()->session->userdata('group_id') == 1) {
                   $process_name = posix_getpwuid(posix_geteuid())['name'];
                 die("<pre>To the super user:\n\nPlease create the /secret folder in:\n\n \t".str_replace(SYSDIR, "#########", dirname(__FILE__))."\n\nand chmod to 700 ensure the current process ($process_name)\nowns this folder.</pre>");

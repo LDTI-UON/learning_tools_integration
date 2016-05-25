@@ -1,4 +1,7 @@
 <?php
+/*
+* Direct method via exp:module:method syntax
+*/
 $hook_method = function() {
       $raw_id = ee()->input->post("id");
       $id = explode("|", $raw_id)[0];
@@ -41,14 +44,6 @@ $hook_method = function() {
     $vars['username'] = htmlentities($user['screen_name']);
     $vars['pre_pop'] = htmlentities($pre_pop, ENT_QUOTES, 'UTF-8');
 
-
     return ee() -> load -> view('rubric', $vars, TRUE);
 };
-
-/*
-* Direct method via exp:module:method syntax
-*/
-/*$launch_general = function($params) {
-      return $this->render_blackboard_rubric();
-};*/
 ?>

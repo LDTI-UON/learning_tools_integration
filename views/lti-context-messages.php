@@ -1,4 +1,3 @@
-
 <?php
 	if(isset($email_settings)) {
 		echo $email_settings;
@@ -12,5 +11,5 @@
              <a href='#' id='hide_error' style='font-size: 10px'>Don't show this again on this device.</a></div>": "" ?>
 
 <style>
-    <?= $css_special ?>	
+    <?= $css_special ?>
 </style>

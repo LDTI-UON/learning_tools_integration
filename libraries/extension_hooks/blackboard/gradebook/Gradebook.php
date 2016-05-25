@@ -15,8 +15,7 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
 
     $stored_gradebook = NULL;
 
-    $this->settings = new Settings($this->lti_module);
-    $row = $this->settings->get_instructor_settings();
+    $row = Settings::get_instructor_settings();
 
     if($row !== FALSE) {
         if(!empty($row->gradebook)) {
@@ -64,15 +63,16 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
         }
 
     } else {
+      die(__LINE__);
         return array("errors" => "Unable to get date of last grade centre entry.");
     }
-        $settings = $this->settings->get_general_settings();
+        $settings = Settings::get_general_settings();
 
         $plugin_settings = $settings["plugins_active"];
 
         $s_file = new GradebookImport($this->lti_module->member_id, $this->lti_module->context_id, $plugin_settings);
 
-         $arr = $s_file->import_from_blackboard($group_students, $full_gradebook);
+        $arr = $s_file->import_from_blackboard($group_students, $full_gradebook);
 
          // notify process to update DB table
          $arr['lastLogEntryTS'] = $lastLogEntryTS;

@@ -12,8 +12,7 @@ $hook_method = function() {
     $problem_prefix = 'problem_';
     $solution_prefix = 'solution_';
 
-    $settings = new Settings($this);
-    $row = $settings->get_instructor_settings();
+    $row = Settings::get_instructor_settings();
 
     if($row) {
          $problem_prefix = $row -> problem_prefix;
