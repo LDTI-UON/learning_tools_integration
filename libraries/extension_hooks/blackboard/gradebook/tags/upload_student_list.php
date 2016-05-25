@@ -1,6 +1,6 @@
 <?php
-require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'gradebook'.DIRECTORY_SEPARATOR.'GradebookImport.php');
-require_once($this->hook_path.DIRECTORY_SEPARATOR.'settings'.DIRECTORY_SEPARATOR.'Settings.php');
+//require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'gradebook'.DIRECTORY_SEPARATOR.'GradebookImport.php');
+//require_once($this->hook_path.DIRECTORY_SEPARATOR.'settings'.DIRECTORY_SEPARATOR.'Settings.php');
 
 $hook_method = function() {
     $form = "";
@@ -55,7 +55,7 @@ $hook_method = function() {
       if($query->num_rows() > 0) {
         if($query->row()->state == 0) {
             $email_export_message = "<p tyle='color: darkblue; font-weight: 900'>".lang('email_export_message')." <a href='#' id='manual'>".lang('access_manual_upload_link')."</a></p>";
-            $email_export_message .= get_js_file_for_output('upload_student_list');
+            $email_export_message .= Utils::get_js_file_for_output('upload_student_list');
 
 
         } else if ($query->row()->state == 2){

@@ -1,4 +1,6 @@
 <?php
+namespace LTI\ExtensionHooks;
+
 class BB_RubricArchive {
   public static function unpack($path, $zip_file_name, $rubric_dir) {
       $zip = new ZipArchive;

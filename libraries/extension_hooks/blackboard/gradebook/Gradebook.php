@@ -1,4 +1,6 @@
 <?php
+namespace LTI\ExtensionHooks;
+
 class Gradebook {
 
 private $lti_module;

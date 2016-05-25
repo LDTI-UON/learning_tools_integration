@@ -1,11 +1,11 @@
 <?php
-require_once($this->lib_path.DIRECTORY_SEPARATOR.'utils.php');
+/*require_once($this->lib_path.DIRECTORY_SEPARATOR.'utils.php');
 require_once($this->lib_path.DIRECTORY_SEPARATOR.'Encryption.php');
 
 require_once($this->hook_path.DIRECTORY_SEPARATOR.'settings'.DIRECTORY_SEPARATOR.'Settings.php');
 require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'auth'.DIRECTORY_SEPARATOR.'Auth.php');
 require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'gradebook'.DIRECTORY_SEPARATOR.'Gradebook.php');
-require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'gradebook'.DIRECTORY_SEPARATOR.'GradebookImport.php');
+require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'gradebook'.DIRECTORY_SEPARATOR.'GradebookImport.php');*/
 
 $hook_method = function($view_data) {
         ee() -> load -> helper('url');

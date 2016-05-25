@@ -1,7 +1,6 @@
 <?php
-/* TODO: implement spl_autoload_register to get rid of this crap...*/
-require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'BB_Resources.php');
-require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'rubrics'.DIRECTORY_SEPARATOR.'BB_Rubrics.php');
+//require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'BB_Resources.php');
+//require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'rubrics'.DIRECTORY_SEPARATOR.'BB_Rubrics.php');
 
 $hook_method = function() {
   if(empty($this->isInstructor)) { return FALSE; }
@@ -27,7 +26,7 @@ $hook_method = function() {
     $init_rubric = $init_rubric_res->row()->rubric_id;
   }
 
-  $path = build_course_upload_path(LTI_FILE_UPLOAD_PATH.DIRECTORY_SEPARATOR.'cache', $this->context_id, $this->institution_id, $this->course_id);
+  $path = Utils::build_course_upload_path(LTI_FILE_UPLOAD_PATH.DIRECTORY_SEPARATOR.'cache', $this->context_id, $this->institution_id, $this->course_id);
 
   $rubric_dir = $path.DIRECTORY_SEPARATOR."rubrics";
 

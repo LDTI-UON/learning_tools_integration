@@ -1,18 +1,16 @@
 <?php
-if (!defined('BASEPATH'))
-    exit('No direct script access allowed');
+namespace LTI\ExtensionHooks;
 
-$export_email_subject = 'Bulk Export Complete';
-$export_email_from = 'uonline@newcastle.edu.au';
+class Utils {
 
-function urlsafe_b64encode($string)
+static function urlsafe_b64encode($string)
 {
   $data = base64_encode($string);
   $data = str_replace(array('+','/','='),array('-','_','.'),$data);
   return $data;
 }
 
-function urlsafe_b64decode($string)
+static function urlsafe_b64decode($string)
 {
   $data = str_replace(array('-','_','.'),array('+','/','='),$string);
   $mod4 = strlen($data) % 4;
@@ -22,7 +20,7 @@ function urlsafe_b64decode($string)
   return base64_decode($data);
 }
 
-function get_js_file_for_output($file) {
+static function get_js_file_for_output($file) {
 	$str = "<script type='text/javascript'>\n//<![CDATA[\n";
 	$str .= file_get_contents(PATH_THIRD.'learning_tools_integration/js/'.$file.'.js');
 	$str .= "//]]>\n</script>";
@@ -30,7 +28,7 @@ function get_js_file_for_output($file) {
 	return $str;
 }
 
-function build_course_upload_path($full_path, $context_id, $institution_id, $course_id) {
+static function build_course_upload_path($full_path, $context_id, $institution_id, $course_id) {
 
 	$_t = explode(DIRECTORY_SEPARATOR, $full_path);
 	array_pop($_t);
@@ -47,9 +45,10 @@ function build_course_upload_path($full_path, $context_id, $institution_id, $cou
 	return $course_upload_dir;
 }
 
-function getRandomUserAgent() {
+static function getRandomUserAgent() {
     $userAgents = array("Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)", "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30)", "Opera/9.20 (Windows NT 6.0; U; en)", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; en) Opera 8.50", "Mozilla/4.0 (compatible; MSIE 6.0; MSIE 5.5; Windows NT 5.1) Opera 7.02 [en]", "Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; fr; rv:1.7) Gecko/20040624 Firefox/0.9", "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/48 (like Gecko) Safari/48");
     $random = rand(0, count($userAgents) - 1);
 
     return $userAgents[$random];
+}
 }

@@ -1,4 +1,5 @@
 <?php
+namespace LTI\ExtensionHooks;
 /*
 *
 *   this class requires the EE config item to be set in the config.php file.
@@ -37,7 +38,7 @@ class Auth {
     $data = array('action' => 'login', 'login' => 'Login', 'password' => $pass, 'user_id' => $user, 'new_loc' => '');
     $post_str = http_build_query($data);
     $length = strlen($post_str);
-    $agent = getRandomUserAgent();
+    $agent = Utils::getRandomUserAgent();
     //echo $agent;
     $ch = curl_init();
 

@@ -10,7 +10,7 @@ $hook_method = function() {
   $input_id = ee()->input->post("input_id");
   $pre_pop =  ee()->input->post('pre_pop');//ee()->TMPL->fetch_param("pre_pop");
 
-    $path = build_course_upload_path(LTI_FILE_UPLOAD_PATH.DIRECTORY_SEPARATOR.'cache', $this->context_id, $this->institution_id, $this->course_id);
+    $path = Utils::build_course_upload_path(LTI_FILE_UPLOAD_PATH.DIRECTORY_SEPARATOR.'cache', $this->context_id, $this->institution_id, $this->course_id);
     $rubric_dir = $path.DIRECTORY_SEPARATOR."rubrics".DIRECTORY_SEPARATOR."html";
     $dir = scandir($rubric_dir);
     $vars = array();

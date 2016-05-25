@@ -1,4 +1,6 @@
 <?php
+namespace LTI\ExtensionHooks;
+
 class Settings {
   private static $lti_module;
 

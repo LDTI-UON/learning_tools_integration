@@ -1,4 +1,6 @@
 <?php
+namespace LTI\ExtensionHooks;
+
 class BB_Resources {
 
 	private $path;

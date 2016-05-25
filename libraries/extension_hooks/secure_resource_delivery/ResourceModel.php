@@ -1,4 +1,6 @@
 <?php
+namespace LTI\ExtensionHooks;
+
 class ResourceModel {
   private $lti_object;
 

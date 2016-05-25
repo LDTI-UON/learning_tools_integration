@@ -1,5 +1,5 @@
 <?php
-require_once($this->hook_path.DIRECTORY_SEPARATOR.'secure_resource_delivery'.DIRECTORY_SEPARATOR.'ResourceFile.php');
+//require_once($this->hook_path.DIRECTORY_SEPARATOR.'secure_resource_delivery'.DIRECTORY_SEPARATOR.'ResourceFile.php');
 
 $hook_method = function() {
     $errors = "";

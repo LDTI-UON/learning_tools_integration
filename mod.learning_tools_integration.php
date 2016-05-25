@@ -24,7 +24,7 @@
  * @link
  */
 
-require_once ("libraries/utils.php");
+require_once (__DIR__."/libraries/extension_hooks/hook_autoloader.php");
 
 define('LTI_FILE_UPLOAD_PATH', PATH_THIRD."learning_tools_integration/cache"); //@TODO: move to control panel settings
 
@@ -156,6 +156,7 @@ class Learning_tools_integration {
        $this->init();
 	}
 
+
     public function __call($method, $args)
     {
         if (isset($this->$method) === true) {
@@ -275,7 +276,7 @@ class Learning_tools_integration {
     /*  These magic methods are used
     *   to toggle hooks on and off via template variables.
     */
-    public function __set($name, $value)
+  public function __set($name, $value)
    {
        $this->hook_vars[$name] = $value;
    }
@@ -311,9 +312,9 @@ class Learning_tools_integration {
         }
 
      return static::$instance;
-    }
+  }
 
-    public function get_base_url() {
+  public function get_base_url() {
     	return $this->base_url;
   }
 

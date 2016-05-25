@@ -2,7 +2,7 @@
 /*
 * Added as explicit tag eg: exp:learning_tools_integration:bb_dump_gradebook , not accessible between exp:learning_tools_integration tags.
 */
-require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'gradebook'.DIRECTORY_SEPARATOR.'Gradebook.php');
+//require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'gradebook'.DIRECTORY_SEPARATOR.'Gradebook.php');
 
 $hook_method = function() {
     $gradebook = new Gradebook($this);

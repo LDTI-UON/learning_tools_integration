@@ -1,4 +1,5 @@
 <?php
+namespace LTI\ExtensionHooks;
 
 class ResourceFile {
 
