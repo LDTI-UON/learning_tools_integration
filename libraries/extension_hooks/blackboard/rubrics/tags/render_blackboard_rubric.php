@@ -28,9 +28,13 @@ $hook_method = function() {
       }
     }
 
-    $show_scores = ee()->db->get_where("lti_course_link_resources",array("rubric_id" => $id))
-                  ->row()
-                  ->peer_assessment_show_column_scores;
+    $row = ee()->db->get_where("lti_course_link_resources",array("rubric_id" => $id))
+                  ->row();
+    if($row) {
+      $show_scores = $row->peer_assessment_show_column_scores;
+    } else {
+      $show_scores = 1;
+    }
 
     $vars['hide_scores'] = empty($show_scores) ? file_get_contents("$this->mod_path/js/rubric_hide_scores.js") : "";
     $vars['js_controls'] = file_get_contents("$this->mod_path/js/rubric_controls.js");

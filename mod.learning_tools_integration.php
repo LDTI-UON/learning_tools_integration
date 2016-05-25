@@ -510,7 +510,8 @@ class Learning_tools_integration {
         // re-enable CSRF (extension disables it temporarily)
         ee()->config->set_item('disable_csrf_protection', 'n');
 
-        return array_merge(array('error_messages' =>  ee() -> load -> view('lti-context-messages', $view_data, TRUE)), $tag_data);
+        $merged = array_merge(array('error_messages' =>  ee() -> load -> view('lti-context-messages', $view_data, TRUE)), $tag_data);
+        return $merged;
     }
 
     public static function logToJavascriptConsole($str) {
