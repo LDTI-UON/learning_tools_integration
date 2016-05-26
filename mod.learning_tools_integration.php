@@ -32,7 +32,6 @@ class Learning_tools_integration {
     public $mod_class = 'Learning_tools_integration';
     public $mod_path;
 
-    private $theme_folder = "/themes/third_party/";
     public $base_url = "";
     public $base_segment = "";
     private $perpage = 10;
@@ -117,7 +116,7 @@ class Learning_tools_integration {
     public $debug = FALSE;
 
     private $maintenance_message = FALSE;
-    private $maintenance_key = 'working17923';
+    private $maintenance_key = 'hashKeyHere';
 
     private $EE;
 
@@ -173,7 +172,9 @@ class Learning_tools_integration {
 
        return $func($args);
    }
-
+   private function use_extension_hooks() {
+       return file_exists($this->lib_path) && file_exists($this->hook_path);
+   }
     private function initialise_hook_toggles() {
       require_once($this->hook_path.DIRECTORY_SEPARATOR.'/tmpl_params.php');
 
@@ -339,8 +340,10 @@ class Learning_tools_integration {
               $val = ee() -> TMPL -> fetch_param('direct_tags_only');
               $this->direct_tags_only = !empty($val);
 
-              $this->initialise_hook_toggles();
-              $this->_load_hooks();
+              if($this->use_extension_hooks()) {
+                  $this->initialise_hook_toggles();
+                  $this->_load_hooks();
+              }
 
               $this -> prev_link_url =   ee() -> TMPL -> fetch_param('prev_link_url');
               $this -> next_link_url =   ee() -> TMPL -> fetch_param('next_link_url');

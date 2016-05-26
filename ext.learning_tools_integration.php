@@ -2,14 +2,12 @@
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 
-//use LTI\ExtensionHooks\Utils;
-
 class Learning_tools_integration_ext {
 
 	var $settings        = array();
 
 	var $name       = 'Learning Tools Integration';
-	var $version        = '2.0';
+	var $version        = '2.1';
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
 	var $docs_url       = '';
