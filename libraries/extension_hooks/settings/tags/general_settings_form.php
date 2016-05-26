@@ -1,4 +1,5 @@
 <?php
+use LTI\ExtensionHooks\Settings;
 /*  THOUGHT: ??group settings should be placed in instructor settings table, peer assessment tick box removed and
             activated automatically when placed in template
             plugins parameter??

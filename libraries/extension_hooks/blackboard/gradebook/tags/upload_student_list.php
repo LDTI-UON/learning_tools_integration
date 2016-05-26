@@ -1,6 +1,7 @@
 <?php
-//require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'gradebook'.DIRECTORY_SEPARATOR.'GradebookImport.php');
-//require_once($this->hook_path.DIRECTORY_SEPARATOR.'settings'.DIRECTORY_SEPARATOR.'Settings.php');
+use LTI\ExtensionHooks\Utils;
+use LTI\ExtensionHooks\Settings;
+use LTI\ExtensionHooks\GradebookImport;
 
 $hook_method = function() {
     $form = "";

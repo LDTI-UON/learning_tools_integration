@@ -24,7 +24,6 @@
  * @link
  */
 
-require_once (__DIR__."/libraries/extension_hooks/hook_autoloader.php");
 
 define('LTI_FILE_UPLOAD_PATH', PATH_THIRD."learning_tools_integration/cache"); //@TODO: move to control panel settings
 
@@ -212,7 +211,7 @@ class Learning_tools_integration {
 
     private function _require_hook_file($entry, $entry_path) {
       $method_name = explode('.', $entry)[0];
-
+      require_once (__DIR__."/libraries/extension_hooks/hook_autoloader.php");
       require_once($entry_path);
 
       if(isset($hook_method)) {

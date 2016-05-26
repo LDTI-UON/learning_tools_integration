@@ -1,6 +1,8 @@
 <?php
-//require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'BB_Resources.php');
-//require_once($this->hook_path.DIRECTORY_SEPARATOR.'blackboard'.DIRECTORY_SEPARATOR.'rubrics'.DIRECTORY_SEPARATOR.'BB_Rubrics.php');
+use LTI\ExtensionHooks\Utils;
+use LTI\ExtensionHooks\BB_Resources;
+use LTI\ExtensionHooks\BB_RubricArchive;
+use LTI\ExtensionHooks\BB_Rubrics;
 
 $hook_method = function() {
   if(empty($this->isInstructor)) { return FALSE; }

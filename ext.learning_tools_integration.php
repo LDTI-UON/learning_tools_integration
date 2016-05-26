@@ -2,7 +2,7 @@
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 
-require_once ("libraries/utils.php");
+//use LTI\ExtensionHooks\Utils;
 
 class Learning_tools_integration_ext {
 
@@ -346,7 +346,7 @@ class Learning_tools_integration_ext {
 		}
 
 		// if the context exists, then get the member record
-		if($temp_r) {
+		if(isset($temp_r)) {
 			$_temp_id = $_temp_r->member_id;
 
 			$rows = ee() -> db -> get_where('members', array('member_id' => $_temp_id));

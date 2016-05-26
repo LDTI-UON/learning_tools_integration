@@ -1,11 +1,10 @@
 <?php
-if (!defined('BASEPATH'))
-    exit('No direct script access allowed');
+namespace LTI\ExtensionHooks;
 
 use \Defuse\Crypto\Crypto;
 use \Defuse\Crypto\Exception as Ex;
 
-require_once 'autoload.php';
+require_once PATH_THIRD.'learning_tools_integration/libraries/defuse/autoload.php';
 
 class Encryption {
 

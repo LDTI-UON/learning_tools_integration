@@ -1,4 +1,6 @@
 <?php
+use LTI\ExtensionHooks\ResourceModel;
+
 $hook_method = function() {
   $model = new ResourceModel($this);
     if ($this -> isInstructor == 0 && $this -> total_resources() < 2) {

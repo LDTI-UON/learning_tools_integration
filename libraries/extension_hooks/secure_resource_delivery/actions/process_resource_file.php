@@ -1,4 +1,6 @@
 <?php
+use LTI\ExtensionHooks\ResourceFile;
+
 $hook_method = function() {
 /* process feedback on targeted resource after randomisation*/
 if(ee()->input->post('process')) {

@@ -1,5 +1,6 @@
 <?php
-//require_once($this->hook_path.DIRECTORY_SEPARATOR.'secure_resource_delivery'.DIRECTORY_SEPARATOR.'ResourceFile.php');
+use LTI\ExtensionHooks\ResourceFile;
+use LTI\ExtensionHooks\Settings;
 
 $hook_method = function() {
     $errors = "";

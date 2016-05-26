@@ -1,4 +1,6 @@
 <?php
+use LTI\ExtensionHooks\ResourceFile;
+
 $hook_method = function($args) {
 
     $enc_filename = $args[0];

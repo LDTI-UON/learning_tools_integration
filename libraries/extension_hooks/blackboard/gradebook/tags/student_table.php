@@ -1,4 +1,6 @@
 <?php
+use LTI\ExtensionHooks\Settings;
+
 $hook_method = function () {
     // pagination varies according to input
     $segments =   ee() -> uri -> segment_array();

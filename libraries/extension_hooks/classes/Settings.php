@@ -6,7 +6,7 @@ class Settings {
 
   private static function _load_lti() {
       if(empty(static::$lti_module)) {
-            static::$lti_module = Learning_tools_integration::get_instance();
+            static::$lti_module = \Learning_tools_integration::get_instance();
         }
   }
 

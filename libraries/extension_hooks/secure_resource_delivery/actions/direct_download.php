@@ -1,4 +1,6 @@
 <?php
+use LTI\ExtensionHooks\ResourceFile;
+
 $hook_method = function($args) {
       return ResourceFile::direct_download($args[0]);
 };
