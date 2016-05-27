@@ -147,7 +147,7 @@ class BB_Rubrics {
 				$this->init["rubricid"] = $params["id"];
 
 				if(!isset($this->grid_dom)) {
-					$this->doms[(string)$this->init["rubricid"]] = array("grid" => new DOMDocument('1.0'), "grid_index" => array(), "list" =>  new DOMDocument('1.0'), "list_index" => array(), "total_score" => 0);
+					$this->doms[(string)$this->init["rubricid"]] = array("grid" => new \DOMDocument('1.0'), "grid_index" => array(), "list" =>  new \DOMDocument('1.0'), "list_index" => array(), "total_score" => 0);
 
 					$this->grid_dom_index = & $this->doms[(string)$this->init["rubricid"]]["grid_index"];
 

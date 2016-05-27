@@ -55,23 +55,25 @@ class Auth {
 
     $page = curl_exec($ch);
 
-    $doc = new DOMDocument();
+    $doc = new \DOMDocument();
 
     $page = htmlspecialchars($page);
 
-    if($doc->loadHTML($page)) {
-        $el = $doc->getELementById("loginErrorMessage");
+    if(strlen($page) > 0) {
+        if($doc->loadHTML($page)) {
+            $el = $doc->getELementById("loginErrorMessage");
 
-        if($el !== NULL) {
-            return 1;
-        }
+            if($el !== NULL) {
+                return 1;
+            }
 
-        $el = $doc->getELementById("paneTabs");
+            $el = $doc->getELementById("paneTabs");
 
-        if($el === NULL) {
-           if(strpos($page, "redirect") === FALSE) {
-                return 2;
-           }
+            if($el === NULL) {
+               if(strpos($page, "redirect") === FALSE) {
+                    return 2;
+               }
+            }
         }
     }
 

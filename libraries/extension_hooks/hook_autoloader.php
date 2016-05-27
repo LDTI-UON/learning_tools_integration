@@ -1,6 +1,6 @@
 <?php
 \spl_autoload_register(function($class) {
-  //  if(strpos($class, "Learning_tools_integration") !== FALSE) return;
+    if(strpos($class, "Learning_tools_integration") !== FALSE) return;
     // Project-specific namespace prefix
     $prefix = 'LTI\\ExtensionHooks';
 

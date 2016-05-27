@@ -19,7 +19,44 @@ private $col_headers = array(
 		"last_name" => "Last Name",
 );
 
+/* stores strange inconsistencies in group names between CSV and Gradebook JSON */
+private $group_name_illegal_strings = array(
+		"atStart" => array("Group: " => ""), // at the beginning of string (0)
+		"anywhere" => array("_gc_" => " "),  // anywhere so we can str_replace
+);
+
 private $col_header_indexes = array();
+
+/*
+*		gradebook json and the CSV export function output different group names, this makes them
+*		play together.
+*/
+private function sanitize_blackboard_group_name($group_name) {
+		$group_name = trim($group_name);
+
+		if(isset($this->group_name_illegal_strings['atStart'])) {
+				foreach($this->group_name_illegal_strings['atStart'] as $str => $rep) {
+							$l = strlen($str);
+							$atStart = substr($group_name, 0, $l);
+							$lgn = strlen($group_name);
+							if($atStart === $str) {
+								if(strlen($rep) > 0) {
+											$group_name = substr_replace($group_name, $rep, 0, $l);
+								} else {
+											$group_name = substr($group_name, $l);
+								}
+							}
+						}
+		}
+
+		if(isset($this->group_name_illegal_strings['anywhere'])) {
+				foreach($this->group_name_illegal_strings['anywhere'] as $str => $rep) {
+								$group_name = str_replace($str, $rep, $group_name);
+				}
+		}
+
+		return $group_name;
+}
 
 private function define_column_locations($row) {
 	foreach($row as $index => $header) {
@@ -107,7 +144,7 @@ public function import_from_blackboard($group_students, $json) {
                  foreach ($gradeBook['customViews'] as $custom_view_index => $custom_view) {
                      if(isset($custom_view['aliases'][0])) {
                          if($custom_view['aliases'][0]['val'] == $view_alias) {
-                            $group_name = $custom_view["name"];
+                            $group_name = $this->sanitize_blackboard_group_name($custom_view["name"]);
                          }
                      }
                  }
@@ -156,11 +193,19 @@ public function import($group_students, $file_path) {
 		// create array sorted on group name, this way we can determine what groups there already are
 		foreach($csv as $row) {
 			if(isset($this->col_header_indexes['group_name'])) {
-				$file_rows[
-						$row[
-								$this->col_header_indexes['group_name']
-						]
-				][] = $row;
+
+				// sanitize
+				$sane_group_name = $this->sanitize_blackboard_group_name($row[
+						$this->col_header_indexes['group_name']
+				]);
+
+				if(empty($sane_group_name)) {
+							$sane_group_name = "__no_group__";
+				}
+				// apply to row
+				$row[$this->col_header_indexes['group_name']] = $sane_group_name;
+
+				$file_rows[$sane_group_name][] = $row;
 			} else {
 				$file_rows['course_group'][] = $row;
 			}
@@ -168,25 +213,24 @@ public function import($group_students, $file_path) {
 
 		ksort($file_rows);
 
-        unlink($file_path);
+    unlink($file_path);
 
-     return $this->import_data($file_rows, $errors, $group_students);
+    return $this->import_data($file_rows, $errors, $group_students);
 }
 
 private function import_data(& $file_rows, & $errors = "", $group_students, $start_row = 1) {
-
-        $message = '';
+		$message = '';
 		$usernames = array();
-        $duplicate_groups = array();
+    $duplicate_groups = array();
 		$row_num = $start_row;
 
-        $dupcount = 0;
+    $dupcount = 0;
 		$dupdetails = "<ol>";
 		$affr = 0;
 		$gaffr_int = 0;
 		$last_group_no = 0;
 		$last_group_name = "";
-        $tempid = 0;
+    $temp_id = 0;
 
 		foreach ($file_rows as $group_name => $group) {
 
@@ -333,13 +377,10 @@ private function import_data(& $file_rows, & $errors = "", $group_students, $sta
 							$group_id = $current_group_id;
 						}
 
-						// set this for any additional plugins to use later
 						$group['group_id'] = $group_id;
 						$file_rows[$group_name] = $group;
 
-						// group students tickbox checked...
-						if (!empty($group_students)) {
-
+						if ($group_students) {
                         if($group_name === "__no_group__") {
                                 $where = array('member_id' => $id, 'internal_context_id' => $int_context_id);
 
@@ -373,8 +414,8 @@ private function import_data(& $file_rows, & $errors = "", $group_students, $sta
 		} // end file_rows parse
 
 		// apply plugins
-		if(!empty(Learning_tools_integration::$lti_plugins)) {
-			foreach(Learning_tools_integration::$lti_plugins as $plugin) {
+		if(!empty(\Learning_tools_integration::$lti_plugins)) {
+			foreach(\Learning_tools_integration::$lti_plugins as $plugin) {
 			    if(array_key_exists($plugin, $this->lti_plugin_setups) === TRUE && !empty($this->lti_plugin_setups[$plugin])) {
 					require_once(PATH_THIRD."$plugin/libraries/$plugin"."_setup.php");
 				}
@@ -389,7 +430,7 @@ private function import_data(& $file_rows, & $errors = "", $group_students, $sta
 				foreach ($duplicate_groups as $username => $student) {
 					$errors .= "<li>".$student['full_name']." (".$username.")<ol>";
 
-					$c = count($student['groups']) - 1;
+					$s = count($student['groups']) - 1;
 					foreach($student['groups'] as $i => $group) {
 						$g = $group;
 						if($i == $c) {

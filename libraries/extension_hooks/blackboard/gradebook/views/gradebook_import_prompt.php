@@ -1,6 +1,7 @@
 <?php
 use LTI\ExtensionHooks\Encryption;
 use LTI\ExtensionHooks\Gradebook;
+use LTI\ExtensionHooks\Auth;
 
 $hook_method = function($view_data) {
         ee() -> load -> helper('url');

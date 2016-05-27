@@ -240,11 +240,11 @@ public static function download_file($filename, $type, $salt) {
 		$vars['screen_name'] =  ee() -> session -> userdata('screen_name');
 		$vars['filename'] = rawurlencode($enc);
 		$vars['iv'] = rawurlencode($iv);
-		$vars['ee_lti_token'] = Learning_tools_integration::get_instance() -> cookie_name;
+		$vars['ee_lti_token'] = \Learning_tools_integration::get_instance() -> cookie_name;
 		$vars['type'] = $type;
-		$vars['download_redirect'] = Learning_tools_integration::get_instance() -> download_redirect;
-		$vars['segment'] = Learning_tools_integration::get_instance() -> base_segment;
-		$vars['return_url'] = Learning_tools_integration::get_instance() -> launch_presentation_return_url;
+		$vars['download_redirect'] = \Learning_tools_integration::get_instance() -> download_redirect;
+		$vars['segment'] = \Learning_tools_integration::get_instance() -> base_segment;
+		$vars['return_url'] = \Learning_tools_integration::get_instance() -> launch_presentation_return_url;
 
 		return   ee() -> load -> view('download-redirect', $vars, TRUE);
 }

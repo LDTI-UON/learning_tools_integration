@@ -10,12 +10,10 @@ $hook_method = function() {
     $setup = array();
 
     if (isset($_POST['do_upload'])) {
-      $group_students = isset($_POST['group_students']) ? $_POST['group_students'] : '';
-
-
-      if(!empty(Learning_tools_integration::$lti_plugins)) {
-        foreach(Learning_tools_integration::$lti_plugins as $plugin) {
-          $setup[$plugin] = !empty($_POST["setup_$plugin"]) ? $_POST["setup_$plugin"] : '';
+      $group_students = !empty($_POST['group_students']);
+      if(!empty(\Learning_tools_integration::$lti_plugins)) {
+        foreach(\Learning_tools_integration::$lti_plugins as $plugin) {
+          $setup[$plugin] = !empty($_POST["setup_$plugin"]);
         }
       }
 
@@ -32,10 +30,6 @@ $hook_method = function() {
         $file_data =    ee() -> upload -> data();
         $file_name = $file_data['file_name'];
         $ext = strtoupper(end(explode(".", $file_name)));
-
-        /*if (!in_array($ext, array("CSV"))) {
-          $errors .= "<br>'$ext' Filetype not allowed.";
-        }*/
 
         if (!$errors) {
           $form .= "<h1>Upload Successful</h1>";
@@ -81,9 +75,8 @@ $hook_method = function() {
     $form .= "<span id='manualUploadInfo'><p>".lang('upload_student_list')."<br><strong>".lang('upload_tip')."</strong></p>";
     $form .= form_open_multipart($this->base_url);
     $form .= form_upload('userfile', 'userfile');
-    $form .= "<br><br><p>Change these settings in <b>General Settings for Groups &amp; Plugins</b><br><br>If selected, will include group columns in upload<br>";
-    $form .= form_checkbox(array('name'=>'group_students', 'id' => 'group_students', 'value' =>'1', 'checked' => $enable_group_import == 1, "disabled" => "disabled"));
-    $form .= " include user groups columns<br></p>";
+    $form .= form_hidden('group_students', $enable_group_import ? '1' : '0');
+    //$form .= " include user groups columns<br></p>";
 
     if(!empty(static::$lti_plugins)) {
         foreach(static::$lti_plugins as $plugin) {
@@ -93,8 +86,7 @@ $hook_method = function() {
                     $active = isset($plugins_active[$plugin]) && $plugins_active[$plugin] == 1;
                 }
 
-                $form .= "<br><p>".$this->plugin_setup_text[$plugin."_description"];
-              $form .= form_checkbox(array('name' => 'setup_'.$plugin, 'id'=>'setup_'.$plugin, "value" =>'1', "checked" => $active, 'disabled' => 'disabled'));
+              $form .= form_hidden('setup_'.$plugin, $active ? '1' : '0');
               $form .= $this->plugin_setup_text[$plugin]."</p>";
           }
         }
