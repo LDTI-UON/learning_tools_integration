@@ -12,7 +12,7 @@ $(document).ready(function () {
     $(".chosen-container").hide();
 
 		$(p).each(function() {
-			console.log("populating from DB");
+			//console.log("populating from DB");
 			$(this.rows).each(function(i, v) {
 				var col = (this.col - 1);
 				var list_q = ".rubricGradingList .rubricGradingRow:eq("+i+") .rubricGradingCell:eq("+col+")";
@@ -207,7 +207,7 @@ $(document).ready(function () {
 			var subject = encodeURIComponent("error in script");
 			var body = encodeURIComponent("This is the data passed: \n\n"+JSON.stringify(model));
 
-			document.write("There was an error processing your form, please report this to the developer at <a href='mailto:paul.sijpkes@newcastle.edu.au?subject="+subject+"&body="+body+"'>The BOLD Team at UoN</a>.");
+			document.write("There was an error processing your form, try returning to the course and clicking the link again, if this still does not work, please report this incident to the developer at <a href='mailto:paul.sijpkes@newcastle.edu.au?subject="+subject+"&body="+body+"'>The BOLD Team at UoN</a>.");
 			return;
 		}
 });

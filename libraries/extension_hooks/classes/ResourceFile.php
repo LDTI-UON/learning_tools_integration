@@ -79,7 +79,7 @@ if (empty($errors)) {
 		die("Problem with upload ".$this->full_path);
 	}
 
-	$zip = new ZipArchive;
+	$zip = new \ZipArchive;
 	$res = $zip -> open($this->full_path);
 
 	if ($res === TRUE) {

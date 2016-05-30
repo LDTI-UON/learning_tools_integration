@@ -1,4 +1,5 @@
 <?php
+use LTI\ExtensionHooks\Utils;
 /*
 * Direct method via exp:module:method syntax
 */
@@ -47,6 +48,7 @@ $hook_method = function() {
     $vars['input_id'] = $input_id;
     $vars['username'] = htmlentities($user['screen_name']);
     $vars['pre_pop'] = htmlentities($pre_pop, ENT_QUOTES, 'UTF-8');
+    $vars['error_messages'] = ""; // stops empty tag on main page.
 
     return ee() -> load -> view('rubric', $vars, TRUE);
 };

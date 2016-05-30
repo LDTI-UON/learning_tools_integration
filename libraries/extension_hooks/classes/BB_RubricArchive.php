@@ -3,7 +3,7 @@ namespace LTI\ExtensionHooks;
 
 class BB_RubricArchive {
   public static function unpack($path, $zip_file_name, $rubric_dir) {
-      $zip = new ZipArchive;
+      $zip = new \ZipArchive;
     $res = $zip -> open($path.DIRECTORY_SEPARATOR.$zip_file_name);
 
     if ($res === TRUE) {

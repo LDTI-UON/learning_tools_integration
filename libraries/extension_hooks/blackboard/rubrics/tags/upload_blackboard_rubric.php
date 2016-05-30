@@ -111,7 +111,8 @@ $hook_method = function() {
 
   $dir = array_filter($dir, "_allowed");
   $show_scores = array();
-
+  $raw_init_id = "del";
+  
   foreach($dir as $item) {
     $filename = explode("|", $item);
     $title = $filename[0];
@@ -123,7 +124,6 @@ $hook_method = function() {
             $init_rubric = $init_rubric."|".$score;
             $raw_init_id = $id;
         }
-
 
         $row = ee()->db->get_where('lti_course_link_resources', array("rubric_id" => $id))->row();
         $show_col_scores = !empty($row) ? $row->peer_assessment_show_column_scores : NULL;
