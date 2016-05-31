@@ -261,9 +261,9 @@ class Learning_tools_integration_ext {
 		} else {
 			echo lang('not_launch_request');
 		}
-		//echo "GOT ".__LINE__;
-        ee()->load->helper('url');
-		$ee_uri = uri_string();  //ee() -> functions -> fetch_current_uri();
+
+    ee()->load->helper('url');
+		$ee_uri = uri_string(); 
 
 		require_once ('ims-blti/blti.php');
 		$context = new BLTI( array('key_column' => 'oauth_consumer_key', 'secret_column' => 'secret',
