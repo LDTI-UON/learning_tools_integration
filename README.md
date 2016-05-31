@@ -30,9 +30,20 @@ It has had rudimentary testing in Moodle, further development is desired in this
 {upload_blackboard_rubric}
 {render_blackboard_rubric}
 ```
- of rubric ZIP archives exported from Blackboard learn, provides tags for viewing the Rubrics.  These can be used with the Peer Assessment plugin below.*
+Provides tags that allow import and display of rubric ZIP archives exported from Blackboard learn, provides tags for viewing the Rubrics.  These can be used with the Peer Assessment plugin below.*
 
 #Secure Resource Delivery#
+**EE Tags provided**
+```
+#!html
+{download_resource}
+{random_form_error}
+{random_form}
+{random_remainder_form}
+{resource_settings_form}
+{resource_table}
+{upload_student_resources_form}
+```
 
 *This extension provides tags to allow the setup of randomly assigned question and answer resources to students.  A link is placed in Blackboard for the question and the solution.  The solution can then be released via an adaptive release rule at the Instructor's discretion.*
 
