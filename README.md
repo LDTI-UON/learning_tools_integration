@@ -22,7 +22,7 @@ It has had rudimentary testing in Moodle, further development is desired in this
 * Secure Resource Delivery
 *This is an *
 
-* [Peer Review Module]
+* [Peer Review Module](https://bitbucket.org/sijpkes/lti-peer-assessment)
 *This add-on is in constant development as I get more interest from academics here at UoN*
 
 
