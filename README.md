@@ -1,6 +1,6 @@
 # README #
 
-### LTI Module for ExpressionEngine 3 ###
+### LTI Module for ExpressionEngine(EE) 3 ###
 
 #Version 2.1#
 
@@ -12,7 +12,7 @@ It has had rudimentary testing in Moodle, further development is desired in this
 
 ### Getting started ###
 
-* Get a copy of [ExpressionEngine Core at Ellislabs](https://store.ellislab.com/#ee-core) (note this is limited to 3 back-end administrative and content development users, you will need to pay for the full version if you need more administrators).
+* Get a copy of [EE Core at Ellislabs](https://store.ellislab.com/#ee-core) (note this is limited to 3 back-end administrative and content development users, you will need to pay for the full version if you need more administrators).
 * [Download the zip file of the latest release at devot:ee](https://devot-ee.com/add-ons/learning-tools-integration)
 * Follow the instructions at the above link and the [installing add-ons section](https://docs.expressionengine.com/latest/cp/addons/index.html) of the EE documentation.
 
@@ -61,15 +61,13 @@ It has had rudimentary testing in Moodle, further development is desired in this
 ```
 *This tag provides a settings form for instructors to turn plugins and features on and off, it can be restricted to certain users.*
 
-#ExpressionEngine(EE) Plugins#
+#EE Plugins#
 
 * [Peer Review Module](https://bitbucket.org/sijpkes/lti-peer-assessment)
 *This EE plugin is in constant development as I get more interest from academics here at UoN.  Pull this one from BitBucket via the above link.*
 
 ***This plugin requires all the above extension hooks to run***
 **This plugin has ONLY been tested in Blackboard Learn.***
-
-
 
 ### Contribution guidelines ###
 
