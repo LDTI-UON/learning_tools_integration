@@ -28,7 +28,7 @@ It has had rudimentary testing in Moodle, further development is desired in this
 ```
 *Allows manual and automated import of Users and/or Groups using CSV or with secure authentication to Blackboard Learns Gradebook JSON export REST URI.*
 
-#Blackboard Rubrics#
+##Blackboard Rubrics##
 **EE Tags provided**
 ```
 #!html
@@ -36,9 +36,9 @@ It has had rudimentary testing in Moodle, further development is desired in this
 {upload_blackboard_rubric}
 {render_blackboard_rubric}
 ```
-Provides tags that allow import and display of rubric ZIP archives exported from Blackboard learn, provides tags for viewing the Rubrics.  These can be used with the Peer Assessment plugin below.*
+*Provides tags that allow import and display of rubric ZIP archives exported from Blackboard learn, provides tags for viewing the Rubrics.  These can be used with the Peer Assessment plugin below.*
 
-#Secure Resource Delivery#
+##Secure Resource Delivery##
 **EE Tags provided**
 ```
 #!html
@@ -50,8 +50,15 @@ Provides tags that allow import and display of rubric ZIP archives exported from
 {resource_table}
 {upload_student_resources_form}
 ```
-
 *This extension provides tags to allow the setup of randomly assigned question and answer resources to students.  A link is placed in Blackboard for the question and the solution.  The solution can then be released via an adaptive release rule at the Instructor's discretion.*
+
+##Settings##
+**EE Tags Provided**
+```
+#!html
+{general_settings_form}
+```
+*This tag provides a settings form for instructors to turn plugins and features on and off, it can be restricted to certain users.*
 
 #Tools available as ExpressionEngine(EE) Plugins#
 
@@ -60,7 +67,7 @@ Provides tags that allow import and display of rubric ZIP archives exported from
 
 **This add-on has only been tested in Blackboard Learn.***
 
-***REQUIRES: all the above extension hooks to run***
+***This plugin requires all the above extension hooks to run***
 
 
 ### Contribution guidelines ###
