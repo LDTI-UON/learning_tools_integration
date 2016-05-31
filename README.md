@@ -21,6 +21,10 @@ It has had rudimentary testing in Moodle, further development is desired in this
 
 ##User and Group Import##
 **EE Tags provided**
+#!html
+{student_table}
+{upload_student_list}
+```
 *Allows manual and automated import of Users and/or Groups using CSV or with secure authentication to Blackboard Learns Gradebook JSON export REST URI.*
 
 #Blackboard Rubrics#
