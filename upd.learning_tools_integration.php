@@ -549,7 +549,7 @@
 					 * @return boolean TRUE
 					 */
 					public function update($current = '') {
-						// If you have updates, drop 'em in here.
+						// Will start using this update function in versions > 2.1
 						return TRUE;
 					}
 				}
