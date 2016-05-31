@@ -1,7 +1,7 @@
 # README #
 
 ### LTI Module for ExpressionEngine(EE) 3 ###
-*Tested with up to EE 3.0
+*Tested with up to EE 3.0*
 
 #Version 2.1#
 
