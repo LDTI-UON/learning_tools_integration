@@ -17,13 +17,16 @@ It has had rudimentary testing in Moodle, further development is desired in this
 * Follow the instructions at the above link.
 * The extension_hooks directory will soon be moved to a new repository as this is where most of the LMS specific code is housed.  This is where you can build specific extensions to suit your LMS. 
 
-#Current tools available for Blackboard Learn as extension hooks are:#
+#Tools available for Blackboard Learn as extension hooks#
 
-* Secure Resource Delivery
-*This is an *
+* Secure Resource Delivery 
+* This extension provides tags to allow the setup of randomly assigned question and answer resources to students.  A link is placed in Blackboard for the question and the solution.  The solution can then be released via an adaptive release rule at the Instructor's discretion.*
+
+
+#Tools available as Expression Engine Plugins#
 
 * [Peer Review Module](https://bitbucket.org/sijpkes/lti-peer-assessment)
-*This add-on is in constant development as I get more interest from academics here at UoN*
+*This add-on is in constant development as I get more interest from academics here at UoN.  Pull this one from BitBucket via the above link.*
 
 
 ### Contribution guidelines ###
