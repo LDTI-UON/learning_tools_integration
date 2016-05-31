@@ -23,11 +23,12 @@ It has had rudimentary testing in Moodle, further development is desired in this
 *Allows manual and automated import of Users and/or Groups using CSV or with secure authentication to Blackboard Learns Gradebook JSON export REST URI.*
 
 #Blackboard Rubrics#
-*Provides tags for import 
+**EE Tags provided**
 ```
 #!html
 
 {upload_blackboard_rubric}
+{render_blackboard_rubric}
 ```
  of rubric ZIP archives exported from Blackboard learn, provides tags for viewing the Rubrics.  These can be used with the Peer Assessment plugin below.*
 
