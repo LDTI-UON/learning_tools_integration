@@ -14,9 +14,4 @@
 
 ### Contribution guidelines ###
 
-* Contributors are NEEDED, so if you're keen on building this tool further please contact Paul Sijpkes.
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+* Contributors are NEEDED, so if you're keen on building this tool further please contact [Paul Sijpkes](mailto:paul.sijpkes@newcastle.edu.au).
