@@ -66,9 +66,9 @@ It has had rudimentary testing in Moodle, further development is desired in this
 ###[Peer Review Module](https://bitbucket.org/sijpkes/lti-peer-assessment)###
 *This EE plugin is in constant development as I get more interest from academics here at UoN.  Grab this from BitBucket via the above link.*
 
-***This plugin requires all the above extension hooks to run***
-**This plugin has ONLY been tested in Blackboard Learn.***
+**This plugin requires all the above extension hooks to run**
+**This plugin has ONLY been tested in Blackboard Learn.**
 
 ### Contribution guidelines ###
 
-* Contributors are NEEDED, so if you're keen on building this tool further please contact [Paul Sijpkes](mailto:paul.sijpkes@newcastle.edu.au).
+Contributors are NEEDED, so if you're keen on building this tool further please contact [Paul Sijpkes](mailto:paul.sijpkes@newcastle.edu.au).
