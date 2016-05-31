@@ -16,10 +16,10 @@ It has had rudimentary testing in Moodle, further development is desired in this
 * [Download the zip file of the latest release at devot:ee](https://devot-ee.com/add-ons/learning-tools-integration)
 * Follow the instructions at the above link and the [installing add-ons section](https://docs.expressionengine.com/latest/cp/addons/index.html) of the EE documentation.
 
-*The extension_hooks directory will soon be moved to a new repository as this is where most of the LMS specific code is housed.  This is where you can build specific extensions to suit your LMS.* 
+*The extension_hooks directory is in a [separate repository](https://bitbucket.org/sijpkes/ee3-lti-extension-hooks/overview) as this is where most of the LMS specific code is housed.  If you would like to contribute and build specific extensions to suit other LMSs, you are more than welcome!* 
 
 #Tags available for Blackboard Learn as extension hooks#
-
+**[Access extension hook repo](https://bitbucket.org/sijpkes/ee3-lti-extension-hooks/overview)**
 ##User and Group Import##
 **EE Tags provided**
 ```
