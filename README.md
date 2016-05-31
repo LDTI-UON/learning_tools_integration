@@ -17,9 +17,10 @@ It has had rudimentary testing in Moodle, further development is desired in this
 * Follow the instructions at the above link.
 * The extension_hooks directory will soon be moved to a new repository as this is where most of the LMS specific code is housed.  This is where you can build specific extensions to suit your LMS. 
 
-##Tools available for Blackboard Learn as extension hooks##
+#Tools available for Blackboard Learn as extension hooks#
 
-#User and Group Import#
+##User and Group Import##
+**EE Tags provided**
 *Allows manual and automated import of Users and/or Groups using CSV or with secure authentication to Blackboard Learns Gradebook JSON export REST URI.*
 
 #Blackboard Rubrics#
@@ -51,6 +52,10 @@ Provides tags that allow import and display of rubric ZIP archives exported from
 
 * [Peer Review Module](https://bitbucket.org/sijpkes/lti-peer-assessment)
 *This EE plugin is in constant development as I get more interest from academics here at UoN.  Pull this one from BitBucket via the above link.*
+
+**This add-on has only been tested in Blackboard Learn.***
+
+***REQUIRES: all the above extension hooks to run***
 
 
 ### Contribution guidelines ###
