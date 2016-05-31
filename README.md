@@ -15,7 +15,8 @@ It has had rudimentary testing in Moodle, further development is desired in this
 * Get a copy of [ExpressionEngine Core at Ellislabs](https://store.ellislab.com/#ee-core) (note this is limited to 3 back-end administrative and content development users, you will need to pay for the full version if you need more administrators).
 * [Download the zip file of the latest release at devot:ee](https://devot-ee.com/add-ons/learning-tools-integration)
 * Follow the instructions at the above link and the [installing add-ons section](https://docs.expressionengine.com/latest/cp/addons/index.html) of the EE documentation.
-* The extension_hooks directory will soon be moved to a new repository as this is where most of the LMS specific code is housed.  This is where you can build specific extensions to suit your LMS. 
+
+*The extension_hooks directory will soon be moved to a new repository as this is where most of the LMS specific code is housed.  This is where you can build specific extensions to suit your LMS.* 
 
 #Tags available for Blackboard Learn as extension hooks#
 
