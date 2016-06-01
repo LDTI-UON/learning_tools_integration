@@ -150,7 +150,6 @@ class Learning_tools_integration {
        $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
        $this->lib_path = $this->mod_path.DIRECTORY_SEPARATOR.'libraries';
        $this->hook_path = $this->lib_path.DIRECTORY_SEPARATOR.'extension_hooks';
-
        $this->init();
 	}
 
@@ -585,6 +584,9 @@ class Learning_tools_integration {
     }
 
     public static function outputJavascript($js_vars = array(), $name = "", $direct = FALSE) {
+        if(!$js_vars || count($js_vars) == 0) {
+          return FALSE;
+        }
 
         ob_start();
         if($direct === TRUE && $name !== "") {

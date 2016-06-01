@@ -26,7 +26,7 @@
 				 * @link http://sijpkes.site11.com
 				 */
 				class Learning_tools_integration_upd {
-					public $version = '2.1';
+					public $version = '2.21';
 					public $mod_class = 'Learning_tools_integration';
 					private $EE;
 
@@ -550,6 +550,74 @@
 					 */
 					public function update($current = '') {
 						// Will start using this update function in versions > 2.1
+						ee ()->load->dbforge ();
+
+						if (version_compare($current, '2.21', '='))
+	 					{
+			 					return FALSE;
+	 					}
+
+	 					if (version_compare($current, '2.21', '<'))
+	 					{
+							// rebuild table with new indexes
+							ee()->dbforge->drop_table('lti_instructor_credentials');
+
+							// instructor credentials table
+							$fields = array (
+									'member_id' => array (
+											'type' => 'MEDIUMINT',
+											'constraint' => '5',
+											'null' => FALSE,
+											'auto_increment' => FALSE
+									),
+									'context_id' => array (
+											'type' => 'CHAR',
+											'constraint' => '255',
+											'null' => FALSE
+									),
+									'resource_link_id' =>
+											array ('type' => 'CHAR',
+														'constraint' => '25',
+														'null' => FALSE,
+									),
+									'disabled' => array (
+											'type' => 'TINYINT',
+											'constraint' => '1',
+											'null' => FALSE,
+											'default' => '0'
+									),
+									'password' => array (
+											'type' => 'VARBINARY',
+											'constraint' => '255',
+											'null' => TRUE
+									),
+									'state' => array (
+											'type' => 'TINYINT',
+											'constraint' => '1',
+											'default' => '1',
+											'null' => FALSE
+									),
+															'lastLogEntryTS' => array (
+											'type' => 'BIGINT',
+											'constraint' => '20',
+									),
+									'check_next' => array (
+											'type' => 'TINYINT',
+											'constraint' => '1',
+											'default' => '1',
+											'null' => FALSE
+									),
+									'uploaded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+							);
+
+							ee ()->dbforge->add_field ( $fields );
+							ee ()->dbforge->add_key ( 'member_id', TRUE );
+							ee ()->dbforge->add_key ( 'context_id', TRUE );
+							ee ()->dbforge->add_key ( 'resource_link_id', TRUE );
+							ee ()->dbforge->create_table ( 'lti_instructor_credentials', TRUE );
+
+	 					}
+
 						return TRUE;
 					}
 				}

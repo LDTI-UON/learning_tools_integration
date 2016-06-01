@@ -38,12 +38,18 @@ button#openRubric {
            id = $(e.target).find("option:selected").val();
            var show_scores = show_scores_array[id];
             if(id != "del") {
-                $('#preview_btn').removeAttr("disabled");
+                var score = id.split('|')[1];
+                $('#preview_btn').prop("disabled", false);
                 $("#attach").text("Attach");
                 $("#show_scores").prop("checked", show_scores);
+                $("input[name='total_score']").val(score);
+                  $("#scoreOverride").show();
             } else {
-                $('#preview_btn').prop("disabled", "disabled");
+                $('#preview_btn').prop("disabled", true);
                 $("#attach").text("Clear");
+                $("input[name='total_score']").val('100');
+                $("#scoreOverride").hide();
+                $("#total_score").prop('disabled', false);
             }
         }).on("click", "#preview_btn", function(e) {
             if(id != "del") {
@@ -60,26 +66,33 @@ button#openRubric {
                    session_expired(data);
             });
         }).on('change', '#show_scores', function(e) {
+
           $("#rub_loader").show();
           $("#loader_msg").text("");
           var is_checked = $(e.target).is(':checked') ? "1" : "0";
           var key = id.split('|')[0];
           show_scores_array[key] = is_checked;
+          console.log(id);
 
           $.post("<?= $base_url ?>?rubric_id="+id,
-                  { "show_scores" : is_checked },
-            function(data) {
-              $("#rub_loader").hide();
-              $("#loader_msg").text(" updated.");
-                 session_expired(data);
+                      { "show_scores" : is_checked },
+                function(data) {
+                  $("#rub_loader").hide();
+                  $("#loader_msg").text(" updated.");
+
+                  session_expired(data);
           });
+
         });
 
         $("select[name=\'rubrics\']").trigger("change");
 
         <?php if ($disable_instructor_score_setting !== FALSE): ?>
         $(document).ready(function() {
-            $("#total_score").attr('disabled', 'disabled').after(" (<em>Overriden by rubric total score</em>)");
+            $("#total_score").prop('disabled', true).after("<em id=scoreOverride>(Overriden by rubric total score)</em>");
+            var raw = $("select[name=\'rubrics\']").find("option:selected").val();
+            var selected_score = raw.split('|')[1];
+            $("#total_score").after("<input type='hidden' name='total_score' value='"+selected_score+"'>");
         });
         <?php endif; ?>
 </script>

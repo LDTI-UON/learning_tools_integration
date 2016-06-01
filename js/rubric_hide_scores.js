@@ -1,4 +1,10 @@
-$.fn.removeText = function(numeric = false){
+$.fn.removeText = function(numeric){
+
+  // Safari doesn't allow inline function variable assignment
+  if(typeof numeric === 'undefined') {
+      numeric = false;
+  }
+
   this.each(function(){
 
      // Get elements contents
