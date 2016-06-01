@@ -7,7 +7,7 @@ class Learning_tools_integration_ext {
 	var $settings        = array();
 
 	var $name       = 'Learning Tools Integration';
-	var $version        = '2.1';
+	var $version        = '2.21';
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
 	var $docs_url       = '';
@@ -263,7 +263,7 @@ class Learning_tools_integration_ext {
 		}
 
     ee()->load->helper('url');
-		$ee_uri = uri_string(); 
+		$ee_uri = uri_string();
 
 		require_once ('ims-blti/blti.php');
 		$context = new BLTI( array('key_column' => 'oauth_consumer_key', 'secret_column' => 'secret',
