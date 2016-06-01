@@ -1,9 +1,8 @@
 /libraries/secret
-.* !.gitignore
+/libraries/extension_hooks
+/libraries/defuse
 *.log
 /data/*
 /cache/*
 .brackets.json
 .ftpconfig
-/libraries/extension_hooks
-/libraries/defuse
