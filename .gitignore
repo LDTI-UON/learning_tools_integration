@@ -6,3 +6,4 @@
 .brackets.json
 .ftpconfig
 /libraries/extension_hooks
+/libraries/defuse
