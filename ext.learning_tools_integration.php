@@ -39,7 +39,7 @@ class Learning_tools_integration_ext {
 	public $group_id = '6';
 	public $internal_context_id = 0;
 	public $isInstructor = 0;
-    public $preview_member_id;
+    //public $preview_member_id; seems too complex to implement at this stage
 
 	public $institution;
 
@@ -316,7 +316,7 @@ class Learning_tools_integration_ext {
 			$this->vle_pk_string = ee()->security->xss_clean($_REQUEST['custom_vle_pk_string']);
 		}
 
-    $this->preview_member_id = isset($_REQUEST['custom_preview_member_id']) ? ee()->security->xss_clean($_REQUEST['custom_preview_member_id']) : 0;
+  //  $this->preview_member_id = isset($_REQUEST['custom_preview_member_id']) ? ee()->security->xss_clean($_REQUEST['custom_preview_member_id']) : 0;
 
 		$this -> user_short_name = $context -> getUserShortName();
 		$this -> resource_title = $context -> getResourceTitle();
@@ -458,7 +458,7 @@ class Learning_tools_integration_ext {
 	ee()->config->_global_vars['ext_launch_presentation_css_url'] = $session_info['ext_launch_presentation_css_url'];
 			ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];;
 			//experimental student preview for use with Blackboard (not implemented in this version)
-			ee()->config->_global_vars['preview_member_id'] = $this->preview_member_id;
+			//ee()->config->_global_vars['preview_member_id'] = $this->preview_member_id;
 	}
 
 	 private function css_link_tags() {
