@@ -434,6 +434,7 @@ class Learning_tools_integration_ext {
 		$this->set_globals(static::$session_info);
 			}
 	}
+	
 	private function set_globals($session_info) {
 			ee()->config->_global_vars['launch_presentation_return_url'] = $session_info['launch_presentation_return_url'];
 	ee()->config->_global_vars['tool_consumer_instance_name'] = $session_info['tool_consumer_instance_name'];
