@@ -434,7 +434,7 @@ class Learning_tools_integration_ext {
 		$this->set_globals(static::$session_info);
 			}
 	}
-	
+
 	private function set_globals($session_info) {
 			ee()->config->_global_vars['launch_presentation_return_url'] = $session_info['launch_presentation_return_url'];
 	ee()->config->_global_vars['tool_consumer_instance_name'] = $session_info['tool_consumer_instance_name'];
@@ -455,8 +455,7 @@ class Learning_tools_integration_ext {
 	ee()->config->_global_vars['resource_title'] = $session_info['resource_title'];
 	ee()->config->_global_vars['resource_link_description'] = $session_info['resource_link_description'];
 			ee()->config->_global_vars['lti_user_email'] = $session_info['user_email'];
-			ee()->config->_global_vars['lti_username'] = $session_info['user_key'];
-	ee()->config->_global_vars['ext_launch_presentation_css_url'] = $session_info['ext_launch_presentation_css_url'];
+			ee()->config->_global_vars['ext_launch_presentation_css_url'] = $session_info['ext_launch_presentation_css_url'];
 			ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];;
 			//experimental student preview for use with Blackboard (not implemented in this version)
 			//ee()->config->_global_vars['preview_member_id'] = $this->preview_member_id;
