@@ -1,6 +1,6 @@
 /libraries/secret
 /libraries/extension_hooks
-/libraries/defuse
+/libraries/php-encryption
 *.log
 /data/*
 /cache/*

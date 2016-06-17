@@ -436,29 +436,27 @@ class Learning_tools_integration_ext {
 	}
 
 	private function set_globals($session_info) {
-			ee()->config->_global_vars['launch_presentation_return_url'] = $session_info['launch_presentation_return_url'];
-	ee()->config->_global_vars['tool_consumer_instance_name'] = $session_info['tool_consumer_instance_name'];
-	ee()->config->_global_vars['lis_outcome_service_url'] = $session_info['lis_outcome_service_url'];
-	ee()->config->_global_vars['tool_consumer_instance_guid'] = $session_info['tool_consumer_instance_guid'];
-	ee()->config->_global_vars['tool_consumer_instance_id'] = $session_info['tool_consumer_instance_id'];
-	ee()->config->_global_vars['lti_internal_context_id'] = $session_info['user_key'];
-	ee()->config->_global_vars['lti_user_id'] = $session_info['user_id'];
-	ee()->config->_global_vars['lti_user_key'] = $session_info['user_key'];
-	ee()->config->_global_vars['lti_context_id'] = $session_info['context_id'];
-	ee()->config->_global_vars['lti_context_label'] = $session_info['context_label'];
-	ee()->config->_global_vars['ext_lms'] = $session_info['ext_lms'];
-	ee()->config->_global_vars['is_instructor'] = $session_info['isInstructor'];
-	ee()->config->_global_vars['course_key'] = $session_info['course_key'];
-	ee()->config->_global_vars['course_name'] = $session_info['course_name'];
-			ee()->config->_global_vars['pk_string'] = $session_info['user_key'];
-	ee()->config->_global_vars['lti_user_short_name'] = $session_info['user_short_name'];
-	ee()->config->_global_vars['resource_title'] = $session_info['resource_title'];
-	ee()->config->_global_vars['resource_link_description'] = $session_info['resource_link_description'];
-			ee()->config->_global_vars['lti_user_email'] = $session_info['user_email'];
-			ee()->config->_global_vars['ext_launch_presentation_css_url'] = $session_info['ext_launch_presentation_css_url'];
-			ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];;
-			//experimental student preview for use with Blackboard (not implemented in this version)
-			//ee()->config->_global_vars['preview_member_id'] = $this->preview_member_id;
+				ee()->config->_global_vars['launch_presentation_return_url'] = $session_info['launch_presentation_return_url'];
+				ee()->config->_global_vars['tool_consumer_instance_name'] = $session_info['tool_consumer_instance_name'];
+				ee()->config->_global_vars['lis_outcome_service_url'] = $session_info['lis_outcome_service_url'];
+				ee()->config->_global_vars['tool_consumer_instance_guid'] = $session_info['tool_consumer_instance_guid'];
+				ee()->config->_global_vars['tool_consumer_instance_id'] = $session_info['tool_consumer_instance_id'];
+				ee()->config->_global_vars['lti_internal_context_id'] = $session_info['user_key'];
+				ee()->config->_global_vars['lti_user_id'] = $session_info['user_id'];
+				ee()->config->_global_vars['lti_user_key'] = $session_info['user_key'];
+				ee()->config->_global_vars['lti_context_id'] = $session_info['context_id'];
+				ee()->config->_global_vars['lti_context_label'] = $session_info['context_label'];
+				ee()->config->_global_vars['ext_lms'] = $session_info['ext_lms'];
+				ee()->config->_global_vars['is_instructor'] = $session_info['isInstructor'];
+				ee()->config->_global_vars['course_key'] = $session_info['course_key'];
+				ee()->config->_global_vars['course_name'] = $session_info['course_name'];
+				ee()->config->_global_vars['pk_string'] = $session_info['user_key'];
+				ee()->config->_global_vars['lti_user_short_name'] = $session_info['user_short_name'];
+				ee()->config->_global_vars['resource_title'] = $session_info['resource_title'];
+				ee()->config->_global_vars['resource_link_description'] = $session_info['resource_link_description'];
+				ee()->config->_global_vars['lti_user_email'] = $session_info['user_email'];
+				ee()->config->_global_vars['ext_launch_presentation_css_url'] = $session_info['ext_launch_presentation_css_url'];
+				ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];;
 	}
 
 	 private function css_link_tags() {
