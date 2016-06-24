@@ -12,7 +12,7 @@
 	        lang('username'),
 	        lang('email'),
 	        lang('file_name'),
-	        lang('group_no'),
+	        //lang('group_no'),
 	        lang('group_name')
 	     );
 
@@ -33,8 +33,8 @@
 									$student['screen_name'],
 									$student['username'],
 									"<a href='mailto:$student[email]'>$student[email]</a>",
-									empty($student['display_name']) ? "None assigned" : $student['display_name'],
-									$student['group_no'],
+									empty($student['display_name']) ? " - " : $student['display_name'],
+								//	$student['group_no'],
 									$student['group_name']
 							);
 				} else {
@@ -42,7 +42,7 @@
 									$student['screen_name'],
 									$student['username'],
 									"<a href='mailto:$student[email]'>$student[email]</a>",
-									empty($student['display_name']) ? "None assigned" : $student['display_name']
+									empty($student['display_name']) ? " - " : $student['display_name']
 							);
 				}
 	    }
