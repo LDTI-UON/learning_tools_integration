@@ -1,5 +1,6 @@
-/libraries/secret/*
-.* !.gitignore
+/libraries/secret
+/libraries/extension_hooks
+/libraries/php-encryption
 *.log
 /data/*
 /cache/*

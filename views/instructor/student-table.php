@@ -6,13 +6,13 @@
 
 	ee()->table->set_template($tmpl);
 
-	if(!empty($include_groups)) {
+	if($include_groups) {
 		 ee()->table->set_heading(
 	        lang('screen_name'),
 	        lang('username'),
 	        lang('email'),
 	        lang('file_name'),
-	        lang('group_no'),
+	        //lang('group_no'),
 	        lang('group_name')
 	     );
 
@@ -26,16 +26,25 @@
 	}
 
 	if(isset($students)) {
-	    foreach($students as $student)
+	    foreach($students as $index => $student)
 	    {
-	        ee()->table->add_row(
-	                $student['screen_name'],
-	                $student['username'],
-	                "<a href='mailto:$student[email]'>$student[email]</a>",
-	                empty($student['display_name']) ? "None assigned" : $student['display_name'],
-	                $student['group_no'],
-	                $student['group_name']
-	            );
+				if($include_groups) {
+							ee()->table->add_row(
+									$student['screen_name'],
+									$student['username'],
+									"<a href='mailto:$student[email]'>$student[email]</a>",
+									empty($student['display_name']) ? " - " : $student['display_name'],
+								//	$student['group_no'],
+									$student['group_name']
+							);
+				} else {
+					ee()->table->add_row(
+									$student['screen_name'],
+									$student['username'],
+									"<a href='mailto:$student[email]'>$student[email]</a>",
+									empty($student['display_name']) ? " - " : $student['display_name']
+							);
+				}
 	    }
 
 	} else {

@@ -1,4 +1,3 @@
-
 <?php
 	if(isset($email_settings)) {
 		echo $email_settings;

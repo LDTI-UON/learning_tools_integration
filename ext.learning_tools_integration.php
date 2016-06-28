@@ -2,14 +2,12 @@
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 
-require_once ("libraries/utils.php");
-
 class Learning_tools_integration_ext {
 
 	var $settings        = array();
 
 	var $name       = 'Learning Tools Integration';
-	var $version        = '2.0';
+	var $version        = '2.2.4';
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
 	var $docs_url       = '';
@@ -41,7 +39,7 @@ class Learning_tools_integration_ext {
 	public $group_id = '6';
 	public $internal_context_id = 0;
 	public $isInstructor = 0;
-    public $preview_member_id;
+    //public $preview_member_id; seems too complex to implement at this stage
 
 	public $institution;
 
@@ -80,11 +78,21 @@ class Learning_tools_integration_ext {
 	function __construct($settings='')
 	{
 			$this->settings = $settings;
-        ee()->config->set_item('disable_csrf_protection', 'y');
+      ee()->config->set_item('disable_csrf_protection', 'y');
+	}
+
+	private static function set_safe_xframe_header($referer) {
+			header("X-Frame-Options: ALLOW-FROM $referer;");
+			header("Content-Security-Policy: script-src 'self' 'unsafe-inline' ajax.googleapis.com; default-src 'self' $referer; style-src 'self' 'unsafe-inline' $referer; img-src 'self' $referer; frame-ancestors 'self' $referer;");
+	}
+
+	private static function deny_xframe_header() {
+			header("X-Frame-Options: DENY");
+			header("Content-Security-Policy: default-src 'self';");
 	}
 
 	function authenticate($session) {
-        // **** don't use in the CP ****
+    // **** don't use in the CP ****
 		if(strpos(@$_SERVER['REQUEST_URI'], 'admin.php') !== FALSE) {
 			return FALSE;
 		}
@@ -100,18 +108,26 @@ class Learning_tools_integration_ext {
             die("I'm unable to retrieve EE session object in sessions_end hook.");
         }
 
-		if(!ee()->input->post("segment")) { // if not an ajax request
+		if(!ee()->input->post("segment") && !isset($_GET['s'])) { // if not an ajax or download request
 			$segs = ee()->uri->segment_array();
 
 			$myseg = array_pop($segs);
 
+			if(strlen($myseg) == 0) {
+						die('This URL is only accessible via a legitimate LTI launch.');
+			}
+
 			$result = ee()->db->get_where('blti_keys', array('url_segment' => $myseg));
 
+			// may be a sub-page
 			if($result->num_rows() == 0) {
 				$set = implode("|", $segs);
 				$set = "'$set'";
+				//echo "Calling set $set";
+				if(strlen($set) == 0) {
+						die('This URL is only accessible via a legitimate LTI launch.');
+				}
 
-				// may be a sub-page
 				ee()->db->where("url_segment REGEXP ($set)");
 				$result = ee()->db->get('blti_keys');
 
@@ -123,7 +139,11 @@ class Learning_tools_integration_ext {
 				}
 			}
 		} else {
-			$myseg = ee()->input->post("segment");
+			if(ee()->input->post("segment")) {
+				$myseg = ee()->input->post("segment");
+			} else if(isset($_GET['s'])) {
+				$myseg = ee()->input->get("s");
+			}
 		}
 
 		static::$base_segment = $myseg;
@@ -141,19 +161,13 @@ class Learning_tools_integration_ext {
 			$this->use_SSL = FALSE;
 		}
 
-		/*if($this->debug) {
-			if(!$this->use_SSL) {
-				//$output .= "Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.<br>";
-			}
-		}*/
+		if(!$this->use_SSL) {
+				die("Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.<br>");
+		}
 
 		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['context_id']);
 
 		if (!$new_launch && empty(static::$session_info)) {
-
-            // TODO: this relied on a bug in EE 2, which no longer exists in EE 3!
-            // we need to persist this id in EVERY form so that we can POST data!
-
 			$_m = $session->userdata('member_id');
 
 			if(!empty($_m)) {
@@ -163,6 +177,10 @@ class Learning_tools_integration_ext {
 				if(static::$session_info === FALSE) {
 					die("<span class='session_expired'><h2>I couldn't retrieve your session details. Please return to the course and click the link again [".__LINE__."].</h2></span>");
 				}
+
+				$referer = static::$session_info['tool_consumer_instance_guid'];
+				static::set_safe_xframe_header($referer);
+
 				  /* set global variables */
 					$this->set_globals(static::$session_info);
 			} else {
@@ -171,29 +189,44 @@ class Learning_tools_integration_ext {
 		}
 
 		if($new_launch) {
+			// clickjack prevention
+			$deny_iframe = isset($_SERVER['HTTP_REFERER']);
+
+			if($deny_iframe) {
+				$referer = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
+				$res = ee()->db->get_where("lti_tool_consumer_instances", array('guid' => $referer));
+
+				$deny_iframe = $res->row()->id ? FALSE : TRUE;
+			}
+
+			if($deny_iframe) {
+					static::deny_xframe_header();
+			}	else {
+				  static::set_safe_xframe_header($referer);
+			}
 
 		if(empty($_REQUEST['custom_vle_username'])) {
 			$this->general_message = "Please set the vle_username parameter in the LTI launch settings for your VLE.";
 		}
 
-        if(empty($_REQUEST['custom_vle_pk_string'])) {
+    if(empty($_REQUEST['custom_vle_pk_string'])) {
 			$this->general_message = "Please set the vle_pk_string parameter in the LTI launch settings for your VLE. This will allow group and user import from Blackboard.";
 		}
 
 		ee() -> load -> helper('url');
 
-		if (isset($_REQUEST["resource_link_description"])) {
-			$string = $_REQUEST["resource_link_description"];
+	/*	if (isset($_REQUEST["resource_link_description"])) {
+			$string = htmlspecialchars($_REQUEST["resource_link_description"]);
 		} else {
 			$string = "";
-		}
+		}*/
 
-		if (strlen($string) > 0) {
+	/*	if (strlen($string) > 0) {
 			if (strlen($string) != strlen(strip_tags($string))) {
 				ee() -> lang -> loadfile('learning_tools_integration');
 				$error = lang("error_html_in_resource_link_description");
 			}
-		}
+		}*/
 
 		$this -> resource_link_id = $_REQUEST["resource_link_id"];
 		$this -> user_id = $_REQUEST['user_id'];
@@ -255,9 +288,9 @@ class Learning_tools_integration_ext {
 		} else {
 			echo lang('not_launch_request');
 		}
-		//echo "GOT ".__LINE__;
-        ee()->load->helper('url');
-		$ee_uri = uri_string();  //ee() -> functions -> fetch_current_uri();
+
+    ee()->load->helper('url');
+		$ee_uri = uri_string();
 
 		require_once ('ims-blti/blti.php');
 		$context = new BLTI( array('key_column' => 'oauth_consumer_key', 'secret_column' => 'secret',
@@ -310,11 +343,11 @@ class Learning_tools_integration_ext {
 			$this->vle_pk_string = ee()->security->xss_clean($_REQUEST['custom_vle_pk_string']);
 		}
 
-        $this->preview_member_id = isset($_REQUEST['custom_preview_member_id']) ? ee()->security->xss_clean($_REQUEST['custom_preview_member_id']) : 0;
+  //  $this->preview_member_id = isset($_REQUEST['custom_preview_member_id']) ? ee()->security->xss_clean($_REQUEST['custom_preview_member_id']) : 0;
 
 		$this -> user_short_name = $context -> getUserShortName();
 		$this -> resource_title = $context -> getResourceTitle();
-		$this -> resource_link_description = $context -> getResourceLinkDescription();
+		$this -> resource_link_description = htmlspecialchars($context -> getResourceLinkDescription());
 
 		$_tkey = explode(":", $context->getUserKey());
 		$this->user_id = $_tkey[1];
@@ -338,7 +371,7 @@ class Learning_tools_integration_ext {
 		}
 
 		// if the context exists, then get the member record
-		if($temp_r) {
+		if(isset($temp_r)) {
 			$_temp_id = $_temp_r->member_id;
 
 			$rows = ee() -> db -> get_where('members', array('member_id' => $_temp_id));
@@ -424,35 +457,33 @@ class Learning_tools_integration_ext {
 		$this -> username =   $session -> userdata('username');
 		$this -> screen_name =   $session -> userdata('screen_name');
 
-		/* set global variables */
-		$this->set_globals(static::$session_info);
-			}
+			/* set global variables */
+			$this->set_globals(static::$session_info);
+		}
 	}
+
 	private function set_globals($session_info) {
-			ee()->config->_global_vars['launch_presentation_return_url'] = $session_info['launch_presentation_return_url'];
-	ee()->config->_global_vars['tool_consumer_instance_name'] = $session_info['tool_consumer_instance_name'];
-	ee()->config->_global_vars['lis_outcome_service_url'] = $session_info['lis_outcome_service_url'];
-	ee()->config->_global_vars['tool_consumer_instance_guid'] = $session_info['tool_consumer_instance_guid'];
-	ee()->config->_global_vars['tool_consumer_instance_id'] = $session_info['tool_consumer_instance_id'];
-	ee()->config->_global_vars['lti_internal_context_id'] = $session_info['user_key'];
-	ee()->config->_global_vars['lti_user_id'] = $session_info['user_id'];
-	ee()->config->_global_vars['lti_user_key'] = $session_info['user_key'];
-	ee()->config->_global_vars['lti_context_id'] = $session_info['context_id'];
-	ee()->config->_global_vars['lti_context_label'] = $session_info['context_label'];
-	ee()->config->_global_vars['ext_lms'] = $session_info['ext_lms'];
-	ee()->config->_global_vars['is_instructor'] = $session_info['isInstructor'];
-	ee()->config->_global_vars['course_key'] = $session_info['course_key'];
-	ee()->config->_global_vars['course_name'] = $session_info['course_name'];
-			ee()->config->_global_vars['pk_string'] = $session_info['user_key'];
-	ee()->config->_global_vars['lti_user_short_name'] = $session_info['user_short_name'];
-	ee()->config->_global_vars['resource_title'] = $session_info['resource_title'];
-	ee()->config->_global_vars['resource_link_description'] = $session_info['resource_link_description'];
-			ee()->config->_global_vars['lti_user_email'] = $session_info['user_email'];
-			ee()->config->_global_vars['lti_username'] = $session_info['user_key'];
-	ee()->config->_global_vars['ext_launch_presentation_css_url'] = $session_info['ext_launch_presentation_css_url'];
-			ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];;
-			//experimental student preview for use with Blackboard (not implemented in this version)
-			ee()->config->_global_vars['preview_member_id'] = $this->preview_member_id;
+				ee()->config->_global_vars['launch_presentation_return_url'] = $session_info['launch_presentation_return_url'];
+				ee()->config->_global_vars['tool_consumer_instance_name'] = $session_info['tool_consumer_instance_name'];
+				ee()->config->_global_vars['lis_outcome_service_url'] = $session_info['lis_outcome_service_url'];
+				ee()->config->_global_vars['tool_consumer_instance_guid'] = $session_info['tool_consumer_instance_guid'];
+				ee()->config->_global_vars['tool_consumer_instance_id'] = $session_info['tool_consumer_instance_id'];
+				ee()->config->_global_vars['lti_internal_context_id'] = $session_info['user_key'];
+				ee()->config->_global_vars['lti_user_id'] = $session_info['user_id'];
+				ee()->config->_global_vars['lti_user_key'] = $session_info['user_key'];
+				ee()->config->_global_vars['lti_context_id'] = $session_info['context_id'];
+				ee()->config->_global_vars['lti_context_label'] = $session_info['context_label'];
+				ee()->config->_global_vars['ext_lms'] = $session_info['ext_lms'];
+				ee()->config->_global_vars['is_instructor'] = $session_info['isInstructor'];
+				ee()->config->_global_vars['course_key'] = $session_info['course_key'];
+				ee()->config->_global_vars['course_name'] = $session_info['course_name'];
+				ee()->config->_global_vars['pk_string'] = $session_info['user_key'];
+				ee()->config->_global_vars['lti_user_short_name'] = $session_info['user_short_name'];
+				ee()->config->_global_vars['resource_title'] = $session_info['resource_title'];
+				ee()->config->_global_vars['resource_link_description'] = $session_info['resource_link_description'];
+				ee()->config->_global_vars['lti_user_email'] = $session_info['user_email'];
+				ee()->config->_global_vars['ext_launch_presentation_css_url'] = $session_info['ext_launch_presentation_css_url'];
+				ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];;
 	}
 
 	 private function css_link_tags() {
