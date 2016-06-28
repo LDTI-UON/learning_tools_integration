@@ -26,7 +26,7 @@
 				 * @link http://sijpkes.site11.com
 				 */
 				class Learning_tools_integration_upd {
-					public $version = '2.23';
+					public $version = '2.2.4';
 					public $mod_class = 'Learning_tools_integration';
 					private $EE;
 
@@ -506,13 +506,13 @@
 						// Will start using this update function in versions > 2.1
 						ee ()->load->dbforge ();
 
-						if (version_compare($current, '2.23', '='))
+						if (version_compare($current, $version, '='))
 	 					{
 			 					return FALSE;
 	 					}
 
 						// bug fix
-						if (version_compare($current, '2.23', '<'))
+						if (version_compare($current, '2.2.3', '<'))
 	 					{
 							$fields = array(
                         'user_id' => array(
@@ -526,7 +526,7 @@
 							ee()->dbforge->modify_column('lti_member_contexts', $fields);
 						}
 
-	 					if (version_compare($current, '2.21', '<'))
+	 					if (version_compare($current, '2.2.1', '<'))
 	 					{
 							// rebuild table with new indexes
 							ee()->dbforge->drop_table('lti_instructor_credentials');
