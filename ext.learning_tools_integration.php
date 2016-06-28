@@ -81,6 +81,16 @@ class Learning_tools_integration_ext {
       ee()->config->set_item('disable_csrf_protection', 'y');
 	}
 
+	private static function set_safe_xframe_header($referer) {
+			header("X-Frame-Options: ALLOW-FROM $referer;");
+			header("Content-Security-Policy: script-src 'self' 'unsafe-inline' ajax.googleapis.com; default-src 'self' $referer; style-src 'self' 'unsafe-inline' $referer; img-src 'self' $referer; frame-ancestors 'self' $referer;");
+	}
+
+	private static function deny_xframe_header() {
+			header("X-Frame-Options: DENY");
+			header("Content-Security-Policy: default-src 'self';");
+	}
+
 	function authenticate($session) {
     // **** don't use in the CP ****
 		if(strpos(@$_SERVER['REQUEST_URI'], 'admin.php') !== FALSE) {
@@ -151,11 +161,9 @@ class Learning_tools_integration_ext {
 			$this->use_SSL = FALSE;
 		}
 
-		/*if($this->debug) {
-			if(!$this->use_SSL) {
-				//$output .= "Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.<br>";
-			}
-		}*/
+		if(!$this->use_SSL) {
+				die("Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.<br>");
+		}
 
 		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['context_id']);
 
@@ -169,6 +177,10 @@ class Learning_tools_integration_ext {
 				if(static::$session_info === FALSE) {
 					die("<span class='session_expired'><h2>I couldn't retrieve your session details. Please return to the course and click the link again [".__LINE__."].</h2></span>");
 				}
+
+				$referer = static::$session_info['tool_consumer_instance_guid'];
+				static::set_safe_xframe_header($referer);
+
 				  /* set global variables */
 					$this->set_globals(static::$session_info);
 			} else {
@@ -177,12 +189,27 @@ class Learning_tools_integration_ext {
 		}
 
 		if($new_launch) {
+			// clickjack prevention
+			$deny_iframe = isset($_SERVER['HTTP_REFERER']);
+
+			if($deny_iframe) {
+				$referer = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
+				$res = ee()->db->get_where("lti_tool_consumer_instances", array('guid' => $referer));
+
+				$deny_iframe = $res->row()->id ? FALSE : TRUE;
+			}
+
+			if($deny_iframe) {
+					static::deny_xframe_header();
+			}	else {
+				  static::set_safe_xframe_header($referer);
+			}
 
 		if(empty($_REQUEST['custom_vle_username'])) {
 			$this->general_message = "Please set the vle_username parameter in the LTI launch settings for your VLE.";
 		}
 
-        if(empty($_REQUEST['custom_vle_pk_string'])) {
+    if(empty($_REQUEST['custom_vle_pk_string'])) {
 			$this->general_message = "Please set the vle_pk_string parameter in the LTI launch settings for your VLE. This will allow group and user import from Blackboard.";
 		}
 
@@ -430,9 +457,9 @@ class Learning_tools_integration_ext {
 		$this -> username =   $session -> userdata('username');
 		$this -> screen_name =   $session -> userdata('screen_name');
 
-		/* set global variables */
-		$this->set_globals(static::$session_info);
-			}
+			/* set global variables */
+			$this->set_globals(static::$session_info);
+		}
 	}
 
 	private function set_globals($session_info) {
