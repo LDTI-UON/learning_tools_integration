@@ -77,18 +77,41 @@ class Learning_tools_integration_ext {
 	*/
 	function __construct($settings='')
 	{
+	//	echo "CONSTRUCTED";
 			$this->settings = $settings;
       ee()->config->set_item('disable_csrf_protection', 'y');
 	}
 
+
+	private static function get_user_agent() {
+				$agent = $_SERVER['HTTP_USER_AGENT'];
+
+				if(strpos($agent, 'MSIE') !== FALSE) {
+						return "IE";
+				}
+
+				if(strpos($agent, 'Mozilla') !== FALSE) {
+						if(strpos($agent, 'Firefox') !== FALSE || strpos($agent, 'Chrome') !== FALSE) {
+								return "MOZILLA";
+						}
+				}
+	}
+
 	private static function set_safe_xframe_header($referer) {
-			header("X-Frame-Options: ALLOW-FROM $referer;");
-			header("Content-Security-Policy: script-src 'self' 'unsafe-inline' ajax.googleapis.com; default-src 'self' $referer; style-src 'self' 'unsafe-inline' $referer; img-src 'self' $referer; frame-ancestors 'self' $referer;");
+		$agent = static::get_user_agent();
+		if($agent === "IE") {
+				ee()->output->set_header("X-Frame-Options: ALLOW-FROM $referer");
+		} else {
+				ee()->output->set_header("Content-Security-Policy: script-src 'self' 'unsafe-inline' ajax.googleapis.com; default-src 'self' $referer; style-src 'self' 'unsafe-inline' $referer; img-src 'self' $referer; frame-ancestors 'self' $referer;");
+		}
 	}
 
 	private static function deny_xframe_header() {
-			header("X-Frame-Options: DENY");
-			header("Content-Security-Policy: default-src 'self';");
+		if($agent === "IE") {
+			ee()->output->set_header("X-Frame-Options: DENY");
+		}	else {
+			ee()->output->set_header("Content-Security-Policy: default-src 'self';");
+		}
 	}
 
 	function authenticate($session) {
@@ -181,10 +204,10 @@ class Learning_tools_integration_ext {
 				$referer = static::$session_info['tool_consumer_instance_guid'];
 				static::set_safe_xframe_header($referer);
 
-				  /* set global variables */
-					$this->set_globals(static::$session_info);
+			  /* set global variables */
+				$this->set_globals(static::$session_info);
 			} else {
-               die("<span class='session_expired'><h2>Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
+        	die("<span class='session_expired'><h2>Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
 			}
 		}
 
