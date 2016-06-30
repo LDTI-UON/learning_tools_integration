@@ -102,7 +102,7 @@ class Learning_tools_integration_ext {
 		if($agent === "IE") {
 				ee()->output->set_header("X-Frame-Options: ALLOW-FROM $referer");
 		} else {
-				ee()->output->set_header("Content-Security-Policy: script-src 'self' 'unsafe-inline' ajax.googleapis.com; default-src 'self' $referer; style-src 'self' 'unsafe-inline' $referer; img-src 'self' $referer; frame-ancestors 'self' $referer;");
+				ee()->output->set_header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.googleapis.com; default-src 'self' $referer; style-src 'self' 'unsafe-inline' $referer; img-src 'self' $referer; frame-ancestors 'self' $referer;");
 		}
 	}
 
@@ -200,7 +200,7 @@ class Learning_tools_integration_ext {
 				if(static::$session_info === FALSE) {
 					die("<span class='session_expired'><h2>I couldn't retrieve your session details. Please return to the course and click the link again [".__LINE__."].</h2></span>");
 				}
-
+				
 				$referer = static::$session_info['tool_consumer_instance_guid'];
 				static::set_safe_xframe_header($referer);
 
