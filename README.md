@@ -3,9 +3,9 @@
 ### LTI Module for ExpressionEngine(EE) 3 ###
 *Tested with up to EE 3.0*
 
-#Version 2.25#
+#Version 3.0.0#
 
-**New in version 2.25**
+**New in version 3.0.0**
 
 * Ajax endpoint for uploading rubrics from external tools
   - new ACT category in extension hooks to allow direct action requests in EE CP style

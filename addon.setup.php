@@ -5,7 +5,7 @@ return array(
       'author_url'  => 'https://bold.newcastle.edu.au',
       'name'        => 'UoN Learning Tools Integration',
       'description' => 'University of Newcastle LTI tool launch and member management support',
-      'version'     => '2.25',
+      'version'     => '3.0.0',
       'namespace'   => 'Learning_tools_integration',
       'settings_exist' => TRUE,
 );
