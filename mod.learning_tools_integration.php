@@ -143,8 +143,7 @@ class Learning_tools_integration {
 
     private $tmpl_value_tags;
 
-    // direct ACT services bypass lti completely, allows service provision for some features
-    private $_services = array("write_rubric" => "libraries/extension_hooks/blackboard/rubrics/ACT/write_rubric.php");
+
 
     /**
      * Constructor
@@ -152,9 +151,14 @@ class Learning_tools_integration {
     public function __construct() {
        static::$instance =& $this;
 
-       foreach($this->_services as $name => $service) {
-            require_once(PATH_THIRD.strtolower($this->mod_class).DIRECTORY_SEPARATOR.$this->_services[$name]);
-            $this->$name = $ACT_hook;
+       $mod_path = PATH_THIRD.strtolower($this->mod_class).DIRECTORY_SEPARATOR;
+       if(file_exists($mod_path."libraries/extension_hooks")) {
+           include_once($mod_path."libraries/extension_hooks/ACT_params.php");
+
+           foreach($_services as $name => $service) {
+                require_once($mod_path.$_services[$name]);
+                $this->$name = $ACT_hook;
+           }
        }
 
        $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
