@@ -3,9 +3,15 @@
 ### LTI Module for ExpressionEngine(EE) 3 ###
 *Tested with up to EE 3.0*
 
-#Version 2.2.4#
+#Version 2.25#
 
-**New in Version 2.2.4**
+**New in version 2.25**
+
+* Ajax endpoint for uploading rubrics from external tools
+  - new ACT category in extension hooks to allow direct action requests in EE CP style
+* Link generation key added to blti_keys table for external link and template generation
+
+**Added in Version 2.24**
 
 * [Clickjack](https://www.owasp.org/index.php/Clickjacking) vulnerability has been addressed in this version
 

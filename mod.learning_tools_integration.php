@@ -142,11 +142,21 @@ class Learning_tools_integration {
     private $tmpl_toggle_tags;
 
     private $tmpl_value_tags;
+
+    // direct ACT services bypass lti completely, allows service provision for some features
+    private $_services = array("write_rubric" => "libraries/extension_hooks/blackboard/rubrics/ACT/write_rubric.php");
+
     /**
      * Constructor
      */
-     public function __construct() {
+    public function __construct() {
        static::$instance =& $this;
+
+       foreach($this->_services as $name => $service) {
+            require_once(PATH_THIRD.strtolower($this->mod_class).DIRECTORY_SEPARATOR.$this->_services[$name]);
+            $this->$name = $ACT_hook;
+       }
+
        $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
        $this->lib_path = $this->mod_path.DIRECTORY_SEPARATOR.'libraries';
        $this->hook_path = $this->lib_path.DIRECTORY_SEPARATOR.'extension_hooks';
@@ -175,7 +185,7 @@ class Learning_tools_integration {
        return file_exists($this->lib_path) && file_exists($this->hook_path);
    }
     private function initialise_hook_toggles() {
-      require_once($this->hook_path.DIRECTORY_SEPARATOR.'/tmpl_params.php');
+      require_once($this->hook_path.DIRECTORY_SEPARATOR.'tmpl_params.php');
 
       if(isset($tmpl_extension_toggles)) {
           $this->tmpl_toggle_tags = $tmpl_extension_toggles;
@@ -317,8 +327,17 @@ class Learning_tools_integration {
     	return $this->base_url;
   }
 
-	private function init() {
-	       $this->member_id = ee() -> session -> userdata('member_id');
+  private function init() {
+        if(isset($_GET['ACT'])) {
+            $action_id = ee()->input->get('ACT');
+            $res = ee()->db->get_where('actions', array('action_id' => $action_id));
+
+            if($res->row()) {
+                  return FALSE;
+            }
+        }
+
+	      $this->member_id = ee() -> session -> userdata('member_id');
 
         if($this->maintenance_message === TRUE) {
             if(empty($_REQUEST['custom_maint']) || $_REQUEST['custom_maint'] !== $this->maintenance_key) {

@@ -7,7 +7,7 @@ class Learning_tools_integration_ext {
 	var $settings        = array();
 
 	var $name       = 'Learning Tools Integration';
-	var $version        = '2.2.4';
+	var $version        = '2.2.5';
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
 	var $docs_url       = '';
@@ -120,7 +120,11 @@ class Learning_tools_integration_ext {
 			return FALSE;
 		}
 
-        if(isset($_GET['URL'])) return FALSE;
+		if(!empty($_GET['ACT'])) {
+			return FALSE;
+		}
+
+		if(isset($_GET['URL'])) return FALSE;
         // *** end don't use in CP ****
 
         if(ee()->config->item('website_session_type') !== 'c') {
@@ -200,7 +204,7 @@ class Learning_tools_integration_ext {
 				if(static::$session_info === FALSE) {
 					die("<span class='session_expired'><h2>I couldn't retrieve your session details. Please return to the course and click the link again [".__LINE__."].</h2></span>");
 				}
-				
+
 				$referer = static::$session_info['tool_consumer_instance_guid'];
 				static::set_safe_xframe_header($referer);
 

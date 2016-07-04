@@ -26,7 +26,7 @@
 				 * @link http://sijpkes.site11.com
 				 */
 				class Learning_tools_integration_upd {
-					public $version = '2.2.4';
+					public $version = '2.25';
 					public $mod_class = 'Learning_tools_integration';
 					private $EE;
 
@@ -439,19 +439,8 @@
 								'class' => $this->mod_class,
 								'method' => 'message_preference'
 						);
-						ee ()->db->insert ( 'actions', $data );
 
-						$data = array (
-								'class' => $this->mod_class,
-								'method' => 'save_user_grade'
-						);
 						ee ()->db->insert ( 'actions', $data );
-
-						$data = array (
-								'class' => $this->mod_class,
-								'method' => 'read_user_grade'
-						);
-                        ee ()->db->insert ( 'actions', $data );
 
 						return TRUE;
 					}
@@ -484,8 +473,8 @@
 						ee ()->dbforge->drop_table ( 'lti_institutions' );
 						ee ()->dbforge->drop_table ( 'lti_member_resources' );
 
-                        ee ()->dbforge->drop_table ( 'lti_course_contexts' );
-                        ee ()->dbforge->drop_table ( 'lti_course_link_resources' );
+            ee ()->dbforge->drop_table ( 'lti_course_contexts' );
+            ee ()->dbforge->drop_table ( 'lti_course_link_resources' );
 
 						ee ()->db->delete ( 'actions', array (
 								'class' => $this->mod_class,
@@ -511,8 +500,28 @@
 			 					return FALSE;
 	 					}
 
+						// add external rubric import feature
+						if (version_compare($current, '2.25', '<')) {
+								$fields = array(
+													'linkgen_key' => array(
+																					 'type' => 'VARCHAR',
+																					 'constraint' => 12,
+																					 'null' => true,
+																				),
+																	);
+
+								ee()->dbforge->add_column('blti_keys', $fields);
+
+								$data = array (
+										'class' => $this->mod_class,
+										'method' => 'write_rubric'
+								);
+
+								ee ()->db->insert ( 'actions', $data );
+						}
+
 						// bug fix
-						if (version_compare($current, '2.2.3', '<'))
+						if (version_compare($current, '2.23', '<'))
 	 					{
 							$fields = array(
                         'user_id' => array(
@@ -526,7 +535,7 @@
 							ee()->dbforge->modify_column('lti_member_contexts', $fields);
 						}
 
-	 					if (version_compare($current, '2.2.1', '<'))
+	 					if (version_compare($current, '2.21', '<'))
 	 					{
 							// rebuild table with new indexes
 							ee()->dbforge->drop_table('lti_instructor_credentials');
