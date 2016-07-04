@@ -26,7 +26,7 @@
 				 * @link http://sijpkes.site11.com
 				 */
 				class Learning_tools_integration_upd {
-					public $version = '2.25';
+					public $version = '3.0.0';
 					public $mod_class = 'Learning_tools_integration';
 					private $EE;
 
@@ -501,14 +501,19 @@
 	 					}
 
 						// add external rubric import feature
-						if (version_compare($current, '2.25', '<')) {
+						if (version_compare($current, '3.0.0', '<')) {
 								$fields = array(
 													'linkgen_key' => array(
 																					 'type' => 'VARCHAR',
 																					 'constraint' => 12,
 																					 'null' => true,
 																				),
-																	);
+													'session_key' => array(
+																					 'type' => 'VARCHAR',
+																					 'constraint' => 12,
+																					 'null' => true,
+																				),
+								);
 
 								ee()->dbforge->add_column('blti_keys', $fields);
 
