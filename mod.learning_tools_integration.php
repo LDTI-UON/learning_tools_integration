@@ -33,6 +33,7 @@ class Learning_tools_integration {
     public $mod_path;
 
     public $base_url = "";
+    public $help_url = "https://bold.newcastle.edu.au/padocs";
     public $base_segment = "";
     private $perpage = 10;
     private $pagination_segment = 3; // default only
@@ -150,13 +151,15 @@ class Learning_tools_integration {
      */
     public function __construct() {
        static::$instance =& $this;
+       global $LTI_ACT_services;
+       global $ACT_hook;
 
        $mod_path = PATH_THIRD.strtolower($this->mod_class).DIRECTORY_SEPARATOR;
        if(file_exists($mod_path."libraries/extension_hooks")) {
            include_once($mod_path."libraries/extension_hooks/ACT_params.php");
 
-           foreach($_services as $name => $service) {
-                require_once($mod_path.$_services[$name]);
+           foreach($LTI_ACT_services as $name => $service) {
+                require_once($mod_path.$LTI_ACT_services[$name]);
                 $this->$name = $ACT_hook;
            }
        }
