@@ -580,7 +580,7 @@ class Learning_tools_integration_ext {
 		ee()->db->insert('extensions', $data);
 	}
 
-	/* This is a variation of the same function in the Auth.php file*/
+	/* This is a variation of the same function in EE's Auth.php file*/
 
 	private function start_session($member_id, $session)
 	{

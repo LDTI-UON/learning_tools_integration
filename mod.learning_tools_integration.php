@@ -211,7 +211,7 @@ class Learning_tools_integration {
     // ACT directories are ignored to allow dynamic action assignment for AJAX
     // requests and such
     private function _is_hook_dir($path, $entry) {
-          return is_dir($path) && $entry != '.' && $entry != '..' && $entry != 'ACT';
+          return is_dir($path) && $entry != '.' && $entry != '..' && $entry != 'ACT' && $entry != 'secret';
     }
 
     private function _include_hook_files($path) {
