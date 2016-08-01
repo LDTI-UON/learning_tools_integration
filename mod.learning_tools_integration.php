@@ -151,19 +151,7 @@ class Learning_tools_integration {
      */
     public function __construct() {
        static::$instance =& $this;
-       global $LTI_ACT_services;
-       global $ACT_hook;
-
-       $mod_path = PATH_THIRD.strtolower($this->mod_class).DIRECTORY_SEPARATOR;
-       if(file_exists($mod_path."libraries/extension_hooks")) {
-           include_once($mod_path."libraries/extension_hooks/ACT_params.php");
-
-           foreach($LTI_ACT_services as $name => $service) {
-                require_once($mod_path.$LTI_ACT_services[$name]);
-                $this->$name = $ACT_hook;
-           }
-       }
-
+      
        $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
        $this->lib_path = $this->mod_path.DIRECTORY_SEPARATOR.'libraries';
        $this->hook_path = $this->lib_path.DIRECTORY_SEPARATOR.'extension_hooks';
@@ -337,6 +325,8 @@ class Learning_tools_integration {
   }
 
   private function init() {
+        if(isset($_GET['ltiACT'])) return FALSE;
+
         if(isset($_GET['ACT'])) {
             $action_id = ee()->input->get('ACT');
             $res = ee()->db->get_where('actions', array('action_id' => $action_id));

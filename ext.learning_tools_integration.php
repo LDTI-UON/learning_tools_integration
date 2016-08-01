@@ -70,6 +70,8 @@ class Learning_tools_integration_ext {
 	private $debug = TRUE;
 
 	public static $base_segment;
+
+	private $LTI_ACT_services;
 	/**
 	 * Constructor
 	 *
@@ -80,6 +82,14 @@ class Learning_tools_integration_ext {
 	//	echo "CONSTRUCTED";
 			$this->settings = $settings;
       ee()->config->set_item('disable_csrf_protection', 'y');
+			header('Access-Control-Allow-Origin: *');
+
+			$mod_path = PATH_THIRD.strtolower($this->mod_class).DIRECTORY_SEPARATOR;
+			global $LTI_ACT_services;
+
+			include_once($mod_path."libraries/extension_hooks/ACT_params.php");
+
+			$this->LTI_ACT_services = $LTI_ACT_services;
 	}
 
 
@@ -135,7 +145,7 @@ class Learning_tools_integration_ext {
             die("I'm unable to retrieve EE session object in sessions_end hook.");
         }
 
-		if(!ee()->input->post("segment") && !isset($_GET['s'])) { // if not an ajax or download request
+		if(!ee()->input->post("segment") && !isset($_GET['s']) && !isset($_GET['ltiACT'])) { // if not an ajax or download request
 			$segs = ee()->uri->segment_array();
 
 			$myseg = array_pop($segs);
@@ -170,6 +180,24 @@ class Learning_tools_integration_ext {
 				$myseg = ee()->input->post("segment");
 			} else if(isset($_GET['s'])) {
 				$myseg = ee()->input->get("s");
+			} else if(isset($_GET['ltiACT'])) {
+					$ltiACT = ee()->security->xss_clean($_GET['ltiACT']);
+
+					if(!empty($this->LTI_ACT_services[$ltiACT])) {
+							global $ACT_hook;
+
+							$mod_path = PATH_THIRD.strtolower($this->mod_class).DIRECTORY_SEPARATOR;
+							if(file_exists($mod_path."libraries/extension_hooks")) {
+									include_once($mod_path."libraries/extension_hooks/ACT_params.php");
+									require_once($mod_path.$this->LTI_ACT_services[$ltiACT]);
+
+									$ACT_hook();
+							}
+
+							return FALSE;
+					} else {
+						die('This resource is not available. <pre> '.var_export($this->LTI_ACT_services, TRUE));
+					}
 			}
 		}
 
@@ -211,7 +239,7 @@ class Learning_tools_integration_ext {
 			  /* set global variables */
 				$this->set_globals(static::$session_info);
 			} else {
-        	die("<span class='session_expired'><h2>Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
+        			die("<span class='session_expired'><h2>Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
 			}
 		}
 
