@@ -151,7 +151,7 @@ class Learning_tools_integration {
      */
     public function __construct() {
        static::$instance =& $this;
-      
+
        $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
        $this->lib_path = $this->mod_path.DIRECTORY_SEPARATOR.'libraries';
        $this->hook_path = $this->lib_path.DIRECTORY_SEPARATOR.'extension_hooks';
@@ -161,6 +161,7 @@ class Learning_tools_integration {
 
     public function __call($method, $args)
     {
+      //echo $method. "is set? ".isset($this->$method)."<BR>";
         if (isset($this->$method) === true) {
             $func = $this->$method;
             return $func($args);
@@ -199,7 +200,7 @@ class Learning_tools_integration {
     // ACT directories are ignored to allow dynamic action assignment for AJAX
     // requests and such
     private function _is_hook_dir($path, $entry) {
-          return is_dir($path) && $entry != '.' && $entry != '..' && $entry != 'ACT' && $entry != 'secret';
+          return is_dir($path) && $entry != '.' && $entry != '..' && $entry != 'ACT' && $entry != 'secret' && $entry != 'include';
     }
 
     private function _include_hook_files($path) {

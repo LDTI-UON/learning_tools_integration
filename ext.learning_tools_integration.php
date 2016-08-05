@@ -82,9 +82,18 @@ class Learning_tools_integration_ext {
 	//	echo "CONSTRUCTED";
 			$this->settings = $settings;
       ee()->config->set_item('disable_csrf_protection', 'y');
-			header('Access-Control-Allow-Origin: *');
+
+			// comment these out for production
+			/*if(isset($_GET['ltiACT'])) {
+				header('Access-Control-Allow-Origin: *');
+				header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+			}*/
 
 			$mod_path = PATH_THIRD.strtolower($this->mod_class).DIRECTORY_SEPARATOR;
+
+			// these services bypass LTI, any services here should be secured against XSS and
+			// embody strong validation
+
 			global $LTI_ACT_services;
 
 			include_once($mod_path."libraries/extension_hooks/ACT_params.php");
@@ -181,6 +190,7 @@ class Learning_tools_integration_ext {
 			} else if(isset($_GET['s'])) {
 				$myseg = ee()->input->get("s");
 			} else if(isset($_GET['ltiACT'])) {
+				// only one bypass action can be called at a time
 					$ltiACT = ee()->security->xss_clean($_GET['ltiACT']);
 
 					if(!empty($this->LTI_ACT_services[$ltiACT])) {
