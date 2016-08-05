@@ -79,7 +79,6 @@ class Learning_tools_integration_ext {
 	*/
 	function __construct($settings='')
 	{
-	//	echo "CONSTRUCTED";
 			$this->settings = $settings;
       ee()->config->set_item('disable_csrf_protection', 'y');
 
