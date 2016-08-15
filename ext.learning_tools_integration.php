@@ -424,18 +424,18 @@ class Learning_tools_integration_ext {
 		$sql_data['user_id'] = NULL;
 
 		$context_rows = ee() -> db -> get_where('lti_member_contexts', $sql_data);
-		$_temp_r = $context_rows->row();
 
 		// if this user wasn't imported, check if this context already exists
-		if(! $_temp_r) {
+		if($context_rows->num_rows() == 0) {
 			$sql_data['user_id'] = $this->user_id;
 
 			$context_rows = ee() -> db -> get_where('lti_member_contexts', $sql_data);
 			$_temp_r = $context_rows->row();
 		}
 
+		$count = 0;
 		// if the context exists, then get the member record
-		if(isset($temp_r)) {
+		if($context_rows->num_rows() > 0) {
 			$_temp_id = $_temp_r->member_id;
 
 			$rows = ee() -> db -> get_where('members', array('member_id' => $_temp_id));
