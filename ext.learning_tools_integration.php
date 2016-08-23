@@ -407,15 +407,13 @@ class Learning_tools_integration_ext {
 			$this->vle_pk_string = ee()->security->xss_clean($_REQUEST['custom_vle_pk_string']);
 		}
 
-  //  $this->preview_member_id = isset($_REQUEST['custom_preview_member_id']) ? ee()->security->xss_clean($_REQUEST['custom_preview_member_id']) : 0;
-
 		$this -> user_short_name = $context -> getUserShortName();
 		$this -> resource_title = $context -> getResourceTitle();
 		$this -> resource_link_description = htmlspecialchars($context -> getResourceLinkDescription());
 
 		$_tkey = explode(":", $context->getUserKey());
 		$this->user_id = $_tkey[1];
-
+		
 		$this->vle_username = ee()->security->xss_clean($_REQUEST['custom_vle_username']);
 
 		$sql_data = array();
@@ -429,7 +427,7 @@ class Learning_tools_integration_ext {
 		// if this user wasn't imported, check if this context already exists
 		if($context_rows->num_rows() == 0) {
 			$sql_data['user_id'] = $this->user_id;
-	
+
 			$context_rows = ee() -> db -> get_where('lti_member_contexts', $sql_data);
 			$_temp_r = $context_rows->row();
 		}

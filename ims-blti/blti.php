@@ -222,7 +222,7 @@ class BLTI {
         $email = $this->info['lis_person_contact_email_primary'];
         if ( strlen($email) > 0 ) return $email;
         # Sakai Hack
-        $email = $this->info['lis_person_contact_emailprimary'];
+        @$email = $this->info['lis_person_contact_emailprimary'];
         if ( strlen($email) > 0 ) return $email;
         return false;
     }

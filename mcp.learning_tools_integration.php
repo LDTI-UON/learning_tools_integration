@@ -549,6 +549,17 @@ return ee()->load->view('add-consumer', $vars, TRUE);
             die("Your institution, identified by: <b>'".$launch_p->tool_consumer_instance_id."'</b> is not registered."); // @TODO change this to consumer context
         }
         $launch_p->tool_consumer_instance_guid = $query->row()->guid;
+        $launch_p->tool_consumer_instance_contact_email = "noreply@ee_lti_test.org";
+
+        if(! isset($launch_p->user_id)) {
+            $launch_p->user_id = 'temp_user_id_ee_tool_launch_'.(String)(rand(10000, 99999));
+            ee()->db->where(array("username" => $vars['username']));
+            ee()->db->update("lti_member_contexts", array("user_id" => $launch_p->user_id));
+        }
+
+        if(empty($launch_p->lis_person_contact_email_primary)) {
+              $launch_p->lis_person_contact_email_primary = "noreply@ee-lti-temp-email.com";
+        }
 
         $vars['launch_params'] = $launch_p;
 
