@@ -502,7 +502,7 @@
 
 						// add external rubric import feature
 						if (version_compare($current, '3.1.0', '<')) {
-
+									// no database changes
 						}
 						// add external rubric import feature
 						if (version_compare($current, '3.0.0', '<')) {
