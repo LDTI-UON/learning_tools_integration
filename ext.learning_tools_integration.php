@@ -143,15 +143,15 @@ class Learning_tools_integration_ext {
 		}
 
 		if(isset($_GET['URL'])) return FALSE;
-        // *** end don't use in CP ****
+    // *** end don't use in CP ****
 
-        if(ee()->config->item('website_session_type') !== 'c') {
-            die("Please set the website session type to 'Cookies only'.");
-        }
+    if(ee()->config->item('website_session_type') !== 'c') {
+        die("Please set the website session type to 'Cookies only'.");
+    }
 
-        if(!isset($session) || empty($session)) {
-            die("I'm unable to retrieve EE session object in sessions_end hook.");
-        }
+    if(!isset($session) || empty($session)) {
+        die("I'm unable to retrieve EE session object in sessions_end hook.");
+    }
 
 		if(!ee()->input->post("segment") && !isset($_GET['s']) && !isset($_GET['ltiACT'])) { // if not an ajax or download request
 			$segs = ee()->uri->segment_array();
@@ -159,7 +159,7 @@ class Learning_tools_integration_ext {
 			$myseg = array_pop($segs);
 
 			if(strlen($myseg) == 0) {
-						die('This URL is only accessible via a legitimate LTI launch.');
+						return FALSE;
 			}
 
 			$result = ee()->db->get_where('blti_keys', array('url_segment' => $myseg));
@@ -168,9 +168,9 @@ class Learning_tools_integration_ext {
 			if($result->num_rows() == 0) {
 				$set = implode("|", $segs);
 				$set = "'$set'";
-				//echo "Calling set $set";
-				if(strlen($set) == 0) {
-						die('This URL is only accessible via a legitimate LTI launch.');
+
+				if(strlen($set) == 2) {
+						return FALSE;
 				}
 
 				ee()->db->where("url_segment REGEXP ($set)");
@@ -413,7 +413,7 @@ class Learning_tools_integration_ext {
 
 		$_tkey = explode(":", $context->getUserKey());
 		$this->user_id = $_tkey[1];
-		
+
 		$this->vle_username = ee()->security->xss_clean($_REQUEST['custom_vle_username']);
 
 		$sql_data = array();

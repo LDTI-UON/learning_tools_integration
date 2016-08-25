@@ -501,6 +501,10 @@
 	 					}
 
 						// add external rubric import feature
+						if (version_compare($current, '3.1.0', '<')) {
+
+						}
+						// add external rubric import feature
 						if (version_compare($current, '3.0.0', '<')) {
 								$fields = array(
 													'linkgen_key' => array(
@@ -545,7 +549,7 @@
 							// rebuild table with new indexes
 							ee()->dbforge->drop_table('lti_instructor_credentials');
 
-							$this->create_table('lti_instructor_credentials');
+							ee()->dbforge->create_table('lti_instructor_credentials');
 	 					}
 
 						return TRUE;
