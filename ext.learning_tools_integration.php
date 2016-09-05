@@ -226,7 +226,7 @@ class Learning_tools_integration_ext {
 		}
 
 		if(!$this->use_SSL) {
-				die("Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.<br>");
+				echo "<div style='padding: 1em; background-color: #dcc; color: #fff; width: 100%; height: 5em'>Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.</div>";
 		}
 
 		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['context_id']);
