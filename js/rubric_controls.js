@@ -77,7 +77,7 @@ $(document).ready(function () {
 												var i = $(o).closest(".rubricTable").find(".grade_input").index(o);
                         var score = $(o).val();
 												var el = $(".rubricGradingTable .grade_input:eq("+i+"), .rubricGradingTable .rubricCellRadio:eq("+i+")");
-												console.log("Score: "+score);
+											//	console.log("Score: "+score);
 												checkInputs(o, el, score);
             } else {
 										var list = $(o).closest(".rubricGradingList").find(".rubricCellRadio");
