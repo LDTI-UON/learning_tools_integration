@@ -43,7 +43,7 @@ $(document).ready(function () {
 		});
 
 		var checkInputs = function(o, el, score) {
-				console.log("changed "+o.tagName+" and checking "+el.tagName);
+			//	console.log("changed "+o.tagName+" and checking");
 				if($(o).hasClass("scoreSet")) {
 
 						el.addClass("scoreSet");
@@ -76,7 +76,8 @@ $(document).ready(function () {
             if($(".active[role='tab']").attr("id") ==	 "gridViewTab") {
 												var i = $(o).closest(".rubricTable").find(".grade_input").index(o);
                         var score = $(o).val();
-												var el = $(".rubricGradingList .grade_input:eq("+i+"), .rubricGradingList .rubricCellRadio:eq("+i+")");
+												var el = $(".rubricGradingTable .grade_input:eq("+i+"), .rubricGradingTable .rubricCellRadio:eq("+i+")");
+												console.log("Score: "+score);
 												checkInputs(o, el, score);
             } else {
 										var list = $(o).closest(".rubricGradingList").find(".rubricCellRadio");

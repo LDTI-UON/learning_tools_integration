@@ -39,6 +39,8 @@ class Learning_tools_integration_ext {
 	public $group_id = '6';
 	public $internal_context_id = 0;
 	public $isInstructor = 0;
+
+	protected $flashdata = null;
     //public $preview_member_id; seems too complex to implement at this stage
 
 	public $institution;
@@ -62,6 +64,7 @@ class Learning_tools_integration_ext {
 	public $title;
 	public $file_url;
 
+	//private $session_id;
 	private static $session_info;
 	private $session_domain;
 	private $cookie_name = "ee_lti_plugin";
@@ -118,9 +121,9 @@ class Learning_tools_integration_ext {
 	private static function set_safe_xframe_header($referer) {
 		$agent = static::get_user_agent();
 		if($agent === "IE") {
-				ee()->output->set_header("X-Frame-Options: ALLOW-FROM $referer");
+				ee()->output->set_header("X-Frame-Options: ALLOW-FROM $referer:*");
 		} else {
-				ee()->output->set_header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.googleapis.com; default-src 'self' $referer; style-src 'self' 'unsafe-inline' $referer; img-src 'self' $referer; frame-ancestors 'self' $referer;");
+				ee()->output->set_header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.googleapis.com; default-src 'self' $referer:*; style-src 'self' 'unsafe-inline' $referer:*; img-src 'self' $referer:*; frame-ancestors 'self' $referer:*;");
 		}
 	}
 
@@ -133,6 +136,10 @@ class Learning_tools_integration_ext {
 	}
 
 	function authenticate($session) {
+		if(!isset($session)) {
+				die("No session object!");
+		}
+
     // **** don't use in the CP ****
 		if(strpos(@$_SERVER['REQUEST_URI'], 'admin.php') !== FALSE) {
 			return FALSE;
@@ -143,9 +150,8 @@ class Learning_tools_integration_ext {
 		}
 
 		if(isset($_GET['URL'])) return FALSE;
-    // *** end don't use in CP ****
 
-    if(ee()->config->item('website_session_type') !== 'c') {
+		if(ee()->config->item('website_session_type') !== 'c') {
         die("Please set the website session type to 'Cookies only'.");
     }
 
@@ -163,9 +169,9 @@ class Learning_tools_integration_ext {
 			}
 
 			$result = ee()->db->get_where('blti_keys', array('url_segment' => $myseg));
-
 			// may be a sub-page
 			if($result->num_rows() == 0) {
+
 				$set = implode("|", $segs);
 				$set = "'$set'";
 
@@ -213,7 +219,6 @@ class Learning_tools_integration_ext {
 		static::$base_segment = $myseg;
 
 		$this->session_domain = $_SERVER['HTTP_HOST'];
-
 		if(isset( $_SERVER['HTTP_REFERER'])) {
 			$url =  explode("://", $_SERVER['HTTP_REFERER']);
 			$protocol = strtolower($url[0]);
@@ -226,16 +231,24 @@ class Learning_tools_integration_ext {
 		}
 
 		if(!$this->use_SSL) {
-				echo "<div style='padding: 1em; background-color: #dcc; color: #fff; width: 100%; height: 5em'>Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.</div>";
+				//echo "<div style='padding: 1em; background-color: #dcc; color: #fff; width: 100%; height: 5em'>Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.</div>";
 		}
 
 		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['context_id']);
 
 		if (!$new_launch && empty(static::$session_info)) {
-			$_m = $session->userdata('member_id');
 
-			if(!empty($_m)) {
-				static::$session_info = $this -> unserializeSession($_m, $session);
+			$this->session_id = session_id();
+
+			if(empty($this->session_id)) {
+						session_start();
+						$this->session_id = session_id();
+			}
+
+			$uid = isset($_SESSION['apeg_uid']) ? $_SESSION['apeg_uid'] : NULL;
+
+			if(!empty($uid)) {
+				static::$session_info = $this -> unserializeSession($uid);
 
 				// session was FALSE, so session_id was not set on first round...
 				if(static::$session_info === FALSE) {
@@ -248,7 +261,7 @@ class Learning_tools_integration_ext {
 			  /* set global variables */
 				$this->set_globals(static::$session_info);
 			} else {
-        			die("<span class='session_expired'><h2>Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
+        			die("<span class='session_expired'><h2>[$uid] Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
 			}
 		}
 
@@ -432,20 +445,18 @@ class Learning_tools_integration_ext {
 			$_temp_r = $context_rows->row();
 		}
 
-		$count = 0;
+		//$count = 0;
 		// if the context exists, then get the member record
 		if($context_rows->num_rows() > 0) {
 			$_temp_id = $_temp_r->member_id;
 
-			$rows = ee() -> db -> get_where('members', array('member_id' => $_temp_id));
-
-			$count = $rows -> num_rows();
+			$lti_member = ee('Model')->get('Member', $_temp_id)->with('MemberGroup')->first();
 		}
 
 		// if the member record doesn't exist create it
-		if (empty($count)) {
+		if (empty($lti_member)) {
 			// ... but first check that the member username doesn't already exist    (@TODO add institution prefix for usernames...)
-      $current_member = ee('Model')->get('Member')->filter('username', '==', $this->vle_username)->first();
+      $current_member = ee('Model')->get('Member')->filter('username', '==', $this->vle_username)->with('MemberGroup')->first();
 
 			if(!$current_member) {
 				$this->screen_name = ee()->security->xss_clean($_REQUEST['lis_person_name_given']).' '.ee()->security->xss_clean($_REQUEST['lis_person_name_family']);
@@ -469,22 +480,26 @@ class Learning_tools_integration_ext {
 				$this->screen_name = $current_member->screen_name; //query->row()->screen_name;
 			}
 		} else {
-			$row = $rows -> row();
-			$id = $row -> member_id;
+				$id = $lti_member->member_id;
 		}
 
-		// start new session for this member
-		if($session->userdata('member_id') != $id) {
-			$this->start_session($id, $session);
+		if(empty($this->session_id)) {
+					session_start();
+					$this->session_id = session_id();
 		}
-		$session -> fetch_member_data();
+
+		$_SESSION['apeg_uid'] = $id;
+
+		if(!isset($id)) die("FATAL ERROR - user not registered");
 
 	  	 // finally, update context
-         $context_data = array("user_id" => $this -> user_id, "username" => $this->vle_username, "member_id" => $id, "session_id" => $session->userdata('session_id'),"context_id" => $this -> context_id, "context_label" => $this -> context_label, 'course_name' => $this->course_name,
+         $context_data = array("user_id" => $this -> user_id, "username" => $this->vle_username, "member_id" => $id, "session_id" => $this->session_id,"context_id" => $this -> context_id, "context_label" => $this -> context_label, 'course_name' => $this->course_name,
                                     "ext_lms" => $this -> ext_lms, "tool_consumer_instance_id" => $this -> tool_consumer_instance_id, "tool_consumer_instance_name" => $this -> tool_consumer_instance_name,
                                     "is_instructor" => $this -> isInstructor);
 
-         $sql =    ee() -> db -> insert_string('lti_member_contexts', $context_data) . " ON DUPLICATE KEY UPDATE user_id = '$this->user_id', session_id = '".$session->userdata('session_id')."', context_label='$this->context_label', course_name= '$this->course_name',
+
+
+         $sql =    ee() -> db -> insert_string('lti_member_contexts', $context_data) . " ON DUPLICATE KEY UPDATE user_id = '$this->user_id', session_id = '".$this->session_id."', context_label='$this->context_label', course_name= '$this->course_name',
 												ext_lms = '$this->ext_lms', tool_consumer_instance_name = '$this->tool_consumer_instance_name',
 												is_instructor = '$this->isInstructor', last_launched_on = CURRENT_TIMESTAMP";
 
@@ -496,7 +511,7 @@ class Learning_tools_integration_ext {
 		$newrow = $newres -> row();
 		$this -> internal_context_id = $newrow -> id;
 
-		if($session->userdata('group_id') == 6 && !empty($this->email)) {
+		if($session->userdata('group_id') == $this->group_id && !empty($this->email)) {
 			// update email (ensuring we have correct credentials)
 			ee()->db->where('member_id', $id);
 			ee()->db->update('members', array("email" => $this->email));
@@ -515,7 +530,7 @@ class Learning_tools_integration_ext {
 		// persist base segment for future tag calls
 		static::$session_info = array_merge(static::$session_info , array('base_segment' => static::$base_segment));
 
-		$this -> serializeSession(static::$session_info, $session);
+		$this -> serializeSession(static::$session_info, $id);
 
 		$this -> username =   $session -> userdata('username');
 		$this -> screen_name =   $session -> userdata('screen_name');
@@ -563,17 +578,17 @@ class Learning_tools_integration_ext {
 			return static::$session_info;
 	}
 
-	private function _lti_session_query($session) {
-		$query =   ee() -> db -> get_where('lti_member_contexts', $this->_session_where_clause($session));
+	private function _lti_session_query($member_id) {
+		$query =   ee() -> db -> get_where('lti_member_contexts', $this->_session_where_clause($member_id));
 		return $query;
 	}
 
-	private function _session_where_clause($session) {
-		return array('session_id' => $session->userdata('session_id'), "member_id" => $session->userdata('member_id'));
+	private function _session_where_clause($member_id) {
+		return array("member_id" => $member_id);
 	}
 
-	private function unserializeSession($member_id, $session) {
-		$query = $this->_lti_session_query($session);
+	private function unserializeSession($member_id) {
+		$query = $this->_lti_session_query($member_id);
 
 		if ($query -> num_rows() > 0) {
 			$row = $query -> row();
@@ -583,10 +598,10 @@ class Learning_tools_integration_ext {
 		return FALSE;
 	}
 
-	private function serializeSession($session_info, $session) {
+	private function serializeSession($session_info, $member_id) {
 		$ser_session = array('session_data' => serialize($session_info));
 
-		ee() -> db -> where($this->_session_where_clause($session));
+		ee() -> db -> where($this->_session_where_clause($member_id));
 		ee() -> db -> update('lti_member_contexts', $ser_session);
 	}
 
@@ -606,7 +621,7 @@ class Learning_tools_integration_ext {
 		$data = array(
 				'class'     => __CLASS__,
 				'method'    => 'authenticate',
-				'hook'      => 'sessions_end',
+				'hook'      => 'sessions_start',
 				//'settings'  => serialize($this->settings),
 				'priority'  => 1,
 				'version'   => $this->version,
@@ -614,41 +629,6 @@ class Learning_tools_integration_ext {
 		);
 
 		ee()->db->insert('extensions', $data);
-	}
-
-	/* This is a variation of the same function in EE's Auth.php file*/
-
-	private function start_session($member_id, $session)
-	{
-		/* Not using the $multi login function, LTI checks for existing login already */
-		$sess_type = 'website_session_type';
-
-		// Create a new session
-		$this->session_id = $session->create_new_session(
-					$member_id,
-					FALSE
-		);
-
-		if (ee()->config->item($sess_type) != 's')
-		{
-			//$expire = ee()->remember->get_expiry();
-
-			ee()->input->delete_cookie($session->c_anon);
-
-			// (un)set remember me
-			if ($this->remember_me)
-			{
-				ee()->remember->create();
-			}
-			else
-			{
-				ee()->remember->delete();
-			}
-		}
-
-		// We're trusting LTI here to be water tight...
-		// Delete old password lockouts
-		$session->delete_password_lockout();
 	}
 
 	/**
