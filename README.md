@@ -3,7 +3,13 @@
 ### LTI Module for ExpressionEngine(EE) 3 ###
 *Tested with up to EE 3.0*
 
-#Version 3.0.0#
+#Version 3.2.0#
+
+
+**New in version 3.2.0**
+
+* removed reliance on EE sessions
+* fixed javascript bug in rubric
 
 **New in version 3.0.0**
 
