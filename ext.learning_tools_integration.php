@@ -450,13 +450,13 @@ class Learning_tools_integration_ext {
 		if($context_rows->num_rows() > 0) {
 			$_temp_id = $_temp_r->member_id;
 
-			$lti_member = ee('Model')->get('Member', $_temp_id)->with('MemberGroup')->first();
+			$lti_member = ee('Model')->get('Member', $_temp_id)->first();
 		}
 
 		// if the member record doesn't exist create it
 		if (empty($lti_member)) {
 			// ... but first check that the member username doesn't already exist    (@TODO add institution prefix for usernames...)
-      $current_member = ee('Model')->get('Member')->filter('username', '==', $this->vle_username)->with('MemberGroup')->first();
+      $current_member = ee('Model')->get('Member')->filter('username', '==', $this->vle_username)->first();
 
 			if(!$current_member) {
 				$this->screen_name = ee()->security->xss_clean($_REQUEST['lis_person_name_given']).' '.ee()->security->xss_clean($_REQUEST['lis_person_name_family']);
@@ -467,9 +467,9 @@ class Learning_tools_integration_ext {
 						$this->email = $this->vle_username."@".$this->session_domain;
 					}
 
-                    $member = ee('Model')->make('Member', array('username' => $this->vle_username, 'screen_name' => $this->screen_name, 'group_id' => $this->group_id, 'email' => $this->email, 'last_visit' => time(), 'last_activity' => time(), 'join_date' => time()));
+          $member = ee('Model')->make('Member', array('username' => $this->vle_username, 'screen_name' => $this->screen_name, 'group_id' => $this->group_id, 'email' => $this->email, 'last_visit' => time(), 'last_activity' => time(), 'join_date' => time()));
 
-                    $member->save();
+          $member->save();
 
 					$id = $member->member_id;
 				} else {
@@ -489,6 +489,8 @@ class Learning_tools_integration_ext {
 		}
 
 		$_SESSION['apeg_uid'] = $id;
+
+		$session->create_new_session($id);
 
 		if(!isset($id)) die("FATAL ERROR - user not registered");
 
@@ -511,7 +513,7 @@ class Learning_tools_integration_ext {
 		$newrow = $newres -> row();
 		$this -> internal_context_id = $newrow -> id;
 
-		if($session->userdata('group_id') == $this->group_id && !empty($this->email)) {
+		if(!empty($this->email)) {
 			// update email (ensuring we have correct credentials)
 			ee()->db->where('member_id', $id);
 			ee()->db->update('members', array("email" => $this->email));
