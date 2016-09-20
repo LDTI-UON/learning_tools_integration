@@ -337,7 +337,7 @@ class Learning_tools_integration {
             }
         }
 
-	      $this->member_id = ee() -> session -> userdata('member_id');
+	      $this->member_id = $_SESSION['apeg_uid'];
 
         if($this->maintenance_message === TRUE) {
             if(empty($_REQUEST['custom_maint']) || $_REQUEST['custom_maint'] !== $this->maintenance_key) {
