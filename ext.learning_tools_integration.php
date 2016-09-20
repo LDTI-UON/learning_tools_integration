@@ -487,10 +487,25 @@ class Learning_tools_integration_ext {
 					session_start();
 					$this->session_id = session_id();
 		}
-
+		// plugin has its own session id
 		$_SESSION['apeg_uid'] = $id;
 
+		// set validation
+		$session->validation = ee()->config->item('website_session_type'); // cookies only!
+
+		// alongside EE session
+		$session->sdata['session_id'] = ee()->input->cookie($session->c_session);
+
 		$session->create_new_session($id);
+		$session->fetch_member_data();
+
+		// Kill old sessions
+		$session->delete_old_sessions();
+
+		// Merge Session and User Data Arrays
+		// We merge these into into one array for portability
+		$session->userdata = array_merge($session->userdata, $session->sdata);
+		ee()->extensions->end_script = TRUE;
 
 		if(!isset($id)) die("FATAL ERROR - user not registered");
 
@@ -542,6 +557,27 @@ class Learning_tools_integration_ext {
 		}
 	}
 
+	protected function _prep_flashdata($session)
+	{
+		if ($cookie = ee()->input->cookie('flash'))
+		{
+			if (strlen($cookie) > 32)
+			{
+				$signature = substr($cookie, -32);
+				$payload = substr($cookie, 0, -32);
+
+				if (md5($payload.$session->sess_crypt_key) == $signature)
+				{
+					$session->flashdata = unserialize(stripslashes($payload));
+					$session->_age_flashdata();
+
+					return;
+				}
+			}
+		}
+
+		$session->flashdata = array();
+	}
 	private function set_globals($session_info) {
 				ee()->config->_global_vars['launch_presentation_return_url'] = $session_info['launch_presentation_return_url'];
 				ee()->config->_global_vars['tool_consumer_instance_name'] = $session_info['tool_consumer_instance_name'];
