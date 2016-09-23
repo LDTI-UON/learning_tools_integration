@@ -312,8 +312,13 @@
                                      'null' => FALSE
                                 ),
                                 'plugins_active' => array (
-										'type' => 'VARCHAR',
-										'constraint' => '500',
+										'type' => 'TEXT',
+								),
+								'show_rubric_column_scores' => array(
+										'type' => 'TINYINT',
+										'constraint' => '1',
+										'null' => FALSE,
+										'default' => '0',
 								),
 								'course_key' => array (
 										'type' => 'VARCHAR',
