@@ -39,7 +39,8 @@ class Learning_tools_integration_ext {
 	public $group_id = '6';
 	public $internal_context_id = 0;
 	public $isInstructor = 0;
-
+	public $general_message = "";
+	
 	protected $flashdata = null;
     //public $preview_member_id; seems too complex to implement at this stage
 
@@ -134,7 +135,31 @@ class Learning_tools_integration_ext {
 			ee()->output->set_header("Content-Security-Policy: default-src 'self';");
 		}
 	}
-
+	
+	function get_session($session, $id = NULL) {
+		session_start();
+		$uid = isset($_SESSION['apeg_uid']) ? $_SESSION['apeg_uid'] : $id;
+		session_write_close();
+		
+		// set validation
+		$session->validation = ee()->config->item('website_session_type'); // cookies only!
+		
+		// alongside EE session
+		$session->sdata['session_id'] = ee()->input->cookie($session->c_session);
+		$this->session_id = $session->sdata['session_id'];
+		
+		$session->create_new_session($uid);
+		$session->fetch_member_data();
+		
+		// Kill old sessions
+		$session->delete_old_sessions();
+		
+		// Merge Session and User Data Arrays
+		// We merge these into into one array for portability
+		$session->userdata = array_merge($session->userdata, $session->sdata);
+		ee()->extensions->end_script = TRUE;
+	}
+	
 	function authenticate($session) {
 		if(!isset($session)) {
 				die("No session object!");
@@ -237,16 +262,10 @@ class Learning_tools_integration_ext {
 		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['context_id']);
 
 		if (!$new_launch && empty(static::$session_info)) {
-
-			$this->session_id = session_id();
-
-			if(empty($this->session_id)) {
-						session_start();
-						$this->session_id = session_id();
-			}
-
-			$uid = isset($_SESSION['apeg_uid']) ? $_SESSION['apeg_uid'] : NULL;
-
+			
+			$this->get_session($session);
+			$uid = $session->userdata('member_id');
+	
 			if(!empty($uid)) {
 				static::$session_info = $this -> unserializeSession($uid);
 
@@ -366,7 +385,7 @@ class Learning_tools_integration_ext {
 			echo lang('not_launch_request');
 		}
 
-    ee()->load->helper('url');
+    	ee()->load->helper('url');
 		$ee_uri = uri_string();
 
 		require_once ('ims-blti/blti.php');
@@ -482,30 +501,8 @@ class Learning_tools_integration_ext {
 		} else {
 				$id = $lti_member->member_id;
 		}
-
-		if(empty($this->session_id)) {
-					session_start();
-					$this->session_id = session_id();
-		}
-		// plugin has its own session id
-		$_SESSION['apeg_uid'] = $id;
-
-		// set validation
-		$session->validation = ee()->config->item('website_session_type'); // cookies only!
-
-		// alongside EE session
-		$session->sdata['session_id'] = ee()->input->cookie($session->c_session);
-
-		$session->create_new_session($id);
-		$session->fetch_member_data();
-
-		// Kill old sessions
-		$session->delete_old_sessions();
-
-		// Merge Session and User Data Arrays
-		// We merge these into into one array for portability
-		$session->userdata = array_merge($session->userdata, $session->sdata);
-		ee()->extensions->end_script = TRUE;
+	
+		$this->get_session($session, $id);
 
 		if(!isset($id)) die("FATAL ERROR - user not registered");
 

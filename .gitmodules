@@ -1,3 +1,4 @@
-[submodule "libraries/php-encryption"]
+braries/php-encryption"]
 	path = libraries/php-encryption
 	url = https://github.com/defuse/php-encryption.git
+

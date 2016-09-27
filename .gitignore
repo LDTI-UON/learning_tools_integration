@@ -6,3 +6,4 @@
 /cache/*
 .brackets.json
 .ftpconfig
+/cache/
