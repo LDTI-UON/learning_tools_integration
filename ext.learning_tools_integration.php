@@ -144,13 +144,31 @@ class Learning_tools_integration_ext {
 		// set validation
 		$session->validation = ee()->config->item('website_session_type'); // cookies only!
 		
-		// alongside EE session
 		$session->sdata['session_id'] = ee()->input->cookie($session->c_session);
-		$this->session_id = $session->sdata['session_id'];
 		
-		$session->create_new_session($uid);
+		// Did we find a session ID?
+		$session_set = isset($session->sdata['session_id']); 
+		
+		// Fetch Session Data
+		// IMPORTANT: The session data must be fetched before the member data so don't move this.
+		if ($session_set === TRUE && $session->fetch_session_data() === TRUE)
+		{
+			$session->session_exists = TRUE;
+		} 
+		
+		if ($session->session_exists === TRUE)
+		{
+			$session->update_session();
+		}
+		else
+		{
+			$session->create_new_session($uid);
+		}
+		
 		$session->fetch_member_data();
-		
+
+		$this->session_id = $session->sdata['session_id'];
+			
 		// Kill old sessions
 		$session->delete_old_sessions();
 		
