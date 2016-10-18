@@ -208,6 +208,8 @@ class BLTI {
     }
 
     function isInstructor() {
+			if(!isset($this->info['roles'])) return false;
+
         $roles = $this->info['roles'];
 
         $roles = strtolower($roles);
@@ -228,6 +230,10 @@ class BLTI {
     }
 
     function getUserShortName() {
+				if(!isset($this->info['lis_person_name_given'])) return false;
+				if(!isset($this->info['lis_person_name_family'])) return false;
+				if(!isset($this->info['lis_person_name_full'])) return false;
+
         $email = $this->getUserEmail();
         $givenname = $this->info['lis_person_name_given'];
         $familyname = $this->info['lis_person_name_family'];

@@ -40,7 +40,7 @@ class Learning_tools_integration_ext {
 	public $internal_context_id = 0;
 	public $isInstructor = 0;
 	public $general_message = "";
-	
+
 	protected $flashdata = null;
     //public $preview_member_id; seems too complex to implement at this stage
 
@@ -135,49 +135,52 @@ class Learning_tools_integration_ext {
 			ee()->output->set_header("Content-Security-Policy: default-src 'self';");
 		}
 	}
-	
+
 	function get_session($session, $id = NULL) {
 		session_start();
 		$uid = isset($_SESSION['apeg_uid']) ? $_SESSION['apeg_uid'] : $id;
 		session_write_close();
-		
+
 		// set validation
 		$session->validation = ee()->config->item('website_session_type'); // cookies only!
-		
+
 		$session->sdata['session_id'] = ee()->input->cookie($session->c_session);
-		
+
 		// Did we find a session ID?
-		$session_set = isset($session->sdata['session_id']); 
-		
+		$session_set = isset($session->sdata['session_id']);
+
 		// Fetch Session Data
 		// IMPORTANT: The session data must be fetched before the member data so don't move this.
 		if ($session_set === TRUE && $session->fetch_session_data() === TRUE)
 		{
 			$session->session_exists = TRUE;
-		} 
-		
-		if ($session->session_exists === TRUE)
+		}
+
+		if ($session->session_exists === TRUE && $id === NULL)
 		{
-			$session->update_session();
+				$session->update_session();
 		}
 		else
 		{
 			$session->create_new_session($uid);
+			//$session->sdata['session_id'] = ee()->input->cookie($session->c_session);
 		}
-		
+
 		$session->fetch_member_data();
 
 		$this->session_id = $session->sdata['session_id'];
-			
+
 		// Kill old sessions
 		$session->delete_old_sessions();
-		
+
 		// Merge Session and User Data Arrays
 		// We merge these into into one array for portability
 		$session->userdata = array_merge($session->userdata, $session->sdata);
 		ee()->extensions->end_script = TRUE;
+
+		$_SESSION['apeg_uid'] = $uid;
 	}
-	
+
 	function authenticate($session) {
 		if(!isset($session)) {
 				die("No session object!");
@@ -277,19 +280,23 @@ class Learning_tools_integration_ext {
 				//echo "<div style='padding: 1em; background-color: #dcc; color: #fff; width: 100%; height: 5em'>Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.</div>";
 		}
 
-		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['context_id']);
+		if(!isset($_REQUEST['user_id'])) {
+				die('Please ensure that your LMS is passing the user credentials. This is set in your LTI adminstration area.');
+		}
+
+		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['oauth_consumer_key']) && isset($_REQUEST['context_id']);
 
 		if (!$new_launch && empty(static::$session_info)) {
-			
+
 			$this->get_session($session);
 			$uid = $session->userdata('member_id');
-	
+
 			if(!empty($uid)) {
 				static::$session_info = $this -> unserializeSession($uid);
 
 				// session was FALSE, so session_id was not set on first round...
 				if(static::$session_info === FALSE) {
-					die("<span class='session_expired'><h2>I couldn't retrieve your session details. Please return to the course and click the link again [".__LINE__."].</h2></span>");
+					die("<span class='session_expired'><h2>I couldn't retrieve your session details. Please return to the course and click the link again.</h2></span>");
 				}
 
 				$referer = static::$session_info['tool_consumer_instance_guid'];
@@ -298,11 +305,13 @@ class Learning_tools_integration_ext {
 			  /* set global variables */
 				$this->set_globals(static::$session_info);
 			} else {
-        			die("<span class='session_expired'><h2>[$uid] Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
+        			die("<span class='session_expired'>".var_export($_REQUEST, TRUE)."<h2>[$uid] Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
 			}
 		}
 
 		if($new_launch) {
+			if(isset($_SESSION['apeg_uid'])) unset($_SESSION['apeg_uid']);
+
 			// clickjack prevention
 			$deny_iframe = isset($_SERVER['HTTP_REFERER']);
 
@@ -320,7 +329,7 @@ class Learning_tools_integration_ext {
 			}
 
 		if(empty($_REQUEST['custom_vle_username'])) {
-			$this->general_message = "Please set the vle_username parameter in the LTI launch settings for your VLE.";
+				$this->general_message = "Please set the vle_username parameter in the LTI launch settings for your VLE.";
 		}
 
     if(empty($_REQUEST['custom_vle_pk_string'])) {
@@ -519,7 +528,7 @@ class Learning_tools_integration_ext {
 		} else {
 				$id = $lti_member->member_id;
 		}
-	
+
 		$this->get_session($session, $id);
 
 		if(!isset($id)) die("FATAL ERROR - user not registered");
