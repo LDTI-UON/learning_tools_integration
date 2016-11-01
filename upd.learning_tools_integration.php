@@ -26,7 +26,7 @@
 				 * @link http://sijpkes.site11.com
 				 */
 				class Learning_tools_integration_upd {
-					public $version = '3.2.0';
+					public $version = '3.2.2';
 					public $mod_class = 'Learning_tools_integration';
 					private $EE;
 
@@ -439,10 +439,16 @@
 
 						ee()->db->query ( $sql );
 
-						// add ajax actions
 						$data = array (
 								'class' => $this->mod_class,
-								'method' => 'message_preference'
+								'method' => 'save_user_grade'
+						);
+
+						ee ()->db->insert ( 'actions', $data );
+
+						$data = array (
+								'class' => $this->mod_class,
+								'method' => 'read_user_grade'
 						);
 
 						ee ()->db->insert ( 'actions', $data );
@@ -510,13 +516,17 @@
 									// no database changes
 						}
 						// add external rubric import feature
-						if (version_compare($current, '3.0.0', '<')) {
+						if (version_compare($current, '3.2.2', '<')) {
 								$fields = array(
-													'linkgen_key' => array(
+													'linkgen_id' => array(
 																					 'type' => 'VARCHAR',
-																					 'constraint' => 12,
+																					 'constraint' => 255,
 																					 'null' => true,
 																				),
+													'used' => array(
+																			 'type' => 'BOOLEAN',
+																			 'default' => false,
+																		),
 													'session_key' => array(
 																					 'type' => 'VARCHAR',
 																					 'constraint' => 12,

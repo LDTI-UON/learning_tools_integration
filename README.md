@@ -1,20 +1,22 @@
 # README #
 
 ### LTI Module for ExpressionEngine(EE) 3 ###
-*Tested with up to EE 3.0*
+*Tested with up to EE 3.2.4*
 
-#Version 3.2.0#
+#Version 3.2.2#
 
+**New in version 3.2.2**
+* Incorporated UoN Rails app for user creation of LTI links.
 
 **New in version 3.2.0**
 
-* removed reliance on EE sessions
+* removed total reliance on EE sessions
 * fixed javascript bug in rubric
 
 **New in version 3.0.0**
 
 * Ajax endpoint for uploading rubrics from external tools
-  - new ACT category in extension hooks to allow direct action requests in EE CP style
+  - new ACT category in extension hooks to allow direct action requests
 * Link generation key added to blti_keys table for external link and template generation
 
 **Added in Version 2.24**

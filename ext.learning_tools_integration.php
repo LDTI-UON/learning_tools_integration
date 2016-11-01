@@ -7,7 +7,7 @@ class Learning_tools_integration_ext {
 	var $settings        = array();
 
 	var $name       = 'Learning Tools Integration';
-	var $version        = '3.2.0';
+	var $version        = '3.2.2';
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
 	var $docs_url       = '';
@@ -124,7 +124,7 @@ class Learning_tools_integration_ext {
 		if($agent === "IE") {
 				ee()->output->set_header("X-Frame-Options: ALLOW-FROM $referer:*");
 		} else {
-				ee()->output->set_header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.googleapis.com; default-src 'self' $referer:*; style-src 'self' 'unsafe-inline' $referer:*; img-src 'self' $referer:*; frame-ancestors 'self' $referer:*;");
+				ee()->output->set_header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.googleapis.com code.jquery.com; default-src 'self' $referer:*; style-src 'self' 'unsafe-inline' $referer:*; img-src 'self' $referer:*; frame-ancestors 'self' $referer:*;");
 		}
 	}
 
@@ -196,6 +196,15 @@ class Learning_tools_integration_ext {
 		}
 
 		if(isset($_GET['URL'])) return FALSE;
+
+		/* embed in iFrame in Blackboard */
+		if(!empty($_GET['BB_EMBED'])) {
+				if(isset($_SERVER['HTTP_REFERER'])) {
+						$referer = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
+						static::set_safe_xframe_header($referer);
+				}
+				return FALSE;
+		}
 
 		if(ee()->config->item('website_session_type') !== 'c') {
         die("Please set the website session type to 'Cookies only'.");
@@ -617,7 +626,7 @@ class Learning_tools_integration_ext {
 				ee()->config->_global_vars['is_instructor'] = $session_info['isInstructor'];
 				ee()->config->_global_vars['course_key'] = $session_info['course_key'];
 				ee()->config->_global_vars['course_name'] = $session_info['course_name'];
-				ee()->config->_global_vars['pk_string'] = $session_info['user_key'];
+				ee()->config->_global_vars['resource_link_id'] = $session_info['resource_link_id']; // wrong, @TODO fix this
 				ee()->config->_global_vars['lti_user_short_name'] = $session_info['user_short_name'];
 				ee()->config->_global_vars['resource_title'] = $session_info['resource_title'];
 				ee()->config->_global_vars['resource_link_description'] = $session_info['resource_link_description'];
