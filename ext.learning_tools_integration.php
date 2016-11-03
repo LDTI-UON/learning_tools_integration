@@ -450,18 +450,19 @@ class Learning_tools_integration_ext {
 
 		$id = 0;
 
-		//$result =     ee() -> db -> get_where('actions', array('class' => $this -> mod_class, 'method' => 'message_preference'));
-		//$actid = $result -> row('action_id');
-          //  var_dump($actid);
-		//$this -> message_pref_url = site_url() . "?ACT=$actid";
+		$bb_instructor = FALSE;
+		$roles = ee()->input->post('custom_vle_user_role');
+		$bb_instructor =
+			! ( strpos($roles,"instructor") === FALSE )  ||
+			! ( strpos($roles,"administrator") === FALSE ) ||
+			! ( strpos($roles,"A") === FALSE );
 
-          //      unset($result);
+		$this->isInstructor = $context->isInstructor() || $bb_instructor;
 
-		if ($context -> isInstructor() == 0) {
+		if (! $this->isInstructor ) {
 			$this -> lis_result_sourcedid = isset($_REQUEST["lis_result_sourcedid"]) ? ee()->security->xss_clean($_REQUEST["lis_result_sourcedid"]) : 'not set';
 		}
 
-		$this -> isInstructor = $context -> isInstructor();
 		$this -> user_key = $context -> getUserKey();
 		$this -> course_key = $context -> getCourseKey();
 
@@ -626,13 +627,17 @@ class Learning_tools_integration_ext {
 				ee()->config->_global_vars['is_instructor'] = $session_info['isInstructor'];
 				ee()->config->_global_vars['course_key'] = $session_info['course_key'];
 				ee()->config->_global_vars['course_name'] = $session_info['course_name'];
-				ee()->config->_global_vars['resource_link_id'] = $session_info['resource_link_id']; // wrong, @TODO fix this
+				ee()->config->_global_vars['resource_link_id'] = $session_info['resource_link_id'];
 				ee()->config->_global_vars['lti_user_short_name'] = $session_info['user_short_name'];
 				ee()->config->_global_vars['resource_title'] = $session_info['resource_title'];
 				ee()->config->_global_vars['resource_link_description'] = $session_info['resource_link_description'];
 				ee()->config->_global_vars['lti_user_email'] = $session_info['user_email'];
 				ee()->config->_global_vars['ext_launch_presentation_css_url'] = $session_info['ext_launch_presentation_css_url'];
-				ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];;
+				ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];
+
+				//Blackboard specific
+				ee()->config->_global_vars['bb_pk_string'] = $this->vle_pk_string;
+				ee()->config->_global_vars['bb_username'] = $this->vle_username;
 	}
 
 	 private function css_link_tags() {

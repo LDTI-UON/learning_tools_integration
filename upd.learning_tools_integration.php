@@ -434,7 +434,7 @@
 						ee ()->dbforge->add_key ( 'resource_link_id' );
 						ee ()->dbforge->create_table ( 'lti_course_link_resources', TRUE );
 
-                        $course_table = ee ()->db->dbprefix("lti_course_link_resources");
+            $course_table = ee ()->db->dbprefix("lti_course_link_resources");
 						$sql = "ALTER TABLE $course_table ADD INDEX ( resource_link_id(10) )";
 
 						ee()->db->query ( $sql );

@@ -6,6 +6,8 @@
 #Version 3.2.2#
 
 **New in version 3.2.2**
+* Added BB_EMBED get parameter to allow embedding of tools in Blackboard
+using a token generated with the remember_lti_user plugin.
 * Incorporated UoN Rails app for user creation of LTI links.
 
 **New in version 3.2.0**
