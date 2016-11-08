@@ -12,8 +12,6 @@ class Learning_tools_integration_ext {
 	var $settings_exist = 'n';
 	var $docs_url       = '';
 
-    //var $settings = array();
-
 	private $mod_class = "Learning_tools_integration";
 	private $remember_me = FALSE;
 
@@ -289,11 +287,11 @@ class Learning_tools_integration_ext {
 				//echo "<div style='padding: 1em; background-color: #dcc; color: #fff; width: 100%; height: 5em'>Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.</div>";
 		}
 
-		if(!isset($_REQUEST['user_id'])) {
+		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['oauth_consumer_key']) && isset($_REQUEST['context_id']);
+
+		if(!isset($_REQUEST['user_id']) && isset($_REQUEST['oauth_consumer_key']) && isset($_REQUEST['context_id'])) {
 				die('Please ensure that your LMS is passing the user credentials. This is set in your LTI adminstration area.');
 		}
-
-		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['oauth_consumer_key']) && isset($_REQUEST['context_id']);
 
 		if (!$new_launch && empty(static::$session_info)) {
 

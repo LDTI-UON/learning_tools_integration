@@ -128,7 +128,7 @@ class Learning_tools_integration {
     public $use_resources = 0;
 
     /* launch hook methods */
-    private $extension_launch = array("instructor" => array(), "general" => array(), "no_template" => array());
+      private $extension_launch = array("instructor" => array(), "general" => array(), "no_template" => array());
     private $direct_hook_methods = array();
     private $lib_path;
     private $hook_path;
@@ -143,7 +143,6 @@ class Learning_tools_integration {
     private $tmpl_toggle_tags;
 
     private $tmpl_value_tags;
-
 
 
     /**
