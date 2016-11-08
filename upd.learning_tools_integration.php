@@ -26,7 +26,7 @@
 				 * @link http://sijpkes.site11.com
 				 */
 				class Learning_tools_integration_upd {
-					public $version = '3.2.2';
+					public $version = '3.2.3';
 					public $mod_class = 'Learning_tools_integration';
 					private $EE;
 
@@ -34,7 +34,7 @@
 					 * Constructor
 					 */
 					public function __construct() {
-						// ee() =& get_instance();
+							ee()->load->library('logger');
 					}
 
 					// ----------------------------------------------------------------
@@ -506,15 +506,27 @@
 						// Will start using this update function in versions > 2.1
 						ee ()->load->dbforge ();
 
-						if (version_compare($current, $version, '='))
+						if (version_compare($current, $this->version, '='))
 	 					{
 			 					return FALSE;
 	 					}
 
 						// add external rubric import feature
-						if (version_compare($current, '3.1.0', '<')) {
-									// no database changes
+						if (version_compare($current, '3.2.3', '<')) {
+								$fields = array(
+															'resource_settings' => array(
+																							 'type' => 'TEXT',
+																							 'null' => true,
+															)
+												);
+
+								try {
+										ee()->dbforge->add_column('lti_course_link_resources', $fields);
+								} catch (Exception $e) {
+										ee()->logger->developer($e);
+								}
 						}
+
 						// add external rubric import feature
 						if (version_compare($current, '3.2.2', '<')) {
 								$fields = array(
@@ -525,7 +537,7 @@
 																				),
 													'used' => array(
 																			 'type' => 'BOOLEAN',
-																			 'default' => false,
+																			 'default' => 'FALSE',
 																		),
 													'session_key' => array(
 																					 'type' => 'VARCHAR',
@@ -534,7 +546,11 @@
 																				),
 								);
 
-								ee()->dbforge->add_column('blti_keys', $fields);
+							try {
+									ee()->dbforge->add_column('blti_keys', $fields);
+							} catch (Exception $e) {
+									ee()->logger->developer($e);
+							}
 
 								$data = array (
 										'class' => $this->mod_class,
