@@ -92,6 +92,7 @@ class Learning_tools_integration_ext {
 
 			$mod_path = PATH_THIRD.strtolower($this->mod_class).DIRECTORY_SEPARATOR;
 
+			ee()->config->load("lti_config");
 			// these services bypass LTI, any services here should be secured against XSS and
 			// embody strong validation
 

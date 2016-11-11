@@ -171,11 +171,17 @@ $(document).ready(function () {
 			e.preventDefault();
 
 			var total = 0;
-			var model = { rows: [] };
+			var model = { rows: [], colLabels : [], rowLabels: [], maxValue: '0' };
 
 			$(".rubricTable .scoreSet").each(function() {
 				var r = $(this).closest("tr").index();
 				var c = $(this).closest("td").index();
+				var d = $(this).closest(".rubricCellHeader").next().text();
+
+				var cTitle = $(this).closest("table").find('thead th:nth-of-type('+c+')').text();
+				var rTitle = $(this).closest(".rubricGradingRow").find("th").text();
+
+				var maxValue = $(this).closest("table").attr("maxvalue");
 
 				if(isNaN($(this).val())) {
 						error_track(model);
@@ -183,7 +189,10 @@ $(document).ready(function () {
 
 				var score = parseInt( $(this).val() );
 
-				model.rows[r] = { col: c, score: score };
+				model.rows[r] = { col: c, score: score, desc: d};
+				model.maxValue = maxValue;
+				model.colLabels[c] = cTitle;
+				model.rowLabels[r] = rTitle;
 
 				total += score;
 			});

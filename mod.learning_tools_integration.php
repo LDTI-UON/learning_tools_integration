@@ -25,7 +25,7 @@
  */
 
 
-define('LTI_FILE_UPLOAD_PATH', PATH_THIRD."learning_tools_integration/cache"); //@TODO: move to control panel settings
+ //@TODO: move to control panel settings
 
 class Learning_tools_integration {
     public $return_data;

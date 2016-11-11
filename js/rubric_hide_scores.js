@@ -18,7 +18,7 @@ $.fn.removeText = function(numeric){
           if(this.nodeType == 3){
             // only remove numeric values
             if(numeric == true) {
-                  if(!isNaN($this.text())){
+                  if(!isNaN($this.text()) || $this.text().includes('%')){
                       $this.remove();
                   }
             } else {
@@ -31,4 +31,4 @@ $.fn.removeText = function(numeric){
   });
 }
 
-$(document).ready(function() { $('.rangeValue').removeText(); $('.rubricGradingCell').removeText(true);});
+$(document).ready(function() { $('.rangeValue').removeText(); $('.rubricGradingCell').removeText(true); $('tr.rubricGradingRow th > p, div.rubricGradingRow h4 > p').removeText(); });

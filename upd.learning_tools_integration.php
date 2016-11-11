@@ -1,4 +1,4 @@
-<?php if (! defined ( 'BASEPATH' ))
+	<?php if (! defined ( 'BASEPATH' ))
 					exit ( 'No direct script access allowed' );
 
 				/**
@@ -521,7 +521,11 @@
 												);
 
 								try {
+
+									$fields = $this->sanitizeFields('lti_course_link_resources', $fields);
+									if(count($fields) > 0)
 										ee()->dbforge->add_column('lti_course_link_resources', $fields);
+
 								} catch (Exception $e) {
 										ee()->logger->developer($e);
 								}
@@ -547,6 +551,8 @@
 								);
 
 							try {
+								$fields = $this->sanitizeFields('blti_keys', $fields);
+								if(count($fields) > 0)
 									ee()->dbforge->add_column('blti_keys', $fields);
 							} catch (Exception $e) {
 									ee()->logger->developer($e);
@@ -646,6 +652,33 @@
 
 					break;
 				}
+			}
+
+			private function sanitizeFields($table_name, $fields) {
+					foreach($fields as $field => $structure) {
+							if($this->checkColumnExists($table_name, $field)) {
+									unset($fields[$field]);
+							}
+					}
+
+					return $fields;
+			}
+
+			private function checkColumnExists($table_name, $column_name) {
+
+					$db = ee()->config->item('database');
+					$database_name = $db['expressionengine']['database'];
+					$table_name = ee()->db->dbprefix($table_name);
+
+					$sql = "SELECT *
+							FROM information_schema.COLUMNS
+							WHERE   TABLE_SCHEMA = '$database_name'
+							AND TABLE_NAME = '$table_name'
+							AND COLUMN_NAME = '$column_name'";
+
+					$res = ee()->db->query($sql);
+
+					return count($res->row()) === 1;
 			}
 }
 /* End of file upd.learning_tools_integration.php */
