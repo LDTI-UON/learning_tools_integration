@@ -57,9 +57,9 @@ class Encryption {
 
      static function get_salt($context_id) {
    	  $salt_key = NULL;
-     	//$cwd = PATH_THIRD.'learning_tools_integration/libraries/extension_hooks/classes';
+      $secret = ee()->config->item('lti_secret');
 
-     	if(!file_exists(__DIR__.'/secret') || !is_writable(__DIR__.'/secret')) {
+     	if(!file_exists($secret) || !is_writable($secret)) {
             if(ee()->session->userdata('group_id') == 1) {
                   $process_name = posix_getpwuid(posix_geteuid())['name'];
 
@@ -68,7 +68,7 @@ class Encryption {
                   mkdir($secret_dir);
                   chmod($secret_dir, 0700);
 
-                  if(!file_exists(__DIR__.'/secret') || !is_writable(__DIR__.'/secret')) {
+                  if(!file_exists($secret) || !is_writable($secret)) {
                       die("<pre>To the super user:\n\nPlease create the /secret folder in:\n\n \t".str_replace(SYSDIR, "#########", __DIR__)."\n\nand chmod to 700 ensure the current process ($process_name)\nowns this folder.</pre>");
                   }
             }
@@ -76,7 +76,7 @@ class Encryption {
 
      	$unenc = $context_id;
      	$context_id = md5($context_id);
-     	$base_dir = __DIR__."/secret/".$context_id;
+     	$base_dir = $secret.$context_id;
 
      	if(!file_exists($base_dir)) {
      		mkdir($base_dir);

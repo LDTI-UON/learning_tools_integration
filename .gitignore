@@ -1,4 +1,3 @@
-/libraries/secret
 /libraries/php-encryption
 *.log
 /data/*
