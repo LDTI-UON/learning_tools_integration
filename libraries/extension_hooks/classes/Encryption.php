@@ -63,10 +63,8 @@ class Encryption {
             if(ee()->session->userdata('group_id') == 1) {
                   $process_name = posix_getpwuid(posix_geteuid())['name'];
 
-                  $secret_dir = __DIR__.DIRECTORY_SEPARATOR.'secret';
-
-                  mkdir($secret_dir);
-                  chmod($secret_dir, 0700);
+                  mkdir($secret);
+                  chmod($secret, 0700);
 
                   if(!file_exists($secret) || !is_writable($secret)) {
                       die("<pre>To the super user:\n\nPlease create the /secret folder in:\n\n \t".str_replace(SYSDIR, "#########", __DIR__)."\n\nand chmod to 700 ensure the current process ($process_name)\nowns this folder.</pre>");
