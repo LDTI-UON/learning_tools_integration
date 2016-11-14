@@ -84,6 +84,7 @@ class Learning_tools_integration_ext {
 			$this->settings = $settings;
       ee()->config->set_item('disable_csrf_protection', 'y');
 
+			
 			// comment these out for production
 			/*if(isset($_GET['ltiACT'])) {
 				header('Access-Control-Allow-Origin: *');
