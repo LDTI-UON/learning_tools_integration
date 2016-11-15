@@ -183,7 +183,7 @@ $(document).ready(function () {
 
 				var score = parseInt( $(this).val() );
 
-				model.rows[r] = { col: c, score: score, desc: d};
+				model.rows[r] = { col: c, score: score };
 
 				total += score;
 			});
