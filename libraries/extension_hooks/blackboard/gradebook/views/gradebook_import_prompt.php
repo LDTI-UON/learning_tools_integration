@@ -2,6 +2,7 @@
 use LTI\ExtensionHooks\Encryption;
 use LTI\ExtensionHooks\Gradebook;
 use LTI\ExtensionHooks\Auth;
+use LTI\ExtensionHooks\Utils;
 
 $hook_method = function($view_data) {
         ee() -> load -> helper('url');
@@ -10,44 +11,18 @@ $hook_method = function($view_data) {
             $password_req = FALSE;
             $query = ee()->db->get_where('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id));
 
-             $style = "<style>
-                #sync_message {
-                    display: block;
-                    position: absolute;
-                    width: 190px;
-                    height: auto;
-                    top: 0;
-                   /* border: thin solid black; */
-                    padding: 1em;
-                  /*  background-color: green; */
-                    left: 0;
-                    color: white;
-                    font-family: 'Arial', sans-serif;
-                    z-index: 2;
-                    line-height: 1.2em;
-                }
-                #sync_message h1 {
-                    font-size: 16pt;
-                }
-                #sync_message .validation {
-                   color: #F6F593;
-                }
-                #sync_message div {
-                    float:left;
-                    margin: 0.3em;
-                   /* width: 400px; */
-                }
-                #sync_message div p {
-                    padding: 3px;
-                 }
-                </style>"; // TODO move to css
-
             if($query->num_rows() == 0) {
 
                if(!isset($_POST['email_optout'])) {
-                   $div = $style."<div id=\"sync_message\" class=\"receipt good\"><p>".lang('email_opt_out')."</p>%form%</div>";
 
-                   $form = form_open($this->base_url);
+
+                  $div = Utils::bootstrap_message_modal_outer(array('id' => 'sync_message',
+                                                                  'contents' => "<p>"
+                                                                                  .lang('email_opt_out').
+                                                                                "</p>%form%")
+                                                              );
+
+                   $form = form_open($this->base_url, $this->lti_object->base_form_attr);
 
                    $data = array(
                                           'name'        => 'optout',
@@ -87,10 +62,18 @@ $hook_method = function($view_data) {
                 $form_valid = ee()->form_validation->run();
 
                 if (empty($form_valid) || $form_valid === FALSE) {
-                    $div = $style."<div id=\"sync_message\" class=\"receipt good\"><div>%form%</div><div><p>".lang('outlook_instructions')."</div></p></div>";
 
+                    $contents = Utils::bootstrap_message_modal_inner(
+                               array('header' => 'Blackboard User Sync',
+                                     'body' => lang('outlook_instructions'))
+                           );
 
-                    $form = form_open($this->base_url);
+                    $div = Utils::bootstrap_message_modal_outer(array('id' => 'sync_message',
+                                                                'contents' => $contents
+                                                                )
+                                                        );
+
+                    $form = form_open($this->base_url, $this->lti_object->base_form_attr);
 
                     $form .= "<h1>".lang('password_title')."</h1>";
                     //$form .= form_hidden("set_password", "1");
@@ -148,11 +131,13 @@ $hook_method = function($view_data) {
                                 )
                         ) && !empty($query->row()->password)) {
 
-                         $div = $style."<div id=\"sync_message\" class=\"receipt good\">%form%</div>";
+                        $div = Utils::bootstrap_message_modal_outer(array('id' => 'sync_message',
+                                                                          'contents' => '%form%')
+                                                                  );
 
                         $decrypted = Encryption::decrypt($query->row()->password, Encryption::get_salt($this->user_id.$this->context_id));
 
-                        ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, ));
+                        ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id));
 
                         if($decrypted !== FALSE) {
 
@@ -165,7 +150,12 @@ $hook_method = function($view_data) {
                         $jsfn = "";
 
                             if ($auth === 0) {
-                                $form = "<p>Your Grade Centre connection to this course is active. ($this->resource_link_id)</p>";
+                                $form = Utils::bootstrap_message_modal_inner(
+                                              array('header' => 'Blackboard User Sync',
+                                                    'body' => "Your Grade Centre connection to this course is active.")
+                                          );
+
+
                                 ee()->db->update('lti_instructor_credentials', array('state' => '0'));
 
                                 // groups only imported if the grade book has been changed or
@@ -208,7 +198,7 @@ $hook_method = function($view_data) {
                             }
 
                             if(isset($form)) {
-                              $form .= "<script> $jsfn $(document).ready(function() { /*$('#sync_message').delay(3000).slideUp(2500$jsstr);*/ }); </script>";
+                              $form .= "<script> $jsfn $(document).ready(function() { $('#sync_message').modal('show'); }); </script>";
                               $form = str_replace('%form%', $form, $div);
 
                               $view_data['email_settings'] = $form;

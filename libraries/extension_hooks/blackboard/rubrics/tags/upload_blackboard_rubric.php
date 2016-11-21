@@ -139,7 +139,8 @@ $hook_method = function() {
 
   $vars['show_scores'] = json_encode($show_scores);
 
-  $form = form_open_multipart($this->base_url);
+  $attr = array('class' => $this->form_class);
+  $form = form_open_multipart($this->base_url, $attr);
   $form .= form_label("Rubric ZIP file:", "userfile");
   $form .= form_hidden("do_upload_rubric", "1");
   $form .= form_upload('userfile', 'userfile');

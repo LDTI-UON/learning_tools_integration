@@ -17,7 +17,7 @@ $hook_method = function() {
     $table = "lti_instructor_settings";
 
     ee() -> load -> helper('form');
-    $form = form_open($this->base_url);
+    $form = form_open($this->base_url, $this->base_form_attr);
 
     if(!empty(static::$lti_plugins)) {
         foreach(static::$lti_plugins as $plugin) {

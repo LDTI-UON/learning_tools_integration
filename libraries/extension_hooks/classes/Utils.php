@@ -51,4 +51,18 @@ static function getRandomUserAgent() {
 
     return $userAgents[$random];
 }
+
+static function bootstrap_message_modal_inner($args) {
+    $str = "<div class='modal-header'>$args[header]</div><div class='modal-body'><p>$args[body]</p></div><div class=\"modal-footer\">
+    <button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Close</button></div>";
+
+    return $str;
+}
+
+static function bootstrap_message_modal_outer($args) {
+    $str = "<div id=\"$args[id]\" class=\"modal fade\">
+      <div class='modal-dialog'><div class='modal-content'>$args[contents]</div></div></div>";
+
+    return $str;
+}
 }

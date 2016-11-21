@@ -24,12 +24,15 @@ $(document).ready(function () {
 										if(this.tagName == "INPUT") {
 														if($(this).prop('type') == 'text') {
 																$(this).prop("value", row_score);
+															//	console.log("value reset from "+row_score);
 														}
 
 														if($(this).prop('type') == 'radio') {
-																if(row_score != $(this).prop("value")) {
+																/*if(row_score != $(this).prop("value")) {
 																		console.log("The saved rubric does not match the loaded rubric.");
-																}
+																		console.log("radio input value: "+$(this).prop("value")+": "+row_score);
+																		v.score = v.score;
+																}*/
 
 																$(this).prop("checked", true);
 														}
@@ -43,7 +46,7 @@ $(document).ready(function () {
 		});
 
 		var checkInputs = function(o, el, score) {
-			//	console.log("changed "+o.tagName+" and checking");
+
 				if($(o).hasClass("scoreSet")) {
 
 						el.addClass("scoreSet");
@@ -55,7 +58,6 @@ $(document).ready(function () {
 									el.prop("value", score);
 						}
 
-						//el.css('background-color', 'orange');
 				} else {
 						el.removeClass("scoreSet");
 
@@ -65,8 +67,6 @@ $(document).ready(function () {
 						if(el.prop('type') == "text") {
 									el.	prop("value", "");
 						}
-
-						//el.css('background-color', 'green');
 				}
 		}
 
@@ -136,19 +136,21 @@ $(document).ready(function () {
 		});
 
 		$('.grade_input, .rubricCellRadio').keyup(function(e){
-			this.value = this.value.replace(/[^0-9]/g,'');
+
+				this.value = this.value.replace(/[^0-9]/g,'');
 		}).change(function(e) {
 			var range = $(this).data("range");
+
             if(typeof range !== 'undefined') {
 								if(isNaN(range.min) || isNaN(range.max)) {
 											alert("Error: numeric range not set "+JSON.stringify(range));
 								}
 
                 if(!isNaN(this.value)) {
-                        if(parseInt(this.value) < parseInt(range.min)) {
+                        if(parseFloat(this.value) < parseFloat(range.min)) {
                             this.value = range.min;
                         }
-                        else if(parseInt(this.value) > parseInt(range.max)) {
+                        else if(parseFloat(this.value) > parseFloat(range.max)) {
                             this.value = range.max;
                         }
                 }
@@ -157,11 +159,11 @@ $(document).ready(function () {
 			$(this).addClass("scoreSet").addClass("s_s_n").css({'background-color': ''});
 
 			$(this).closest("td, .rubricGradingCell").siblings("td, .rubricGradingCell").each(function() {
-				$(this).find(".grade_input:not(.s_s_n)").val("").removeClass("scoreSet");
+				$(this).find(".grade_input[type='text']:not(.s_s_n)").val("").removeClass("scoreSet");
+				$(this).find(".grade_input[type='radio']:not(.s_s_n)").removeClass("scoreSet");
 			});
 
 			$(this).removeClass("s_s_n");
-
 
 			syncInputs(e.target);
 		});
@@ -169,6 +171,13 @@ $(document).ready(function () {
 
 		$("#rub_onExitClose").on("click", ".button-1", function(e) {
 			e.preventDefault();
+			var pdoc = window.opener.document;
+			var input_id = $("#rub_onExitClose").data("input_id");
+
+			$("#score_"+input_id, pdoc).closest('tr').find('td');
+
+		//	console.log($("#score_"+input_id, pdoc).closest('tr').find('td'));
+		//	return;
 
 			var total = 0;
 			var model = { rows: [] }; //, colLabels : [], rowLabels: [], maxValue: '0' };
@@ -181,27 +190,24 @@ $(document).ready(function () {
 						error_track(model);
 				}
 
-				var score = parseInt( $(this).val() );
+				var score = parseFloat( $(this).val() );
 
 				model.rows[r] = { col: c, score: score };
 
 				total += score;
 			});
-			var input_id = $("#rub_onExitClose").data("input_id");
+
 
 			if(isNaN(total)) {
 					error_track(model);
 			}
 
-			$("#show_score_"+input_id).text(total);
-			$("#score_"+input_id).attr("value", total);
-			$("#rubric_"+input_id).attr("value", JSON.stringify(model));
+			$("#show_score_"+input_id, pdoc).text(total);
+			$("#score_"+input_id, pdoc).val(total);
+			$("#rubric_"+input_id, pdoc).val(JSON.stringify(model));
 
-			$p = $("#rub_onExitClose").parent();
-
-			$p.hide();
-
-      $(".chosen-container").show();
+			window.opener.flashRow(input_id);
+			window.close();
 		});
 
 		var error_track = function(model) {

@@ -144,7 +144,11 @@ class Learning_tools_integration {
 
     private $tmpl_value_tags;
 
-
+    public $form_class = 'form-inline';
+    public $input_class = 'form-control';
+    public $button_class = 'btn btn-primary';
+    public $modal_class = 'modal fade';
+    public $base_form_attr = array();
     /**
      * Constructor
      */
@@ -155,6 +159,24 @@ class Learning_tools_integration {
        $this->lib_path = $this->mod_path.DIRECTORY_SEPARATOR.'libraries';
        $this->hook_path = $this->lib_path.DIRECTORY_SEPARATOR.'extension_hooks';
        $this->init();
+
+       if (ee()->TMPL->fetch_param('form_class')) {
+           $this->form_class = ee()->TMPL->fetch_param('form_class');
+       }
+
+       if (ee()->TMPL->fetch_param('input_class')) {
+           $this->input_class = ee()->TMPL->fetch_param('input_class');
+       }
+
+       if (ee()->TMPL->fetch_param('button_class')) {
+           $this->button_class = ee()->TMPL->fetch_param('button_class');
+       }
+
+       if (ee()->TMPL->fetch_param('modal_class')) {
+           $this->modal_class = ee()->TMPL->fetch_param('modal_class');
+       }
+
+       $this->base_form_attr = array("class" => $this->form_class);
 	}
 
 
@@ -626,7 +648,7 @@ class Learning_tools_integration {
     private function save_grade_example_form() {
         ee()->load->helper('form');
 
-        $form = form_open($this->base_url);
+        $form = form_open($this->base_url, $this->base_form_attr);
 
         $data = array(
               'name'        => 'grade',
@@ -648,7 +670,7 @@ class Learning_tools_integration {
     private function read_grade_example_form() {
         ee()->load->helper('form');
 
-        $form = form_open($this->base_url);
+        $form = form_open($this->base_url, $this->base_form_attr);
         $form .= form_hidden('segment', $this->base_segment);
         $form .= form_hidden('action', 'read_user_grade');
         $form .= form_submit('submit', 'Read Grade');

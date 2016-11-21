@@ -6,7 +6,21 @@ button#openRubric {
 </style>
 <div id='rubric_wrapper'>
 <?= $form ?>
-<div id='floating' style='position: absolute; left: 2%; top: 5%; width: 96%; height: auto; display: none'> </div>
+<style>
+button#openRubric {
+    margin-bottom: 2%;
+    margin-left: 3%;
+}
+#rubric_iframe {
+  border: none;
+
+}
+#floating {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+</style>
+<!-- <div id='floating' style='position: absolute; left: 2%; top: 5%; width: 995px; height: 800px; display: none'><iframe id='rubric_iframe' width='100%' height='100%' seamless='seamless'></iframe></div>-->
 
 
 <script type="text/javascript">
@@ -24,11 +38,21 @@ button#openRubric {
 		}
 
 		var populate_rubric = function(id) {
-			$('div#floating').load('<?= $base_url ?>/rubric', {'no_reload': '1', 'id' : id}, function(data) {
-				if(!session_expired(data)) {
-					$(this).html(data).show();
-				}
-			});
+
+      $.post('<?= $base_url ?>/rubric', {'no_reload': '1', 'id' : id}, function(data) {
+            if(!session_expired(data)) {
+                var doc = window.open().document;
+                doc.open();
+                doc.write(data);
+                doc.close();
+            }
+      });
+		/*	$('#rubric_iframe > html').load('<?= $base_url ?>/rubric', {'no_reload': '1', 'id' : id}, function() {
+			     if(!session_expired(data)) {
+              $('#rubric_iframe').html(data);
+              $('div#floating').show();
+			    }
+			});*/
 		}
 
     var id;

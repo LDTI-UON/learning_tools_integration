@@ -84,7 +84,7 @@ class Learning_tools_integration_ext {
 			$this->settings = $settings;
       ee()->config->set_item('disable_csrf_protection', 'y');
 
-			
+
 			// comment these out for production
 			/*if(isset($_GET['ltiACT'])) {
 				header('Access-Control-Allow-Origin: *');
@@ -124,7 +124,7 @@ class Learning_tools_integration_ext {
 		if($agent === "IE") {
 				ee()->output->set_header("X-Frame-Options: ALLOW-FROM $referer:*");
 		} else {
-				ee()->output->set_header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.googleapis.com code.jquery.com; default-src 'self' $referer:*; style-src 'self' 'unsafe-inline' $referer:*; img-src 'self' $referer:*; frame-ancestors 'self' $referer:*;");
+				ee()->output->set_header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.googleapis.com code.jquery.com maxcdn.bootstrapcdn.com; default-src 'self' $referer:*; style-src 'self' 'unsafe-inline' fonts.googleapis.com maxcdn.bootstrapcdn.com $referer:*; img-src 'self' $referer:*; frame-ancestors 'self' $referer:*; font-src 'self' fonts.gstatic.com maxcdn.bootstrapcdn.com");
 		}
 	}
 
