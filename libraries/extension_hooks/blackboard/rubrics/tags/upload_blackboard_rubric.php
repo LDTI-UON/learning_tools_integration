@@ -144,7 +144,7 @@ $hook_method = function() {
   $form .= form_label("Rubric ZIP file:", "userfile");
   $form .= form_hidden("do_upload_rubric", "1");
   $form .= form_upload('userfile', 'userfile');
-  $form .= form_submit("Upload","upload");
+  $form .= form_submit("Upload","Upload",$this->form_submit_class);
   $form .= "<p> $errors $msg </p>";
   $form .= form_close();
   $form .= "<br><br>";
@@ -153,7 +153,7 @@ $hook_method = function() {
 
   $form .= form_dropdown("rubrics", $options, $init_rubric, "id='rubric_dd'");
 
-  $button = array('name' => 'preview', 'id' => 'preview_btn', 'value' => 'true', 'content' => 'Preview');
+  $button = array('name' => 'preview', 'id' => 'preview_btn', 'value' => 'true', 'content' => 'Preview', 'class' =>$this->button_class);
   $form .= form_button($button);
 
   $checkbox = array(
@@ -170,7 +170,7 @@ $hook_method = function() {
   $form .= "<p>";
   $form .= form_label('Attach this rubric:  ', 'attach', array('for' => 'attach'));
 
-  $form .= form_button('attach', 'Attach', "id='attach'");
+  $form .= form_button('attach', 'Attach', "id='attach' class='$this->button_class'");
     $form .= "<img id='rub_loader' src='".URL_THIRD_THEMES."learning_tools_integration/img/loader.gif' style='display:none'/><span id='loader_msg'></span>";
   $form .= "</p>";
   $form .= form_close();

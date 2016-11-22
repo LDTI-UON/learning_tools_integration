@@ -24,6 +24,10 @@ button#openRubric {
 
 
 <script type="text/javascript">
+    window.flashRow = function(input_id) {
+        // placeholder function to allow instructor preview rubric to exit
+        return;
+    }
 
 		var session_expired = function(data) {
 			if( $(data).find('.session_expired').length > 0 ) {
@@ -47,12 +51,7 @@ button#openRubric {
                 doc.close();
             }
       });
-		/*	$('#rubric_iframe > html').load('<?= $base_url ?>/rubric', {'no_reload': '1', 'id' : id}, function() {
-			     if(!session_expired(data)) {
-              $('#rubric_iframe').html(data);
-              $('div#floating').show();
-			    }
-			});*/
+
 		}
 
     var id;

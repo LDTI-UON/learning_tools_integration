@@ -67,7 +67,7 @@ $hook_method = function() {
     $form .= !empty($message) ? "<p>$message</p>" : "";
   $form .= form_open_multipart($this->base_url);
   $form .= form_hidden('do_random_remainder', 'yep');
-  $form .= form_submit("Randomly", "Assign a unique resource to remaining students");
+  $form .= form_submit("Randomly", "Assign a unique resource to remaining students", $this->form_submit_class);
   $form .= form_close();
 
   return $form;

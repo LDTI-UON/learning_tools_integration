@@ -37,7 +37,7 @@ $hook_method = function () {
     $form .= lang('solution_prefix') . " ";
     $form .= form_input(array('name' => 'solution_prefix', 'id' => 'solution_prefix', 'value' => $solution_prefix, 'maxlength' => '20', 'size' => '20'));
     $form .= "<br>";
-    $form .= form_submit("Save Settings", "Save");
+    $form .= form_submit("Save Settings", "Save", $this->form_submit_class);
     $form .= form_close();
 
     return $form;

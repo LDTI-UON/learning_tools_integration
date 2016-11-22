@@ -145,8 +145,9 @@ class Learning_tools_integration {
     private $tmpl_value_tags;
 
     public $form_class = 'form-inline';
+    public $form_submit_class = "class='btn btn-default'";
     public $input_class = 'form-control';
-    public $button_class = 'btn btn-primary';
+    public $button_class = 'btn btn-default';
     public $modal_class = 'modal fade';
     public $base_form_attr = array();
     /**
@@ -174,6 +175,11 @@ class Learning_tools_integration {
 
        if (ee()->TMPL->fetch_param('modal_class')) {
            $this->modal_class = ee()->TMPL->fetch_param('modal_class');
+       }
+
+       if (ee()->TMPL->fetch_param('form_submit_class')) {
+           $fs = ee()->TMPL->fetch_param('form_submit_class');
+           $this->form_submit_class = "class='$fs'";
        }
 
        $this->base_form_attr = array("class" => $this->form_class);
@@ -648,7 +654,7 @@ class Learning_tools_integration {
     private function save_grade_example_form() {
         ee()->load->helper('form');
 
-        $form = form_open($this->base_url, $this->base_form_attr);
+        $form = form_open($this->base_url, $this->base_form_attr, array("class" => $this->form_class));
 
         $data = array(
               'name'        => 'grade',
@@ -662,7 +668,7 @@ class Learning_tools_integration {
         $form .= form_input($data);
         $form .= form_hidden('action', 'save_user_grade');
         $form .= form_hidden('segment', $this->base_segment);
-        $form .= form_submit('submit', 'Submit Grade');
+        $form .= form_submit('submit', 'Submit Grade', $this->form_submit_class);
         $form .= form_close();
 
         return $form;
@@ -670,10 +676,10 @@ class Learning_tools_integration {
     private function read_grade_example_form() {
         ee()->load->helper('form');
 
-        $form = form_open($this->base_url, $this->base_form_attr);
+        $form = form_open($this->base_url, $this->base_form_attr, array("class" => $this->form_class));
         $form .= form_hidden('segment', $this->base_segment);
         $form .= form_hidden('action', 'read_user_grade');
-        $form .= form_submit('submit', 'Read Grade');
+        $form .= form_submit('submit', 'Read Grade', $this->form_submit_class);
         $form.= form_close();
         return $form;
     }

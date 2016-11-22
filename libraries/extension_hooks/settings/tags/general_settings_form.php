@@ -17,7 +17,7 @@ $hook_method = function() {
     $table = "lti_instructor_settings";
 
     ee() -> load -> helper('form');
-    $form = form_open($this->base_url, $this->base_form_attr);
+    $form = form_open($this->base_url, $this->base_form_attr, array("class" => $this->form_class));
 
     if(!empty(static::$lti_plugins)) {
         foreach(static::$lti_plugins as $plugin) {
@@ -56,7 +56,7 @@ $hook_method = function() {
     $form .= form_checkbox(array('name' => 'enable_group_import', 'id' => 'enable_group_import', 'value' => '1', 'checked' => $enable_group_import == 1));
     $form .= form_hidden("token", $token);
     $form .= "Groups will be imported</p><br>";
-    $form .= form_submit("save", "Save Group and Plugin Settings");
+    $form .= form_submit("save", "Save Group and Plugin Settings", $this->form_submit_class);
     $form .= form_close();
 
     return $form;

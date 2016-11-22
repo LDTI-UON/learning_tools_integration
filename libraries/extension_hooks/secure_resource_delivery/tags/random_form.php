@@ -70,7 +70,7 @@ $hook_method = function() {
           Use the <u>remainder</u> button below if you wish to assign resources to remaining students.</strong></p>";
     $form .= form_open_multipart($this->base_url);
     $form .= form_hidden('do_random', 'yep');
-    $form .= form_submit("Randomly", "Assign a unique resource to each student");
+    $form .= form_submit("Randomly", "Assign a unique resource to each student", $this->form_submit_class);
     $form .= form_close();
 
     return $form;

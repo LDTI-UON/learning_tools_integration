@@ -17,7 +17,7 @@ $hook_method = function() {
           $setup[$plugin] = !empty($_POST["setup_$plugin"]);
         }
       }
-      
+
       $config['upload_path'] = ee()->config->item('lti_upload');
       $config['allowed_types'] = 'csv';
       $config['max_size'] = '5242880';
@@ -95,7 +95,7 @@ $hook_method = function() {
 
     $form .= "<br>";
     $form .= form_hidden('do_upload', 'yep');
-    $form .= form_submit("upload", "Upload");
+    $form .= form_submit("upload", "Upload", $this->form_submit_class);
     $form .= form_close();
 
     if(!empty($errors)) {

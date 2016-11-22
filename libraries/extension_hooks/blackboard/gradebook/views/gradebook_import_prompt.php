@@ -39,7 +39,7 @@ $hook_method = function($view_data) {
 
                    $form.= form_hidden('email_optout', 'posted');
 
-                   $form .= "<p>".form_radio($data).lang('opt-out')."<br>".form_radio($data1).lang('opt-in')."<br>".form_submit('submit', 'Okay')."</p>";
+                   $form .= "<p>".form_radio($data).lang('opt-out')."<br>".form_radio($data1).lang('opt-in')."<br>".form_submit('submit', 'Okay', $this->form_submit_class)."</p>";
 
                    $form .= form_close();
                    $form = str_replace('%form%', $form, $div);
@@ -102,7 +102,7 @@ $hook_method = function($view_data) {
                     $form .= "Confirm Password: ".form_password($data);
                     $form.="<br>";
                     $form .= "<span class='validation'>".validation_errors()."</span>";
-                    $form .= form_submit('submit', lang('set_outlook_password'));
+                    $form .= form_submit('submit', lang('set_outlook_password'), $this->form_submit_class);
                     $form .= form_close();
                     $form  =  str_replace('%form%', $form, $div);
 
@@ -182,7 +182,7 @@ $hook_method = function($view_data) {
 
                                     $form .= "<p><br><b>Group/Student Sync <a target=\"_blank\" href=\"$this->help_url/guides/Instructors#gradebook-syncronisation\"><img class=\"contextual_help_inline\" src=\"".URL_THIRD_THEMES."lti_peer_assessment/Help-48.png\"></a></b><br><br><em>Your Groups will automatically sync everytime you access this tool from Blackboard.</em><br><br>  Use this button to sync now.</p><br>";
                                     $form .= form_open($this->base_url, "", array("force_sync" => 1));
-                                    $form .= form_submit('syncSubmit', "Syncronise Group Members");
+                                    $form .= form_submit('syncSubmit', "Syncronise Group Members", $this->form_submit_class);
                                     $form .= form_close();
                                 }
                             } else if($auth === 1) {
