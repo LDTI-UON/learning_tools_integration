@@ -83,6 +83,76 @@ It has had rudimentary testing in Moodle, further development is desired in this
 ```
 *This tag provides a settings form for instructors to turn plugins and features on and off, it can be restricted to certain users.*
 
+#Extension Hooks for [EE3 LTI Module](https://bitbucket.org/sijpkes/ee3-lti-module/overview)#
+
+##Tags available for integration with Blackboard Learn##
+
+##User and Group Import##
+**EE Tags provided**
+```
+#!html
+{student_table}
+{upload_student_list}
+```
+*Allows manual and automated import of Users and/or Groups using CSV or with secure authentication to Blackboard Learns Gradebook JSON export REST URI.*
+
+##Blackboard Rubrics##
+**EE Tags provided**
+```
+#!html
+
+{upload_blackboard_rubric}
+{render_blackboard_rubric}
+```
+*Provides tags that allow import and display of rubric ZIP archives exported from Blackboard learn, provides tags for viewing the Rubrics.  These can be used with the Peer Assessment plugin below.*
+
+##Secure Resource Delivery##
+**EE Tags provided**
+```
+#!html
+{download_resource}
+{random_form_error}
+{random_form}
+{random_remainder_form}
+{resource_settings_form}
+{resource_table}
+{upload_student_resources_form}
+```
+*This extension provides tags to allow the setup of randomly assigned question and answer resources to students.  A link is placed in Blackboard for the question and the solution.  The solution can then be released via an adaptive release rule at the Instructor's discretion.*
+
+##Settings##
+**EE Tags Provided**
+```
+#!html
+{general_settings_form}
+```
+*This tag provides a settings form for instructors to turn plugins and features on and off, it can be restricted to certain users.*
+
+## Gradebook User and Group import ##
+*This extension runs automatically once added and will import all users from the LMS after it is provided with the Instructor's password. The password is encryped using the [Defuse encryption library](https://github.com/defuse/php-encryption)*
+### Config File ###
+The gradebook import and group functions require some URIs to Blackboards services.  These are set in the config.php file located here:
+```
+#!shell
+
+ee_install_dir/system/user/config/config.php
+```
+ 
+Paste this code into the config file. You will need to modify the paths to match your institution.
+```
+#!php
+
+
+/** LTI config items **/
+/* This is for gradebook export */
+
+// Blackboard's login page path.
+$config['blackboard_auth_path'] = 'webapps/login/';
+
+// Blackboard's getJSONData REST service query 
+$config['blackboard_gradebook_uri_query'] = '/webapps/gradebook/do/instructor/getJSONData?course_id=';
+```
+
 #EE Plugins#
 
 ###[Peer Review Module](https://bitbucket.org/sijpkes/lti-peer-assessment)###
@@ -90,6 +160,8 @@ It has had rudimentary testing in Moodle, further development is desired in this
 
 **This plugin requires all the above extension hooks to run**
 **This plugin has ONLY been tested in Blackboard Learn.**
+
+
 
 ### Contribution guidelines ###
 
