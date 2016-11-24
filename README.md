@@ -40,49 +40,6 @@ It has had rudimentary testing in Moodle, further development is desired in this
 
 *The extension_hooks directory is in a [separate repository](https://bitbucket.org/sijpkes/ee3-lti-extension-hooks/overview) as this is where most of the LMS specific code is housed.  If you would like to contribute and build specific extensions to suit other LMSs, you are more than welcome!*
 
-#Tags available for Blackboard Learn as extension hooks#
-**[Access extension hook repo](https://bitbucket.org/sijpkes/ee3-lti-extension-hooks/overview)**
-##User and Group Import##
-**EE Tags provided**
-```
-#!html
-{student_table}
-{upload_student_list}
-```
-*Allows manual and automated import of Users and/or Groups using CSV or with secure authentication to Blackboard Learns Gradebook JSON export REST URI.*
-
-##Blackboard Rubrics##
-**EE Tags provided**
-```
-#!html
-
-{upload_blackboard_rubric}
-{render_blackboard_rubric}
-```
-*Provides tags that allow import and display of rubric ZIP archives exported from Blackboard learn, provides tags for viewing the Rubrics.  These can be used with the Peer Assessment plugin below.*
-
-##Secure Resource Delivery##
-**EE Tags provided**
-```
-#!html
-{download_resource}
-{random_form_error}
-{random_form}
-{random_remainder_form}
-{resource_settings_form}
-{resource_table}
-{upload_student_resources_form}
-```
-*This extension provides tags to allow the setup of randomly assigned question and answer resources to students.  A link is placed in Blackboard for the question and the solution.  The solution can then be released via an adaptive release rule at the Instructor's discretion.*
-
-##Settings##
-**EE Tags Provided**
-```
-#!html
-{general_settings_form}
-```
-*This tag provides a settings form for instructors to turn plugins and features on and off, it can be restricted to certain users.*
-
 #Extension Hooks for EE3 LTI Module
 
 ##Tags available for integration with Blackboard Learn##
