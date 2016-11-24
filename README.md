@@ -83,7 +83,7 @@ It has had rudimentary testing in Moodle, further development is desired in this
 ```
 *This tag provides a settings form for instructors to turn plugins and features on and off, it can be restricted to certain users.*
 
-#Extension Hooks for [EE3 LTI Module](https://bitbucket.org/sijpkes/ee3-lti-module/overview)#
+#Extension Hooks for EE3 LTI Module
 
 ##Tags available for integration with Blackboard Learn##
 
