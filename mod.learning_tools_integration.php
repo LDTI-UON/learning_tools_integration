@@ -149,7 +149,10 @@ class Learning_tools_integration {
     public $input_class = 'form-control';
     public $button_class = 'btn btn-default';
     public $modal_class = 'modal fade';
+    public $submit_primary_class = "class='btn btn-primary'";
+    public $submit_warning_class = "class='btn btn-warning'";
     public $base_form_attr = array();
+
     /**
      * Constructor
      */
@@ -630,10 +633,6 @@ class Learning_tools_integration {
     }
 
     public static function outputJavascript($js_vars = array(), $name = "", $direct = FALSE) {
-        if(!$js_vars || count($js_vars) == 0) {
-          return FALSE;
-        }
-
         ob_start();
         if($direct === TRUE && $name !== "") {
         	include_once ("js/$name.js");

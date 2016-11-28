@@ -49,8 +49,22 @@ class BB_Rubrics {
 				mkdir($data_dir);
 		}
 
+		$sanitized = $this->data;
+
 		foreach($this->data as $key => $val) {
-				file_put_contents($data_dir.DIRECTORY_SEPARATOR.$key.".data", serialize($val));
+				// sanitize data
+				foreach($val as $subkey => $field) {
+							if($subkey == 'row_headers') {
+								foreach($field as $i => $header) {
+											if(is_string($header) && strlen($header) > 45) {
+													$trunced = substr($header, 0, 42);
+													$sanitized[$key][$subkey][$i] = "$trunced...";
+											}
+								}
+							}
+				}
+
+				file_put_contents($data_dir.DIRECTORY_SEPARATOR.$key.".data", serialize($sanitized[$key]));
 		}
 
     unlink($this->path.DIRECTORY_SEPARATOR.$this->filename);
@@ -376,6 +390,8 @@ class BB_Rubrics {
 			break;
       case "numericpoints":
 				if($this->init["type"] !== "NUMERIC") break;
+
+				$this->pointer['col_scores'][] = (float)$params['value'];
 				// grid start value
 				$text_node = & $this->grid_dom->createTextNode($params["value"]);
 				$this->grid_dom_index['numpointsval'][$this->current_cell_id] = & $params["value"];

@@ -22,7 +22,7 @@ $hook_method = function($view_data) {
                                                                                 "</p>%form%")
                                                               );
 
-                   $form = form_open($this->base_url, $this->lti_object->base_form_attr);
+                   $form = form_open($this->base_url, $this->base_form_attr);
 
                    $data = array(
                                           'name'        => 'optout',
