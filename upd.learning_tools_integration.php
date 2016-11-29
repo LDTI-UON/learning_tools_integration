@@ -541,7 +541,7 @@
 																				),
 													'used' => array(
 																			 'type' => 'BOOLEAN',
-																			 'default' => 'FALSE',
+																			 'default' => 0,
 																		),
 													'session_key' => array(
 																					 'type' => 'VARCHAR',
