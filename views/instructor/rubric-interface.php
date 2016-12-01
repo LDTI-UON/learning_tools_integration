@@ -1,12 +1,12 @@
-<style>
+<!-- <style>
 button#openRubric {
     margin-bottom: 2%;
     margin-left: 3%;
 }
-</style>
+</style> -->
 <div id='rubric_wrapper'>
 <?= $form ?>
-<style>
+<!-- <style>
 button#openRubric {
     margin-bottom: 2%;
     margin-left: 3%;
@@ -19,7 +19,7 @@ button#openRubric {
   overflow-x: hidden;
   overflow-y: auto;
 }
-</style>
+</style> -->
 <!-- <div id='floating' style='position: absolute; left: 2%; top: 5%; width: 995px; height: 800px; display: none'><iframe id='rubric_iframe' width='100%' height='100%' seamless='seamless'></iframe></div>-->
 
 
@@ -119,4 +119,3 @@ button#openRubric {
         });
         <?php endif; ?>
 </script>
-</div>

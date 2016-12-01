@@ -14,16 +14,8 @@ $hook_method = function($view_data) {
             if($query->num_rows() == 0) {
 
                if(!isset($_POST['email_optout'])) {
-
-
-                  $div = Utils::bootstrap_message_modal_outer(array('id' => 'sync_message',
-                                                                  'contents' => "<p>"
-                                                                                  .lang('email_opt_out').
-                                                                                "</p>%form%")
-                                                              );
-
                    $form = form_open($this->base_url, $this->base_form_attr);
-
+                   $form .= "<div class='form-group'>";
                    $data = array(
                                           'name'        => 'optout',
                                           'id'          => 'optout',
@@ -39,11 +31,17 @@ $hook_method = function($view_data) {
 
                    $form.= form_hidden('email_optout', 'posted');
 
-                   $form .= "<p>".form_radio($data).lang('opt-out')."<br>".form_radio($data1).lang('opt-in')."<br>".form_submit('submit', 'Okay', $this->form_submit_class)."</p>";
-
+                   $form .= "<div class='radio-inline'>".form_radio($data).lang('opt-out')."</div><div class='radio-inline'>".form_radio($data1).lang('opt-in')."</div>    ".form_submit('submit', 'Okay', $this->form_submit_class);
+                   $form .= "</div>";
                    $form .= form_close();
-                   $form = str_replace('%form%', $form, $div);
-                   $view_data['email_settings'] = $form;
+                   $div = Utils::bootstrap_message_modal(array('id' => 'sync_message',
+                                                            'header' => 'Blackboard Gradebook Sync',
+                                                                   'instructions' =>
+                                                                                   lang('email_opt_out'),
+                                                                                   'form' => $form
+                                                                                 )
+                                                               );
+                   $view_data['email_settings'] = $div;
                  } else {
                     ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => ee()->input->post('optout')));
                     redirect($this->base_url);
@@ -63,50 +61,46 @@ $hook_method = function($view_data) {
 
                 if (empty($form_valid) || $form_valid === FALSE) {
 
-                    $contents = Utils::bootstrap_message_modal_inner(
-                               array('header' => 'Blackboard User Sync',
-                                     'body' => lang('outlook_instructions'))
-                           );
+                    $form = form_open($this->base_url, $this->base_form_attr)."<div class='container'>";
 
-                    $div = Utils::bootstrap_message_modal_outer(array('id' => 'sync_message',
-                                                                'contents' => $contents
-                                                                )
-                                                        );
+                    $form .= "<div class='row'><div class='col-xs-10'><h2>".lang('password_title')."</h2></div></div>";
 
-                    $form = form_open($this->base_url, $this->lti_object->base_form_attr);
-
-                    $form .= "<h1>".lang('password_title')."</h1>";
-                    //$form .= form_hidden("set_password", "1");
                         $data = array(
                                       'name'        => 'password',
                                       'id'          => 'password',
                                       'value'       => '',
-                                      'maxlength'   => '20',
-                                      'size'        => '20',
-                                      'style'       => 'width: 12em',
+                                      'maxlength'   => '18',
+                                      'size'        => '12',
+                                      'class'       => 'form-control form-control-xs'
                                 );
-                      $form .= "<br>";
-                    $form .= "Password:".form_password($data);
+
+                    $form .= "<div class='row'><div class='col-xs-3'><label for='password'>Password:</label></div><div class='col-xs-4'>".form_password($data)."</div></div>";
 
                      $data = array(
                                       'name'        => 'password_conf',
                                       'id'          => 'password_conf',
                                       'value'       => '',
-                                      'maxlength'   => '20',
-                                      'size'        => '20',
-                                      'style'       => 'width: 12em',
+                                      'maxlength'   => '18',
+                                      'size'        => '12',
+                                      'class'       => 'form-control form-control-xs'
                                 );
 
 
-                    $form .= "<br>";
-                    $form .= "Confirm Password: ".form_password($data);
-                    $form.="<br>";
-                    $form .= "<span class='validation'>".validation_errors()."</span>";
+                    $form .= "<div class='row'><div class='col-xs-3'><label for='password_conf'>Confirm Password: </label></div><div class='col-xs-4'>".form_password($data)."</div></div>";
+                    $form .= "<div class='row'><div class='col-xs-10'>";
                     $form .= form_submit('submit', lang('set_outlook_password'), $this->form_submit_class);
+                    $form .= "</div></div></div>";
                     $form .= form_close();
-                    $form  =  str_replace('%form%', $form, $div);
 
-                    $view_data['email_settings'] = $form;
+
+                    $contents = Utils::bootstrap_message_modal(
+                               array('id' => 'sync_message',
+                                      'header' => 'Blackboard User Sync',
+                                     'instructions' => ''/*lang('outlook_instructions')*/,
+                                     'form' => $form)
+                           );
+
+                    $view_data['email_settings'] = $contents;
                 } else {
                     $password = ee()->input->post('password');
 
@@ -131,10 +125,6 @@ $hook_method = function($view_data) {
                                 )
                         ) && !empty($query->row()->password)) {
 
-                        $div = Utils::bootstrap_message_modal_outer(array('id' => 'sync_message',
-                                                                          'contents' => '%form%')
-                                                                  );
-
                         $decrypted = Encryption::decrypt($query->row()->password, Encryption::get_salt($this->user_id.$this->context_id));
 
                         ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id));
@@ -148,14 +138,8 @@ $hook_method = function($view_data) {
 
                         $jsstr = "";
                         $jsfn = "";
-
+                        $form = "";
                             if ($auth === 0) {
-                                $form = Utils::bootstrap_message_modal_inner(
-                                              array('header' => 'Blackboard User Sync',
-                                                    'body' => "Your Grade Centre connection to this course is active.")
-                                          );
-
-
                                 ee()->db->update('lti_instructor_credentials', array('state' => '0'));
 
                                 // groups only imported if the grade book has been changed or
@@ -174,16 +158,18 @@ $hook_method = function($view_data) {
                                     }
 
                                     if(!empty($imported['message'])) {
-                                        $form .= "<br><p>".$imported['message']."</p>";
+                                        $form .= "<p>".$imported['message']."</p>";
                                     }
                                     if(!empty($imported['errors'])) {
-                                        $form .= "<br><p style='color: yellow'><b>ATTENTION!  ".$imported['errors']."</b></p>";
+                                        $form .= "<p class='.warning'><b>ATTENTION!  ".$imported['errors']."</b></p>";
                                     }
 
-                                    $form .= "<p><br><b>Group/Student Sync <a target=\"_blank\" href=\"$this->help_url/guides/Instructors#gradebook-syncronisation\"><img class=\"contextual_help_inline\" src=\"".URL_THIRD_THEMES."lti_peer_assessment/Help-48.png\"></a></b><br><br><em>Your Groups will automatically sync everytime you access this tool from Blackboard.</em><br><br>  Use this button to sync now.</p><br>";
-                                    $form .= form_open($this->base_url, "", array("force_sync" => 1));
-                                    $form .= form_submit('syncSubmit', "Syncronise Group Members", $this->form_submit_class);
-                                    $form .= form_close();
+                                    if(!empty($imported['errors']) || !empty($imported['message'])) {
+                                        $form .= "<p><b>Group/Student Sync <a target=\"_blank\" href=\"$this->help_url/guides/Instructors#gradebook-syncronisation\">
+                                              <img class=\"contextual_help_inline\" src=\"".URL_THIRD_THEMES."lti_peer_assessment/Help-48.png\"></a></b>";
+
+                                        $form .= "<p><em>Your Groups will automatically sync everytime you access this tool from Blackboard.</em></p>";
+                                    }
                                 }
                             } else if($auth === 1) {
                                 $jsfn = 'var reloadMe = function() { location.reload(true); };';
@@ -197,11 +183,16 @@ $hook_method = function($view_data) {
                                  ee()->db->update('lti_instructor_credentials', array('password' => NULL, 'state' => '3'));
                             }
 
-                            if(isset($form)) {
-                              $form .= "<script> $jsfn $(document).ready(function() { $('#sync_message').modal('show'); }); </script>";
-                              $form = str_replace('%form%', $form, $div);
+                            if(!empty($form)) {
+                              $form .= "<script> $jsfn </script>";
 
-                              $view_data['email_settings'] = $form;
+                              $div = Utils::bootstrap_message_modal(
+                                  array('id' => 'sync_message',
+                                      'header' => 'Blackboard User Sync',
+                                      'instructions' => "Your Grade Centre connection to this course is active.",
+                                      'form' => $form));
+
+                              $view_data['email_settings'] = $div;
                             }
                         } else {
                             ee()->db->delete("lti_instructor_credentials");

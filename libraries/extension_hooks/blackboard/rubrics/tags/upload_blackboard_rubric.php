@@ -141,19 +141,19 @@ $hook_method = function() {
 
   $attr = array('class' => $this->form_class);
   $form = form_open_multipart($this->base_url, $attr);
-  $form .= form_label("Rubric ZIP file:", "userfile");
+  $form .= form_label("Rubric ZIP file:", "userfile", "for='userfile'");
   $form .= form_hidden("do_upload_rubric", "1");
-  $form .= form_upload('userfile', 'userfile');
+  $form .= form_upload('userfile', 'userfile', "class='form-control'");
   $form .= form_submit("Upload","Upload",$this->form_submit_class);
   $form .= "<p> $errors $msg </p>";
   $form .= form_close();
-  $form .= "<br><br>";
+  //$form .= "<br><br>";
   $form .= form_open_multipart($this->base_url);
   $form .= form_label("Available Rubrics:  ", "rubric_dd");
 
-  $form .= form_dropdown("rubrics", $options, $init_rubric, "id='rubric_dd'");
+  $form .= form_dropdown("rubrics", $options, $init_rubric, "id='rubric_dd' class='form-control'");
 
-  $button = array('name' => 'preview', 'id' => 'preview_btn', 'value' => 'true', 'content' => 'Preview', 'class' =>$this->button_class);
+  $button = array('name' => 'preview', 'id' => 'preview_btn', 'value' => 'true', 'content' => 'Preview', 'class' => $this->button_class.' form-control');
   $form .= form_button($button);
 
   $checkbox = array(
@@ -164,14 +164,15 @@ $hook_method = function() {
       'style'       => 'margin:10px',
       );
 
-  $form .= BR.form_checkbox($checkbox);
-  $form .= form_label(' show rubric cell scores.', 'show_scores', array('for' => 'show_scores'));
+    $form .= form_label(' show rubric cell scores.', 'show_scores', array('for' => 'show_scores'));
+  $form .= form_checkbox($checkbox, array('class' => 'form-control'));
+
 
   $form .= "<p>";
-  $form .= form_label('Attach this rubric:  ', 'attach', array('for' => 'attach'));
+//  $form .= form_label('Attach this rubric:  ', 'attach', array('for' => 'attach'));
 
-  $form .= form_button('attach', 'Attach', "id='attach' class='$this->button_class'");
-    $form .= "<img id='rub_loader' src='".URL_THIRD_THEMES."learning_tools_integration/img/loader.gif' style='display:none'/><span id='loader_msg'></span>";
+  $form .= form_button('Attach Rubric to Assessment', 'attach', "id='attach' class='$this->button_class form-control'");
+  $form .= "<img id='rub_loader' src='".URL_THIRD_THEMES."learning_tools_integration/img/loader.gif' style='display:none'/><span id='loader_msg'></span>";
   $form .= "</p>";
   $form .= form_close();
 

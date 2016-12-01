@@ -77,7 +77,7 @@ $hook_method = function () {
 
     $total =   ee() -> db -> count_all_results();
 
-    ee() -> db -> select("members.member_id, members.screen_name, members.username, members.email, lti_member_resources.display_name $groups");
+    ee() -> db -> select("members.member_id, members.screen_name, members.username, members.email, lti_member_contexts.last_launched_on, lti_member_resources.display_name $groups");
     ee() -> db -> join("lti_member_contexts", "members.member_id = lti_member_contexts.member_id AND exp_lti_member_contexts.context_id = '$this->context_id'
                     AND lti_member_contexts.tool_consumer_instance_id = '$this->tool_consumer_instance_id' AND lti_member_contexts.is_instructor = '0'");
 
@@ -101,7 +101,8 @@ $hook_method = function () {
         $vars['students'][$row['member_id']]['screen_name'] = $row['screen_name'];
         $vars['students'][$row['member_id']]['username'] = $row['username'];
         $vars['students'][$row['member_id']]['email'] = $row['email'];
-        $vars['students'][$row['member_id']]['display_name'] = $row['display_name'];
+        $vars['students'][$row['member_id']]['file_display_name'] = $row['display_name'];
+        $vars['students'][$row['member_id']]['last_launched_on'] = $row['last_launched_on'];
         if (!empty($groups)) {
             $vars['students'][$row['member_id']]['group_no'] = $row['group_no'];
             $vars['students'][$row['member_id']]['group_name'] = $row['group_name'];
@@ -134,7 +135,8 @@ $ppage_output .= "&nbsp;".lang('search_students') . ":&nbsp;".form_input(array('
 $ppage_output .= form_close();
 $ppage_output .= "<script type='text/javascript'>".file_get_contents($this->mod_path.'/js/input_filters.js')."</script>";
 $vars['per_page'] = $ppage_output;
-
+$vars['table_class'] = $this->table_class;
+$vars['table_wrapper_class'] = $this->table_wrapper_class;
 return ee() -> load -> view('instructor/student-table', $vars, TRUE);
 };
 /*

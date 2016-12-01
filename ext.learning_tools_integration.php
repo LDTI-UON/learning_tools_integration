@@ -71,7 +71,7 @@ class Learning_tools_integration_ext {
 
 	private $debug = TRUE;
 
-	public static $base_segment;
+	public $base_segment;
 
 	private $LTI_ACT_services;
 	/**
@@ -216,33 +216,15 @@ class Learning_tools_integration_ext {
 
 		if(!ee()->input->post("segment") && !isset($_GET['s']) && !isset($_GET['ltiACT'])) { // if not an ajax or download request
 			$segs = ee()->uri->segment_array();
-
-			$myseg = array_pop($segs);
-
+			$myseg = $segs[1];
 			if(strlen($myseg) == 0) {
 						return FALSE;
 			}
 
-			$result = ee()->db->get_where('blti_keys', array('url_segment' => $myseg));
-			// may be a sub-page
+			$result = ee()->db->get_where('blti_keys', array('url_segment' => $segs[1]));
+		
 			if($result->num_rows() == 0) {
-
-				$set = implode("|", $segs);
-				$set = "'$set'";
-
-				if(strlen($set) == 2) {
-						return FALSE;
-				}
-
-				ee()->db->where("url_segment REGEXP ($set)");
-				$result = ee()->db->get('blti_keys');
-
-				if($result->num_rows() == 0) {
-					// not a registered LTI launch.
 					return FALSE;
-				} else {
-					$myseg = $result->row()->url_segment;
-				}
 			}
 		} else {
 			if(ee()->input->post("segment")) {
@@ -271,7 +253,8 @@ class Learning_tools_integration_ext {
 			}
 		}
 
-		static::$base_segment = $myseg;
+		$this->base_segment = $myseg;
+		ee()->config->_global_vars['base_segment'] = $myseg;
 
 		$this->session_domain = $_SERVER['HTTP_HOST'];
 		if(isset( $_SERVER['HTTP_REFERER'])) {
@@ -426,11 +409,11 @@ class Learning_tools_integration_ext {
 
 		require_once ('ims-blti/blti.php');
 		$context = new BLTI( array('key_column' => 'oauth_consumer_key', 'secret_column' => 'secret',
-				'context_column' => 'context_id', 'url_segment_column' => 'url_segment', 'force_ssl' => $this->use_SSL, 'url_segment' => static::$base_segment, 'ee_uri' => $ee_uri),
+				'context_column' => 'context_id', 'url_segment_column' => 'url_segment', 'force_ssl' => $this->use_SSL, 'url_segment' => $this->base_segment, 'ee_uri' => $ee_uri),
 				false, false);
 
 		if (!$context -> valid) {
-			echo "<p>" . lang('error_could_not_establish_context') . "&nbsp;&nbsp;".$context -> message . " <br>Note: check the segment you have added to the learning tools table. The segment I'm at is: <b>".static::$base_segment."</b></p>\n";
+			echo "<p>" . lang('error_could_not_establish_context') . "&nbsp;&nbsp;".$context -> message . " <br>Note: check the segment you have added to the learning tools table. The segment I'm at is: <b>".$this->base_segment."</b></p>\n";
 
 			if($this->debug) {
 				print "<pre>";
@@ -579,7 +562,7 @@ class Learning_tools_integration_ext {
 				 );
 
 		// persist base segment for future tag calls
-		static::$session_info = array_merge(static::$session_info , array('base_segment' => static::$base_segment));
+		static::$session_info = array_merge(static::$session_info , array('base_segment' => $this->base_segment));
 
 		$this -> serializeSession(static::$session_info, $id);
 

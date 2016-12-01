@@ -144,15 +144,16 @@ class Learning_tools_integration {
 
     private $tmpl_value_tags;
 
-    public $form_class = 'form-inline';
+    public $form_class = 'form-horizontal';
     public $form_submit_class = "class='btn btn-default'";
     public $input_class = 'form-control';
     public $button_class = 'btn btn-default';
     public $modal_class = 'modal fade';
     public $submit_primary_class = "class='btn btn-primary'";
     public $submit_warning_class = "class='btn btn-warning'";
-    public $base_form_attr = array();
-
+    public $base_form_attr = array("class" => 'form-horizontal', "method" => 'POST');
+    private $table_class = 'table table-striped table-condensed';
+    private $table_wrapper_class = 'table table-responsive';
     /**
      * Constructor
      */
@@ -185,7 +186,7 @@ class Learning_tools_integration {
            $this->form_submit_class = "class='$fs'";
        }
 
-       $this->base_form_attr = array("class" => $this->form_class);
+       $this->base_form_attr = array("class" => $this->form_class, "method" => 'POST');
 	}
 
 
@@ -382,7 +383,7 @@ class Learning_tools_integration {
             $this->debug = TRUE;
         }
 
-        $this -> base_segment = Learning_tools_integration_ext::$base_segment;
+        $this -> base_segment = ee()->config->_global_vars['base_segment'];
 
         if(ee()->TMPL) {
               $val = ee() -> TMPL -> fetch_param('direct_tags_only');

@@ -74,9 +74,9 @@ $hook_method = function() {
     $plugins_active = $settings["plugins_active"];
 
     $form .= "<span id='manualUploadInfo'><p>".lang('upload_student_list')."</p><br><p><strong>".lang('upload_tip')."</strong></p>";
-    $form .= "<p>".form_open_multipart($this->base_url).BR;
-    $form .= form_upload('userfile', 'userfile').BR;
-    $form .= form_hidden('group_students', $enable_group_import ? '1' : '0')."</p>";
+    $form .= form_open_multipart($this->base_url, $this->base_form_attr);
+    $form .= form_upload('userfile', 'userfile', "class='form-control'");
+    $form .= form_hidden('group_students', $enable_group_import ? '1' : '0');
     //$form .= " include user groups columns<br></p>";
 
     if(!empty(static::$lti_plugins)) {
@@ -93,7 +93,7 @@ $hook_method = function() {
         }
     }
 
-    $form .= "<br>";
+    //$form .= "<br>";
     $form .= form_hidden('do_upload', 'yep');
     $form .= form_submit("upload", "Upload", $this->form_submit_class);
     $form .= form_close();

@@ -52,17 +52,23 @@ static function getRandomUserAgent() {
     return $userAgents[$random];
 }
 
-static function bootstrap_message_modal_inner($args) {
-    $str = "<div class='modal-header'>$args[header]</div><div class='modal-body'><p>$args[body]</p></div><div class=\"modal-footer\">
-    <button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Close</button></div>";
-
-    return $str;
-}
-
-static function bootstrap_message_modal_outer($args) {
+static function bootstrap_message_modal($args) {
     $str = "<div id=\"$args[id]\" class=\"modal fade\">
-      <div class='modal-dialog'><div class='modal-content'>$args[contents]</div></div></div>";
+            <div class='modal-header'>$args[header]</div>
+            <div class='modal-dialog'><div class='modal-content'>
+            <div class='modal-body'><p>$args[instructions]$args[form]</p></div>
+            <div class=\"modal-footer\">
+            <button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">Close</button></div>
+            </div></div></div>
+            <script> $(document).ready(function() { $('#$args[id]').modal('show'); }); </script>";
 
     return $str;
 }
+
+static function add_class_to_cell($val, $class) {
+    if(empty($class)) return $val;
+
+    return array('data' => $val, 'class' => $class);
+}
+
 }
