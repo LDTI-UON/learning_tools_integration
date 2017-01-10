@@ -40,8 +40,10 @@ It has had rudimentary testing in Moodle, further development is desired in this
 
 *The extension_hooks directory is in a [separate repository](https://bitbucket.org/sijpkes/ee3-lti-extension-hooks/overview) as this is where most of the LMS specific code is housed.  If you would like to contribute and build specific extensions to suit other LMSs, you are more than welcome!*
 
-#Tags available for Blackboard Learn as extension hooks#
-**[Access extension hook repo](https://bitbucket.org/sijpkes/ee3-lti-extension-hooks/overview)**
+#Extension Hooks for EE3 LTI Module
+
+##Tags available for integration with Blackboard Learn##
+
 ##User and Group Import##
 **EE Tags provided**
 ```
@@ -83,6 +85,31 @@ It has had rudimentary testing in Moodle, further development is desired in this
 ```
 *This tag provides a settings form for instructors to turn plugins and features on and off, it can be restricted to certain users.*
 
+## Gradebook User and Group import ##
+*This extension runs automatically once added and will import all users from the LMS after it is provided with the Instructor's password. The password is encryped using the [Defuse encryption library](https://github.com/defuse/php-encryption)*
+### Config File ###
+The gradebook import and group functions require some URIs to Blackboards services.  These are set in the config.php file located here:
+```
+#!shell
+
+ee_install_dir/system/user/config/config.php
+```
+ 
+Paste this code into the config file. You will need to modify the paths to match your institution.
+```
+#!php
+
+
+/** LTI config items **/
+/* This is for gradebook export */
+
+// Blackboard's login page path.
+$config['blackboard_auth_path'] = 'webapps/login/';
+
+// Blackboard's getJSONData REST service query 
+$config['blackboard_gradebook_uri_query'] = '/webapps/gradebook/do/instructor/getJSONData?course_id=';
+```
+
 #EE Plugins#
 
 ###[Peer Review Module](https://bitbucket.org/sijpkes/lti-peer-assessment)###
@@ -90,6 +117,8 @@ It has had rudimentary testing in Moodle, further development is desired in this
 
 **This plugin requires all the above extension hooks to run**
 **This plugin has ONLY been tested in Blackboard Learn.**
+
+
 
 ### Contribution guidelines ###
 
