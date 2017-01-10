@@ -216,21 +216,24 @@ class Learning_tools_integration_ext {
 
 		if(!ee()->input->post("segment") && !isset($_GET['s']) && !isset($_GET['ltiACT'])) { // if not an ajax or download request
 			$segs = ee()->uri->segment_array();
+			if(empty($segs[1])) return FALSE;
+
 			$myseg = $segs[1];
+
 			if(strlen($myseg) == 0) {
 						return FALSE;
 			}
 
 			$result = ee()->db->get_where('blti_keys', array('url_segment' => $segs[1]));
-		
+
 			if($result->num_rows() == 0) {
 					return FALSE;
 			}
 		} else {
 			if(ee()->input->post("segment")) {
-				$myseg = ee()->input->post("segment");
+					$myseg = ee()->input->post("segment");
 			} else if(isset($_GET['s'])) {
-				$myseg = ee()->input->get("s");
+					$myseg = ee()->input->get("s");
 			} else if(isset($_GET['ltiACT'])) {
 				// only one bypass action can be called at a time
 					$ltiACT = ee()->security->xss_clean($_GET['ltiACT']);
