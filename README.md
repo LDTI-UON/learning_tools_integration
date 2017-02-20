@@ -1,7 +1,7 @@
 # README #
 
 ### LTI Module for ExpressionEngine(EE) 3 ###
-*Tested with up to EE 3.2.4*
+*Tested with up to EE 3.2.6*
 
 #Version 3.2.2#
 
@@ -94,7 +94,7 @@ The gradebook import and group functions require some URIs to Blackboards servic
 
 ee_install_dir/system/user/config/config.php
 ```
- 
+
 Paste this code into the config file. You will need to modify the paths to match your institution.
 ```
 #!php
@@ -106,7 +106,7 @@ Paste this code into the config file. You will need to modify the paths to match
 // Blackboard's login page path.
 $config['blackboard_auth_path'] = 'webapps/login/';
 
-// Blackboard's getJSONData REST service query 
+// Blackboard's getJSONData REST service query
 $config['blackboard_gradebook_uri_query'] = '/webapps/gradebook/do/instructor/getJSONData?course_id=';
 ```
 

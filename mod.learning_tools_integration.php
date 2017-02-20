@@ -346,7 +346,7 @@ class Learning_tools_integration {
 
   public static function get_instance() {
         if(static::$instance === NULL) {
-            static::$instance =& $this;
+            static::$instance = & $this;
         }
 
      return static::$instance;

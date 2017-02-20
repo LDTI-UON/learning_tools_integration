@@ -71,6 +71,8 @@ class Learning_tools_integration_ext {
 
 	private $debug = TRUE;
 
+	public $lti_error = NULL; //for error tag in templates
+
 	public $base_segment;
 
 	private $LTI_ACT_services;
@@ -83,7 +85,7 @@ class Learning_tools_integration_ext {
 	{
 			$this->settings = $settings;
       ee()->config->set_item('disable_csrf_protection', 'y');
-
+			ee()->lang->loadfile('lti_peer_assessment');
 
 			// comment these out for production
 			/*if(isset($_GET['ltiACT'])) {
@@ -410,19 +412,46 @@ class Learning_tools_integration_ext {
     	ee()->load->helper('url');
 		$ee_uri = uri_string();
 
-		require_once ('ims-blti/blti.php');
-		$context = new BLTI( array('key_column' => 'oauth_consumer_key', 'secret_column' => 'secret',
-				'context_column' => 'context_id', 'url_segment_column' => 'url_segment', 'force_ssl' => $this->use_SSL, 'url_segment' => $this->base_segment, 'ee_uri' => $ee_uri),
-				false, false);
+		function error_call($e, &$me) {
+			$str = strtolower($e);
+			$error = "";
 
-		if (!$context -> valid) {
-			echo "<p>" . lang('error_could_not_establish_context') . "&nbsp;&nbsp;".$context -> message . " <br>Note: check the segment you have added to the learning tools table. The segment I'm at is: <b>".$this->base_segment."</b></p>\n";
 
-			if($this->debug) {
-				print "<pre>";
-				print_r ($_REQUEST);
+			if(stripos($str, "expired timestamp") !== FALSE) {
+						$error = lang('session_expired');
+			} else {
+						if(is_a($e, "Exception")) {
+								$error = "<p>".$e->getMessage()."</p><pre>".$e->getTraceAsString()."</pre>";
+						}
 			}
-			return false;
+
+			ee()->output->set_status_header(403);
+			ee()->output->set_output($error);
+			ee()->output->_display();
+
+			return $error;
+		}
+
+		require_once ('ims-blti/blti.php');
+
+		try {
+				$context = new BLTI( array('key_column' => 'oauth_consumer_key', 'secret_column' => 'secret',
+						'context_column' => 'context_id', 'url_segment_column' => 'url_segment', 'force_ssl' => $this->use_SSL, 'url_segment' => $this->base_segment, 'ee_uri' => $ee_uri),
+						false, false);
+
+				if (!$context -> valid) {
+							$error = error_call($context->message, $this);
+					//		$this->lti_error = $error;
+					//		ee()->config->_global_vars['lti_has_error'] = $this->lti_error;
+
+							exit;
+				}
+		} catch (OAuthException $e) {
+						$error = error_call($e, $this);
+						//$this->lti_error = $error;
+						//ee()->config->_global_vars['lti_has_error'] = $this->lti_error;
+
+						exit;
 		}
 
 		//$userKey = $context -> getUserKey();
