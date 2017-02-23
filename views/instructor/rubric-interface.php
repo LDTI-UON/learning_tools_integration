@@ -1,8 +1,10 @@
+<?= $form ?> // jshint ignore:line
+
 <script type="text/javascript">
     window.flashRow = function(input_id) {
         // placeholder function to allow instructor preview rubric to exit
         return;
-    }
+    };
 
 		var session_expired = function(data) {
 			if( $(data).find('.session_expired').length > 0 ) {
@@ -14,7 +16,7 @@
 			}
 
 			return false;
-		}
+		};
 
 		var populate_rubric = function(id) {
 
@@ -27,12 +29,13 @@
             }
       });
 
-		}
+		};
 
     var id;
-    var show_scores_array = <?= $show_scores ?>;
+    var show_scores_array =
+        <?= $show_scores ?>; // jshint ignore:line
 
-    $("#rubric_wrapper").on("change", "select[name=\'rubrics\']", function(e) {
+$(document).on("change", "select[name=\'rubrics\']", function(e) {
            id = $(e.target).find("option:selected").val();
            var show_scores = show_scores_array[id];
             if(id != "del") {
@@ -58,7 +61,7 @@
 
             $("#rub_loader").show();
             $("#loader_msg").text("");
-            $.get("<?= $base_url ?>?rubric_id="+id, function(data) {
+            $.get("<?= $base_url ?>?rubric_id="+id, function(data) { // jshint ignore:line
                 $("#rub_loader").hide();
                 $("#loader_msg").text(" completed.");
                    session_expired(data);
@@ -80,17 +83,16 @@
 
                   session_expired(data);
           });
+});
 
-        });
+$("select[name=\'rubrics\']").trigger("change");
 
-        $("select[name=\'rubrics\']").trigger("change");
-
-        <?php if ($disable_instructor_score_setting !== FALSE): ?>
-        $(document).ready(function() {
-            $("#total_score").prop('disabled', true).after("<em id=scoreOverride>(Overriden by rubric total score)</em>");
-            var raw = $("select[name=\'rubrics\']").find("option:selected").val();
-            var selected_score = raw.split('|')[1];
-            $("#total_score").after("<input type='hidden' name='total_score' value='"+selected_score+"'>");
-        });
-        <?php endif; ?>
+<?php if ($disable_instructor_score_setting !== FALSE): ?> // jshint ignore:line
+$(document).ready(function() {
+    $("#total_score").prop('disabled', true).after("<em id=scoreOverride>(Overriden by rubric total score)</em>");
+    var raw = $("select[name=\'rubrics\']").find("option:selected").val();
+    var selected_score = raw.split('|')[1];
+    $("#total_score").after("<input type='hidden' name='total_score' value='"+selected_score+"'>");
+});
+<?php endif; ?> // jshint ignore:line
 </script>

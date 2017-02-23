@@ -424,7 +424,7 @@ class Learning_tools_integration {
         $this -> group_id = empty($group_id) ? $this -> group_id : $group_id;
 
         ee()->load->helper('url');
-        $this -> base_url .=  site_url() . DIRECTORY_SEPARATOR . $this -> base_segment; //.$this->get_query_string();
+        $this -> base_url =  site_url() . DIRECTORY_SEPARATOR . $this -> base_segment; //.$this->get_query_string();
 
         $this -> context_vars[] = $this -> lti_context();
 
@@ -616,6 +616,7 @@ class Learning_tools_integration {
         $result =     ee() -> db -> get_where('actions', array('class' => $this -> mod_class, 'method' => 'read_user_grade'));
         $actid = $result -> row('action_id');
         $url = site_url() . "?ACT=$actid";
+
         return $url;
     }
 

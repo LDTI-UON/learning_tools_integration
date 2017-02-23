@@ -68,30 +68,30 @@ $(document).ready(function () {
 									el.	prop("value", "");
 						}
 				}
-		}
+		};
 
         var syncInputs = function(o) {
-
+						var i, score, el;
 
             if($(".active[role='tab']").attr("id") ==	 "gridViewTab") {
-												var i = $(o).closest(".rubricTable").find(".grade_input").index(o);
-                        var score = $(o).val();
-												var el = $(".rubricGradingTable .grade_input:eq("+i+"), .rubricGradingTable .rubricCellRadio:eq("+i+")");
+												i = $(o).closest(".rubricTable").find(".grade_input").index(o);
+                        score = $(o).val();
+												el = $(".rubricGradingTable .grade_input:eq("+i+"), .rubricGradingTable .rubricCellRadio:eq("+i+")");
 											//	console.log("Score: "+score);
 												checkInputs(o, el, score);
             } else {
 										var list = $(o).closest(".rubricGradingList").find(".rubricCellRadio");
-										var i;
+										//var i;
 										if(list.length > 0) {
 												i = $(list).index(o);
 										} else {
 												i = $(o).closest(".rubricGradingList").find(".grade_input").index(o);
 										}
-                        var score = $(o).val();
-												var el = $(".rubricTable .grade_input:eq("+i+")");
+                        score = $(o).val();
+												el = $(".rubricTable .grade_input:eq("+i+")");
                       	checkInputs(o, el, score);
             }
-        }
+        };
 
 		$("#listViewTab > a").click(function(e) {
 
@@ -113,7 +113,7 @@ $(document).ready(function () {
 			$("div[aria-labelledby='gridViewTab']").show();
 			$("div[aria-labelledby='listViewTab']").hide();
 
-			$(this).parent().attr({'aria-selected':'true', 'tabindex': '0'}).addClass('active');;
+			$(this).parent().attr({'aria-selected':'true', 'tabindex': '0'}).addClass('active');
 			$("#listViewTab").attr({'aria-selected':'false', 'tabindex': '-1'}).removeClass('active');
 
         //  syncInputs();
@@ -176,9 +176,6 @@ $(document).ready(function () {
 
 			$("#score_"+input_id, pdoc).closest('tr').find('td');
 
-		//	console.log($("#score_"+input_id, pdoc).closest('tr').find('td'));
-		//	return;
-
 			var total = 0;
 			var model = { rows: [] }; //, colLabels : [], rowLabels: [], maxValue: '0' };
 
@@ -206,6 +203,8 @@ $(document).ready(function () {
 			$("#score_"+input_id, pdoc).val(total);
 			$("#rubric_"+input_id, pdoc).val(JSON.stringify(model));
 
+			$("#assessments").trigger('updateTableState');
+
 			window.opener.flashRow(input_id);
 			window.close();
 		});
@@ -214,7 +213,7 @@ $(document).ready(function () {
 			var subject = encodeURIComponent("error in script");
 			var body = encodeURIComponent("This is the data passed: \n\n"+JSON.stringify(model));
 
-			document.write("There was an error processing your form, try returning to the course and clicking the link again, if this still does not work, please report this incident to the developer at <a href='mailto:paul.sijpkes@newcastle.edu.au?subject="+subject+"&body="+body+"'>The BOLD Team at UoN</a>.");
+			$(document).html("<p>There was an error processing your form, try returning to the course and clicking the link again, if this still does not work, please report this incident to the developer at <a href='mailto:paul.sijpkes@newcastle.edu.au?subject="+subject+"&body="+body+"'>The BOLD Team at UoN</a>.</p>");
 			return;
-		}
+		};
 });
