@@ -171,7 +171,7 @@ $(document).ready(function () {
 
 		$("#rub_onExitClose").on("click", ".button-1", function(e) {
 			e.preventDefault();
-			var pdoc = window.opener.document;
+			var pdoc = document;
 			var input_id = $("#rub_onExitClose").data("input_id");
 
 			$("#score_"+input_id, pdoc).closest('tr').find('td');
@@ -203,10 +203,11 @@ $(document).ready(function () {
 			$("#score_"+input_id, pdoc).val(total);
 			$("#rubric_"+input_id, pdoc).val(JSON.stringify(model));
 
-			$("#assessments").trigger('updateTableState');
+			$(document).trigger('updateTableState');
 
-			window.opener.flashRow(input_id);
-			window.close();
+			flashRow(input_id);
+
+			$("#rubric_container").hide();
 		});
 
 		var error_track = function(model) {
