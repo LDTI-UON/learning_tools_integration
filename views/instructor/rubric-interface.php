@@ -1,4 +1,4 @@
-<?= $form ?> // jshint ignore:line
+<?= $form ?> <!-- // jshint ignore:line -->
 
 <script type="text/javascript">
     window.flashRow = function(input_id) {
@@ -85,7 +85,7 @@ $(document).on("change", "select[name=\'rubrics\']", function(e) {
           });
 });
 
-$("select[name=\'rubrics\']").trigger("change");
+//$("select[name=\'rubrics\']").trigger("change");
 
 <?php if ($disable_instructor_score_setting !== FALSE): ?> // jshint ignore:line
 $(document).ready(function() {

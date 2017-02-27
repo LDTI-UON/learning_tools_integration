@@ -390,7 +390,7 @@ class Learning_tools_integration_mcp {
     }
     /* from Justin Richer - http://php.net/manual/en/function.rand.php*/
     private function randomString() {
-        $arr = str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*'); // get all the characters into an array
+        $arr = str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'); // get all the characters into an array
         shuffle($arr); // randomize the array
         $arr = array_slice($arr, 0, 6); // get the first six (random) characters out
         $str = implode('', $arr); // smush them back into a string

@@ -274,6 +274,7 @@ class Learning_tools_integration_ext {
 		}
 
 		if(!$this->use_SSL) {
+			die("There's not much point in using LTI on a non-secure connection.");
 				//echo "<div style='padding: 1em; background-color: #dcc; color: #fff; width: 100%; height: 5em'>Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.</div>";
 		}
 
@@ -440,18 +441,20 @@ class Learning_tools_integration_ext {
 						false, false);
 
 				if (!$context -> valid) {
-							$error = error_call($context->message, $this);
-					//		$this->lti_error = $error;
-					//		ee()->config->_global_vars['lti_has_error'] = $this->lti_error;
+						$error = error_call($context->message, $this);
 
-							exit;
+						$this->lti_error = $error;
+						ee()->config->_global_vars['lti_has_error'] = $this->lti_error;
+
+							//exit;
 				}
 		} catch (OAuthException $e) {
 						$error = error_call($e, $this);
-						//$this->lti_error = $error;
-						//ee()->config->_global_vars['lti_has_error'] = $this->lti_error;
 
-						exit;
+						$this->lti_error = $error;
+						ee()->config->_global_vars['lti_has_error'] = $this->lti_error;
+
+						//exit;
 		}
 
 		//$userKey = $context -> getUserKey();
@@ -494,6 +497,16 @@ class Learning_tools_integration_ext {
 		$this -> user_short_name = $context -> getUserShortName();
 		$this -> resource_title = $context -> getResourceTitle();
 		$this -> resource_link_description = htmlspecialchars($context -> getResourceLinkDescription());
+
+		if(empty($context->getUserKey())) {
+			if(!$context->complete) {
+				if(isset($context->message)) {
+						throw new Exception($context->message);
+				} else {
+						throw new Exception("invalid LTI request");
+				}
+			}
+		}
 
 		$_tkey = explode(":", $context->getUserKey());
 		$this->user_id = $_tkey[1];
