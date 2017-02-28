@@ -26,7 +26,8 @@
 				 * @link http://sijpkes.site11.com
 				 */
 				class Learning_tools_integration_upd {
-					public $version = '3.2.3';
+					/*version line (do not delete the line below, auto updated on build) */
+					var $version = '3.2.4';//#build version#
 					public $mod_class = 'Learning_tools_integration';
 					private $EE;
 

@@ -21,12 +21,15 @@
 		var populate_rubric = function(id) {
 
       $.post('<?= $base_url ?>/rubric', {'no_reload': '1', 'id' : id}, function(data) {
-            if(!session_expired(data)) {
-                var doc = window.open().document;
-                doc.open();
-                doc.write(data);
-                doc.close();
+        if(!session_expired(data)) {
+            if($("#rubric_container").length === 0) {
+                  $("body").append("<div id=rubric_container></div");
             }
+
+            $("#rubric_container").html(data).show();
+
+            $('div#floating').show();
+        }
       });
 
 		};
