@@ -8,7 +8,7 @@ class Learning_tools_integration_ext {
 
 	var $name       = 'Learning Tools Integration';
 	/*version line (do not delete the line below, auto updated on build) */
-	var $version 			= '3.2.37-dev';//#build version#
+	var $version 			= '3.2.38-dev';//#build version#
 
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
@@ -106,6 +106,8 @@ class Learning_tools_integration_ext {
 			include_once($mod_path."libraries/extension_hooks/ACT_params.php");
 
 			$this->LTI_ACT_services = $LTI_ACT_services;
+
+			ee()->load->library('logger');
 	}
 
 
@@ -276,8 +278,7 @@ class Learning_tools_integration_ext {
 		}
 
 		if(!$this->use_SSL) {
-			die("There's not much point in using LTI on a non-secure connection.");
-				//echo "<div style='padding: 1em; background-color: #dcc; color: #fff; width: 100%; height: 5em'>Your VLE's protocol is insecure HTTP, please get a secure SSL (HTTPS) connection.</div>";
+			ee()->logger->developer("WARNING: LTI is being used on a non-secure connection.\n Always use LTI on SSL only in production.\n");
 		}
 
 		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['oauth_consumer_key']) && isset($_REQUEST['context_id']);
