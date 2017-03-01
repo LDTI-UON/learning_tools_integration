@@ -6,4 +6,5 @@
 .ftpconfig
 /cache/
 .project
-save-commands.json
+.on-save.json
+themes/

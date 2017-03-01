@@ -34,14 +34,13 @@ $hook_method = function($view_data) {
                    $form .= "<div class='radio-inline'>".form_radio($data).lang('opt-out')."</div><div class='radio-inline'>".form_radio($data1).lang('opt-in')."</div>    ".form_submit('submit', 'Okay', $this->form_submit_class);
                    $form .= "</div>";
                    $form .= form_close();
-                   $div = Utils::bootstrap_message_modal(array('id' => 'sync_message',
+                   $modal = array('id' => 'sync_message',
                                                             'header' => 'Blackboard Gradebook Sync',
                                                                    'instructions' =>
                                                                                    lang('email_opt_out'),
                                                                                    'form' => $form
-                                                                                 )
-                                                               );
-                   $view_data['email_settings'] = $div;
+                                                                                 );
+                   $view_data['email_settings'] = $modal;
                  } else {
                     ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => ee()->input->post('optout')));
                     redirect($this->base_url);
@@ -186,13 +185,13 @@ $hook_method = function($view_data) {
                             if(!empty($form)) {
                               $form .= "<script> $jsfn </script>";
 
-                              $div = Utils::bootstrap_message_modal(
+                              $modal =
                                   array('id' => 'sync_message',
                                       'header' => 'Blackboard User Sync',
                                       'instructions' => "Your Grade Centre connection to this course is active.",
-                                      'form' => $form));
+                                      'form' => $form);
 
-                              $view_data['email_settings'] = $div;
+                              $view_data['email_settings'] = $modal;
                             }
                         } else {
                             ee()->db->delete("lti_instructor_credentials");
