@@ -9,7 +9,7 @@
 		var session_expired = function(data) {
 			if( $(data).find('.session_expired').length > 0 ) {
 
-				if(confirm('Your session has expired.\\n Please return to the course and click the link again'))
+				if(bootbox.confirm('Your session has expired.\\n Please return to the course and click the link again'))
 				{
 						window.history(-1);
 				}

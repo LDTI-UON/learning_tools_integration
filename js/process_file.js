@@ -13,7 +13,7 @@ $(document).ready(function() {
                     	$(e.target).remove();
                         $("#poutput").html(data.feedback);
                     } else {
-                        alert(status);
+                        bootbox.alert(status);
                     }
                 }, "json");
     });

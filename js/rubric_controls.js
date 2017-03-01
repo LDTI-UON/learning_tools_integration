@@ -143,7 +143,7 @@ $(document).ready(function () {
 
             if(typeof range !== 'undefined') {
 								if(isNaN(range.min) || isNaN(range.max)) {
-											alert("Error: numeric range not set "+JSON.stringify(range));
+											bootbox.alert("Error: numeric range not set "+JSON.stringify(range));
 								}
 
                 if(!isNaN(this.value)) {

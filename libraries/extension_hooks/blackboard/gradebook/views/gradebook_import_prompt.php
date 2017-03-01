@@ -6,7 +6,7 @@ use LTI\ExtensionHooks\Utils;
 
 $hook_method = function($view_data) {
         ee() -> load -> helper('url');
-            $view_data['email_settings'] = "";
+            $view_data['settings_modal'] = "";
 
             $password_req = FALSE;
             $query = ee()->db->get_where('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id));
@@ -40,7 +40,7 @@ $hook_method = function($view_data) {
                                                                                    lang('email_opt_out'),
                                                                                    'form' => $form
                                                                                  );
-                   $view_data['email_settings'] = $modal;
+                   $view_data['settings_modal'] = $modal;
                  } else {
                     ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => ee()->input->post('optout')));
                     redirect($this->base_url);
@@ -99,7 +99,7 @@ $hook_method = function($view_data) {
                                      'form' => $form)
                            );
 
-                    $view_data['email_settings'] = $contents;
+                    $view_data['settings_modal'] = $contents;
                 } else {
                     $password = ee()->input->post('password');
 
@@ -191,7 +191,7 @@ $hook_method = function($view_data) {
                                       'instructions' => "Your Grade Centre connection to this course is active.",
                                       'form' => $form);
 
-                              $view_data['email_settings'] = $modal;
+                              $view_data['settings_modal'] = $modal;
                             }
                         } else {
                             ee()->db->delete("lti_instructor_credentials");

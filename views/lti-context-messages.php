@@ -1,6 +1,6 @@
 <?php
-	if(isset($email_settings)) {
-		echo $email_settings;
+	if(isset($settings_modal)) {
+		echo $settings_modal;
 	}
 ?>
 
