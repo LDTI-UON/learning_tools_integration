@@ -8,7 +8,7 @@ class Learning_tools_integration_ext {
 
 	var $name       = 'Learning Tools Integration';
 	/*version line (do not delete the line below, auto updated on build) */
-	var $version 			= '3.3.7';//#build version#
+	var $version 			= '3.3.13';//#build version#
 
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
