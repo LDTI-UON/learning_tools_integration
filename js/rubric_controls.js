@@ -1,6 +1,8 @@
 /**
  *
  */
+var app = app | {};
+
 $(document).ready(function () {
 		var text = 'Grid View';
 
@@ -207,7 +209,7 @@ $(document).ready(function () {
 
 			flashRow(input_id);
 
-			$("#rubric_container").hide();
+			app.rubric_container = $("#rubric_container").detach();
 		});
 
 		var error_track = function(model) {

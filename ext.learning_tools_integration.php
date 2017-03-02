@@ -8,7 +8,7 @@ class Learning_tools_integration_ext {
 
 	var $name       = 'Learning Tools Integration';
 	/*version line (do not delete the line below, auto updated on build) */
-	var $version 			= '3.2.38-dev';//#build version#
+	var $version 			= '3.2.39-dev';//#build version#
 
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
@@ -86,7 +86,7 @@ class Learning_tools_integration_ext {
 	function __construct($settings='')
 	{
 			$this->settings = $settings;
-      ee()->config->set_item('disable_csrf_protection', 'y');
+      ee()->config->set_item('disable_csrf_protection', 'y'); // this is re-enabled after login
 			ee()->lang->loadfile('lti_peer_assessment');
 
 			// comment these out for production

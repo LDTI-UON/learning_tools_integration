@@ -1,6 +1,8 @@
 <?= $form ?> <!-- // jshint ignore:line -->
 
 <script type="text/javascript">
+    var app = app | {};
+
     window.flashRow = function(input_id) {
         // placeholder function to allow instructor preview rubric to exit
         return;
@@ -9,10 +11,10 @@
 		var session_expired = function(data) {
 			if( $(data).find('.session_expired').length > 0 ) {
 
-				if(bootbox.confirm('Your session has expired.\\n Please return to the course and click the link again'))
-				{
+				if(bootbox.alert('Your session has expired.\\n Please return to the course and click the link again', function() {
 						window.history(-1);
-				}
+				}));
+
 			}
 
 			return false;
@@ -22,8 +24,11 @@
 
       $.post('<?= $base_url ?>/rubric', {'no_reload': '1', 'id' : id}, function(data) {
         if(!session_expired(data)) {
-            if($("#rubric_container").length === 0) {
-                  $("body").append("<div id=rubric_container></div");
+
+            if($("#rubric_container").length === 0 && ! app.rubric_container) {
+                  $("body").prepend("<div id=rubric_container></div");
+            } else if(app.rubric_container) {
+                  $("body").prepend(app.rubric_container);
             }
 
             $("#rubric_container").html(data).show();
