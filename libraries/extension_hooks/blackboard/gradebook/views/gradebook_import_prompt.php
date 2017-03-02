@@ -5,6 +5,15 @@ use LTI\ExtensionHooks\Auth;
 use LTI\ExtensionHooks\Utils;
 
 $hook_method = function($view_data) {
+
+        function jsEscape($str) {
+            return $str; //no longer required
+            $str = str_replace(array("\r\n", "\n", "\r"), ' ', $str);
+            $str = addslashes($str);
+
+            return $str;
+        }
+
         ee() -> load -> helper('url');
             $view_data['settings_modal'] = "";
 
@@ -38,9 +47,9 @@ $hook_method = function($view_data) {
                                                             'header' => 'Blackboard Gradebook Sync',
                                                                    'instructions' =>
                                                                                    lang('email_opt_out'),
-                                                                                   'form' => $form
+                                                                                   'form' => jsEscape($form)
                                                                                  );
-                   $view_data['settings_modal'] = $modal;
+                   $view_data['settings_modal'] = ee()->load->view('modal', $modal, TRUE);
                  } else {
                     ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => ee()->input->post('optout')));
                     redirect($this->base_url);
@@ -96,7 +105,7 @@ $hook_method = function($view_data) {
                                array('id' => 'sync_message',
                                       'header' => 'Blackboard User Sync',
                                      'instructions' => ''/*lang('outlook_instructions')*/,
-                                     'form' => $form)
+                                     'form' => jsEscape($form))
                            );
 
                     $view_data['settings_modal'] = $contents;
@@ -157,10 +166,10 @@ $hook_method = function($view_data) {
                                     }
 
                                     if(!empty($imported['message'])) {
-                                        $form .= "<p>".$imported['message']."</p>";
+                                        $form .= "<p class='.text-success'>".$imported['message']."</p>";
                                     }
                                     if(!empty($imported['errors'])) {
-                                        $form .= "<p class='.warning'><b>ATTENTION!  ".$imported['errors']."</b></p>";
+                                        $form .= "<p class='.text-danger'><b>ATTENTION!  ".$imported['errors']."</b></p>";
                                     }
 
                                     if(!empty($imported['errors']) || !empty($imported['message'])) {
@@ -189,9 +198,9 @@ $hook_method = function($view_data) {
                                   array('id' => 'sync_message',
                                       'header' => 'Blackboard User Sync',
                                       'instructions' => "Your Grade Centre connection to this course is active.",
-                                      'form' => $form);
+                                      'form' => jsEscape($form));
 
-                              $view_data['settings_modal'] = $modal;
+                              $view_data['settings_modal'] = ee()->load->view('modal', $modal, TRUE);
                             }
                         } else {
                             ee()->db->delete("lti_instructor_credentials");
