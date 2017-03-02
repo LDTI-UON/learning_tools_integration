@@ -27,7 +27,7 @@
 				 */
 				class Learning_tools_integration_upd {
 					/*version line (do not delete the line below, auto updated on build) */
-					var $version = '3.2.39-dev';//#build version#
+					var $version = '3.3.0';//#build version#
 					public $mod_class = 'Learning_tools_integration';
 					private $EE;
 
