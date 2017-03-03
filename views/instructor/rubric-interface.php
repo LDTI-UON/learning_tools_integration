@@ -32,8 +32,9 @@
             }
 
             $("#rubric_container").html(data).show();
+            $(".contentPane").css({ margin: 0 });
 
-            $('div#floating').show();
+            $(".container-fluid").hide();
         }
       });
 

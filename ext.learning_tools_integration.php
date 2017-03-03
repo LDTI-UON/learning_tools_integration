@@ -8,7 +8,7 @@ class Learning_tools_integration_ext {
 
 	var $name       = 'Learning Tools Integration';
 	/*version line (do not delete the line below, auto updated on build) */
-	var $version 			= '3.3.38';//#build version#
+	var $version 			= '3.3.39';//#build version#
 
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
@@ -242,7 +242,7 @@ class Learning_tools_integration_ext {
 					$myseg = ee()->input->get("s");
 			} else if(isset($_GET['ltiACT'])) {
 				// only one bypass action can be called at a time
-					$ltiACT = ee()->security->xss_clean($_GET['ltiACT']);
+					$ltiACT = ee('Security/XSS')->clean($_GET['ltiACT']);
 
 					if(!empty($this->LTI_ACT_services[$ltiACT])) {
 							global $ACT_hook;
@@ -481,20 +481,20 @@ class Learning_tools_integration_ext {
 		$this->isInstructor = $context->isInstructor() || $bb_instructor;
 
 		if (! $this->isInstructor ) {
-			$this -> lis_result_sourcedid = isset($_REQUEST["lis_result_sourcedid"]) ? ee()->security->xss_clean($_REQUEST["lis_result_sourcedid"]) : 'not set';
+			$this -> lis_result_sourcedid = isset($_REQUEST["lis_result_sourcedid"]) ? ee('Security/XSS')->clean($_REQUEST["lis_result_sourcedid"]) : 'not set';
 		}
 
 		$this -> user_key = $context -> getUserKey();
 		$this -> course_key = $context -> getCourseKey();
 
 		if(!empty($_REQUEST['custom_vle_coursename'])) {
-			$this->course_name = ee()->security->xss_clean($_REQUEST['custom_vle_coursename']);
+			$this->course_name = ee('Security/XSS')->clean($_REQUEST['custom_vle_coursename']);
 		} else {
 			$this -> course_name = $context -> getCourseName();
 		}
 
         if(!empty($_REQUEST['custom_vle_pk_string'])) {
-			$this->vle_pk_string = ee()->security->xss_clean($_REQUEST['custom_vle_pk_string']);
+			$this->vle_pk_string = ee('Security/XSS')->clean($_REQUEST['custom_vle_pk_string']);
 		}
 
 		$this -> user_short_name = $context -> getUserShortName();
@@ -514,7 +514,7 @@ class Learning_tools_integration_ext {
 		$_tkey = explode(":", $context->getUserKey());
 		$this->user_id = $_tkey[1];
 
-		$this->vle_username = ee()->security->xss_clean($_REQUEST['custom_vle_username']);
+		$this->vle_username = ee('Security/XSS')->clean($_REQUEST['custom_vle_username']);
 
 		$sql_data = array();
 		// check if instructor has imported this user (LTI user_id will be NULL)
@@ -546,7 +546,7 @@ class Learning_tools_integration_ext {
       $current_member = ee('Model')->get('Member')->filter('username', '==', $this->vle_username)->first();
 
 			if(!$current_member) {
-				$this->screen_name = ee()->security->xss_clean($_REQUEST['lis_person_name_given']).' '.ee()->security->xss_clean($_REQUEST['lis_person_name_family']);
+				$this->screen_name = ee('Security/XSS')->clean($_REQUEST['lis_person_name_given']).' '.ee('Security/XSS')->clean($_REQUEST['lis_person_name_family']);
 
 				if(!empty($this->vle_username)) {
 					if(FALSE !== strpos($this->vle_username, "previewuser")) {

@@ -28,8 +28,8 @@ $ACT_hook = function() {
     $msg = "";
 
     $linkgen_id = isset($_POST['linkgen_id']) ? ee()->input->post('linkgen_id') : NULL;
-    $resource_link_id = isset($_POST['resource_link_id']) ? ee()->security->xss_clean($_POST['resource_link_id']) : $this->resource_link_id;
-    $institution_id = isset($_POST['institution_id']) ? ee()->security->xss_clean($_POST['institution_id']) : $this->institution_id;
+    $resource_link_id = isset($_POST['resource_link_id']) ? ee('Security/XSS')->clean($_POST['resource_link_id']) : $this->resource_link_id;
+    $institution_id = isset($_POST['institution_id']) ? ee('Security/XSS')->clean($_POST['institution_id']) : $this->institution_id;
 
     if($linkgen_id !== NULL) {
         $result = ee()->db->get_where('lti_course_contexts', array('context_id' => $linkgen_id));

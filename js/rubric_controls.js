@@ -176,6 +176,8 @@ $(document).ready(function () {
 			var pdoc = document;
 			var input_id = $("#rub_onExitClose").data("input_id");
 
+			$(".rubricTable th, .rubricGradingRow > h4").css({border: ''});
+
 			$("#score_"+input_id, pdoc).closest('tr').find('td');
 
 			var total = 0;
@@ -193,23 +195,46 @@ $(document).ready(function () {
 
 				model.rows[r] = { col: c, score: score };
 
+				$(this).closest("tr").addClass("_read");
+
 				total += score;
 			});
 
+			var _progress = true;
 
-			if(isNaN(total)) {
-					error_track(model);
+			function hide_rubric() {
+				if(isNaN(total)) {
+						error_track(model);
+				}
+
+				$("#show_score_"+input_id, pdoc).text(total);
+				$("#score_"+input_id, pdoc).val(total);
+				$("#rubric_"+input_id, pdoc).val(JSON.stringify(model));
+
+				$(".contentPane").css({margin: ''});
+
+				$(document).trigger('updateTableState');
+
+				$(".container-fluid").show();
+				flashRow(input_id);
+
+				app.rubric_container = $("#rubric_container").html('').detach();
 			}
 
-			$("#show_score_"+input_id, pdoc).text(total);
-			$("#score_"+input_id, pdoc).val(total);
-			$("#rubric_"+input_id, pdoc).val(JSON.stringify(model));
+			var n = $(".grade_input:not(._read)").length;
 
-			$(document).trigger('updateTableState');
+			$("tbody tr:not(._read) > th, .rubricGradingRow > h4").css({border: "2px solid red"});
+			console.log(n);
 
-			flashRow(input_id);
-
-			app.rubric_container = $("#rubric_container").detach();
+			if(n > 0) {
+					bootbox.alert({size: 'small', message: "Please grade all criteria.", callback: function() {
+							_progress = false;
+					}
+				});
+			} else {
+					hide_rubric();
+			}
+			return;
 		});
 
 		var error_track = function(model) {

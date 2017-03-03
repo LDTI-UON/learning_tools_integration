@@ -20,7 +20,7 @@ $hook_method = function () {
 
     // is_numeric avoids XSS issues
     $ppage = isset($_REQUEST['per_page']) && is_numeric($_REQUEST['per_page'])? $_REQUEST['per_page'] : $this->perpage;
-    $st_search = isset($_REQUEST['st_search']) ? ee()->security->xss_clean($_REQUEST['st_search']) : "";
+    $st_search = isset($_REQUEST['st_search']) ? ee('Security/XSS')->clean($_REQUEST['st_search']) : "";
 
     // check if user went via pagination
     if(count($segments) > 3) {
