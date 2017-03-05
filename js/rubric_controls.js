@@ -176,6 +176,8 @@ $(document).ready(function () {
 			var pdoc = document;
 			var input_id = $("#rub_onExitClose").data("input_id");
 
+			//$(".grade_input, div.rubricGradingCell").removeClass("_read");
+
 			$(".rubricTable th, .rubricGradingRow > h4").css({border: ''});
 
 			$("#score_"+input_id, pdoc).closest('tr').find('td');
@@ -186,7 +188,8 @@ $(document).ready(function () {
 			$(".rubricTable .scoreSet").each(function() {
 				var r = $(this).closest("tr").index();
 				var c = $(this).closest("td").index();
-
+				var tr = -1, div = -1;
+				
 				if(isNaN($(this).val())) {
 						error_track(model);
 				}
@@ -195,7 +198,22 @@ $(document).ready(function () {
 
 				model.rows[r] = { col: c, score: score };
 
-				$(this).closest("tr").addClass("_read");
+
+			//	$(this).closest("div.rubricGradingRow").addClass("_read");
+
+				tr = $(this).closest("tr").index();
+				div = $(this).closest("div.rubricGradingRow").index();
+
+				if(tr > -1) {
+						$(this).closest("tr").addClass("_read");
+						$("div#contentAreaBlock1 div.rubricGradingRow:nth("+tr+")").addClass("_read");
+				}
+
+				if(div > -1) {
+						$(this).closest("div.rubricGradingRow").index();
+						$("div#contentAreaBlock0 tbody > tr:nth-child("+div+")").addClass("_read");
+				}
+
 
 				total += score;
 			});
@@ -221,10 +239,10 @@ $(document).ready(function () {
 				app.rubric_container = $("#rubric_container").html('').detach();
 			}
 
-			var n = $(".grade_input:not(._read)").length;
+			var n = $("#rubric_container tbody > tr:not(._read), #rubric_container .rubricControlContainer div.rubricGradingRow:not('._read')").length;
 
-			$("tbody tr:not(._read) > th, .rubricGradingRow > h4").css({border: "2px solid red"});
-			console.log(n);
+			$("tbody tr:not(._read) > th, .rubricGradingRow:not(._read) > h4").css({border: "2px solid red", display: "block"});
+			//console.log(n);
 
 			if(n > 0) {
 					bootbox.alert({size: 'small', message: "Please grade all criteria.", callback: function() {
