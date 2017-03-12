@@ -2,13 +2,14 @@
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 
+
 class Learning_tools_integration_ext {
 
 	var $settings        = array();
 
 	var $name       = 'Learning Tools Integration';
 	/*version line (do not delete the line below, auto updated on build) */
-	var $version 			= '3.3.42';//#build version#
+	var $version 			= '3.4.1';//#build version#
 
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
@@ -135,6 +136,8 @@ class Learning_tools_integration_ext {
 	}
 
 	private static function deny_xframe_header() {
+		$agent = static::get_user_agent();
+
 		if($agent === "IE") {
 			ee()->output->set_header("X-Frame-Options: DENY");
 		}	else {
@@ -320,7 +323,9 @@ class Learning_tools_integration_ext {
 				$referer = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
 				$res = ee()->db->get_where("lti_tool_consumer_instances", array('guid' => $referer));
 
-				$deny_iframe = $res->row()->id ? FALSE : TRUE;
+				if($res->row()) {
+						$deny_iframe = $res->row()->id ? FALSE : TRUE;
+				}
 			}
 
 			if($deny_iframe) {
@@ -501,7 +506,8 @@ class Learning_tools_integration_ext {
 		$this -> resource_title = $context -> getResourceTitle();
 		$this -> resource_link_description = htmlspecialchars($context -> getResourceLinkDescription());
 
-		if(empty($context->getUserKey())) {
+		$uk = $context->getUserKey();
+		if(empty($uk)) {
 			if(!$context->complete) {
 				if(isset($context->message)) {
 						throw new Exception($context->message);
@@ -519,11 +525,11 @@ class Learning_tools_integration_ext {
 		$sql_data = array();
 		// check if instructor has imported this user (LTI user_id will be NULL)
 		$sql_data['username'] = $this->vle_username;
-		$sql_data['user_id'] = NULL;
 
 		$context_rows = ee() -> db -> get_where('lti_member_contexts', $sql_data);
 		$_temp_r = $context_rows->row();
 
+		$sql_data['user_id'] = NULL;
 		// if this user wasn't imported, check if this context already exists
 		if($context_rows->num_rows() == 0) {
 			$sql_data['user_id'] = $this->user_id;
@@ -554,11 +560,35 @@ class Learning_tools_integration_ext {
 						$this->email = $this->vle_username."@".$this->session_domain;
 					}
 
-          $member = ee('Model')->make('Member', array('username' => $this->vle_username, 'screen_name' => $this->screen_name, 'group_id' => $this->group_id, 'email' => $this->email, 'last_visit' => time(), 'last_activity' => time(), 'join_date' => time()));
+          $member_data = array('username' => $this->vle_username, 'screen_name' => $this->screen_name, 'group_id' => $this->group_id, 'email' => $this->email, 'last_visit' => time(), 'last_activity' => time(), 'join_date' => time());
 
-          $member->save();
+					ee()->config->load('lti_config');
+					$cache = ee()->config->item('lti_ghost');
+					$k = random_string();
+					file_put_contents($cache.DIRECTORY_SEPARATOR.$k, serialize($member_data));
 
-					$id = $member->member_id;
+					ee()->db->where(array('method' => 'create_ghost_session'));
+					$id = ee()->db->get('actions')->row()->action_id;
+
+					$l = ee()->input->post('launch_presentation_return_url');
+
+					//header("Location: ".base_url()."?k=$k&ACT=$id");
+					echo "<html><head></head><body><p>Just generating your profile. Please wait... </p>
+					<script src='//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.slim.min.js'></script>
+					<script type='text/javascript'>
+					$(document).ready(function() {
+						console.log('ready');
+								setTimeout(
+										function() {
+											console.log('fired');
+											document.location =  \"".base_url()."?k=$k&l=$l&ACT=$id\";
+										}, 1500
+								);
+					});
+					</script></body></html>";
+					exit();
+
+
 				} else {
 					die("We were not able to verify the user identity.  To fix this please set the vle_username parameter in the custom LTI launch settings.");
 				}

@@ -27,7 +27,7 @@
 				 */
 				class Learning_tools_integration_upd {
 					/*version line (do not delete the line below, auto updated on build) */
-					var $version = '3.3.42';//#build version#
+					var $version = '3.3.43';//#build version#
 					public $mod_class = 'Learning_tools_integration';
 					private $EE;
 
@@ -512,6 +512,21 @@
 			 					return FALSE;
 	 					}
 
+            if (version_compare($current, '3.4.1', '<')) {
+                  $data = array (
+                      'class' => $this->mod_class,
+                      'method' => 'create_ghost_session',
+                  );
+
+                  ee ()->db->insert ( 'actions', $data );
+
+                  $data = array (
+                      'class' => $this->mod_class,
+                      'method' => 'create_lti_user',
+                  );
+
+                  ee ()->db->insert ( 'actions', $data );
+						}
 						// add external rubric import feature
 						if (version_compare($current, '3.2.3', '<')) {
 								$fields = array(
@@ -561,10 +576,11 @@
 
 								$data = array (
 										'class' => $this->mod_class,
-										'method' => 'write_rubric'
+										'method' => 'write_rubric',
 								);
 
 								ee ()->db->insert ( 'actions', $data );
+
 						}
 
 						// bug fix

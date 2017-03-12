@@ -165,27 +165,28 @@ class Learning_tools_integration {
        $this->hook_path = $this->lib_path.DIRECTORY_SEPARATOR.'extension_hooks';
        $this->init();
 
-       if (ee()->TMPL->fetch_param('form_class')) {
-           $this->form_class = ee()->TMPL->fetch_param('form_class');
-       }
+       if(isset(ee()->TMPL)) {
+             if (ee()->TMPL->fetch_param('form_class')) {
+                 $this->form_class = ee()->TMPL->fetch_param('form_class');
+             }
 
-       if (ee()->TMPL->fetch_param('input_class')) {
-           $this->input_class = ee()->TMPL->fetch_param('input_class');
-       }
+             if (ee()->TMPL->fetch_param('input_class')) {
+                 $this->input_class = ee()->TMPL->fetch_param('input_class');
+             }
 
-       if (ee()->TMPL->fetch_param('button_class')) {
-           $this->button_class = ee()->TMPL->fetch_param('button_class');
-       }
+             if (ee()->TMPL->fetch_param('button_class')) {
+                 $this->button_class = ee()->TMPL->fetch_param('button_class');
+             }
 
-       if (ee()->TMPL->fetch_param('modal_class')) {
-           $this->modal_class = ee()->TMPL->fetch_param('modal_class');
-       }
+             if (ee()->TMPL->fetch_param('modal_class')) {
+                 $this->modal_class = ee()->TMPL->fetch_param('modal_class');
+             }
 
-       if (ee()->TMPL->fetch_param('form_submit_class')) {
-           $fs = ee()->TMPL->fetch_param('form_submit_class');
-           $this->form_submit_class = "class='$fs'";
-       }
-
+             if (ee()->TMPL->fetch_param('form_submit_class')) {
+                 $fs = ee()->TMPL->fetch_param('form_submit_class');
+                 $this->form_submit_class = "class='$fs'";
+             }
+      }
        $this->base_form_attr = array("class" => $this->form_class, "method" => 'POST');
 	}
 
@@ -789,6 +790,35 @@ class Learning_tools_integration {
         $json_response['resultScore'] = (string)$xml_o -> imsx_POXBody -> readResultResponse -> result -> resultScore -> textString;
 
         die(json_encode($json_response));
+    }
+
+    public function create_ghost_session() {
+
+      $k = ee()->input->get('k');
+      $l = ee()->input->get('l');
+
+      ee()->config->load('lti_config');
+      $cache = ee()->config->item('lti_ghost');
+      $c = file_get_contents($cache.$k);
+      $a = unserialize($c);
+    //  var_dump($a);
+
+      $member = ee('Model')->make('Member', $a);
+      $member->save();
+
+//      echo "<BR>".$_SERVER['HTTP_HOST']."$k Create EE user here $k";
+      unlink($cache.DIRECTORY_SEPARATOR.$k);
+
+      $ref = $_SERVER['HTTP_REFERER'];
+
+      echo "<html><head></head><body>
+        <p>Thank you. Your user profile has been created.
+        Please <a href='$l'>return to the course</a> and click the link again for access.
+        </p>
+
+      </body></html>";
+
+      exit();
     }
   }
 
