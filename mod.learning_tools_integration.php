@@ -793,30 +793,28 @@ class Learning_tools_integration {
     }
 
     public function create_ghost_session() {
-
-      $k = ee()->input->get('k');
-      $l = ee()->input->get('l');
+      $k = ee()->input->post('k');
+      $l = ee()->input->post('l');
 
       ee()->config->load('lti_config');
       $cache = ee()->config->item('lti_ghost');
       $c = file_get_contents($cache.$k);
       $a = unserialize($c);
-    //  var_dump($a);
 
       $member = ee('Model')->make('Member', $a);
       $member->save();
 
-//      echo "<BR>".$_SERVER['HTTP_HOST']."$k Create EE user here $k";
       unlink($cache.DIRECTORY_SEPARATOR.$k);
 
       $ref = $_SERVER['HTTP_REFERER'];
 
-      echo "<html><head></head><body>
-        <p>Thank you. Your user profile has been created.
+      $data = array("message" => "<p>Thank you. Your user profile has been created.
         Please <a href='$l'>return to the course</a> and click the link again for access.
-        </p>
+        </p>");
 
-      </body></html>";
+      $str = json_encode($data);
+
+      echo $str;
 
       exit();
     }

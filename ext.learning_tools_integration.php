@@ -147,7 +147,7 @@ class Learning_tools_integration_ext {
 
 	function get_session($session, $id = NULL) {
 		session_start();
-		$uid = isset($_SESSION['apeg_uid']) ? $_SESSION['apeg_uid'] : $id;
+		$uid = isset($_SESSION['lti_uid']) ? $_SESSION['lti_uid'] : $id;
 		session_write_close();
 
 		// set validation
@@ -172,7 +172,6 @@ class Learning_tools_integration_ext {
 		else
 		{
 			$session->create_new_session($uid);
-			//$session->sdata['session_id'] = ee()->input->cookie($session->c_session);
 		}
 
 		$session->fetch_member_data();
@@ -187,7 +186,7 @@ class Learning_tools_integration_ext {
 		$session->userdata = array_merge($session->userdata, $session->sdata);
 		ee()->extensions->end_script = TRUE;
 
-		$_SESSION['apeg_uid'] = $uid;
+		$_SESSION['lti_uid'] = $uid;
 	}
 
 	function authenticate($session) {
@@ -314,7 +313,7 @@ class Learning_tools_integration_ext {
 		}
 
 		if($new_launch) {
-			if(isset($_SESSION['apeg_uid'])) unset($_SESSION['apeg_uid']);
+			if(isset($_SESSION['lti_uid'])) unset($_SESSION['lti_uid']);
 
 			// clickjack prevention
 			$deny_iframe = isset($_SERVER['HTTP_REFERER']);
@@ -552,7 +551,15 @@ class Learning_tools_integration_ext {
       $current_member = ee('Model')->get('Member')->filter('username', '==', $this->vle_username)->first();
 
 			if(!$current_member) {
-				$this->screen_name = ee('Security/XSS')->clean($_REQUEST['lis_person_name_given']).' '.ee('Security/XSS')->clean($_REQUEST['lis_person_name_family']);
+
+				if(array_key_exists('lis_person_name_given', $_POST) &&  	array_key_exists('lis_person_name_family', $_POST)) {
+								$this->screen_name = ee('Security/XSS')->clean($_REQUEST['lis_person_name_given']).' '.ee('Security/XSS')->clean($_REQUEST['lis_person_name_family']);
+				} else {
+						$em = ee()->input->post('lis_person_contact_email_primary');
+						$ea = explode("@", $em);
+
+						$this->screen_name = $ea[0];
+				}
 
 				if(!empty($this->vle_username)) {
 					if(FALSE !== strpos($this->vle_username, "previewuser")) {
@@ -565,32 +572,29 @@ class Learning_tools_integration_ext {
 					ee()->config->load('lti_config');
 					$cache = ee()->config->item('lti_ghost');
 					$k = random_string();
-					file_put_contents($cache.DIRECTORY_SEPARATOR.$k, serialize($member_data));
+					file_put_contents($cache.$k, serialize($member_data));
 
 					ee()->db->where(array('method' => 'create_ghost_session'));
 					$id = ee()->db->get('actions')->row()->action_id;
 
 					$l = ee()->input->post('launch_presentation_return_url');
+					$bu = base_url();
 
-					//header("Location: ".base_url()."?k=$k&ACT=$id");
-					echo "<html><head></head><body><p>Just generating your profile. Please wait... </p>
-					<script src='//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.slim.min.js'></script>
+					$js = file_get_contents(__DIR__."/js/ghost_redirect.js");
+
+					echo "<html><head></head><body><p>This is your visit so were just going to generate your profile. Please wait...</p>
+					<div id='msg'> </div>
+					<script src='//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
 					<script type='text/javascript'>
-					$(document).ready(function() {
-						console.log('ready');
-								setTimeout(
-										function() {
-											console.log('fired');
-											document.location =  \"".base_url()."?k=$k&l=$l&ACT=$id\";
-										}, 1500
-								);
-					});
+					var ghost = ghost || {};
+					ghost.base_url = '$bu', ghost.k = '$k', ghost.l = '$l', ghost.act = $id;
+					$js
 					</script></body></html>";
 					exit();
 
 
 				} else {
-					die("We were not able to verify the user identity.  To fix this please set the vle_username parameter in the custom LTI launch settings.");
+							die("Please set the <b>vle_username</b> parameter in the custom LTI launch settings.");
 				}
 			} else {
 				$id = $current_member->member_id; //$query->row()->member_id;
