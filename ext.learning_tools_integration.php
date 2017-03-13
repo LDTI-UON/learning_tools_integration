@@ -588,8 +588,8 @@ class Learning_tools_integration_ext {
 
 					$js = file_get_contents(__DIR__."/js/create_user_redirect.js");
 
-					echo "<html><head></head><body><p>This is your first visit so we're
-					just going to generate your profile. Please wait...</p>
+					echo "<html><head><title>Just a moment...</title></head><body><p>This is your first visit so we're
+					just going to generate your profile. Please wait.</p>
 					<div id='msg'> </div>
 					<script src='$jquery_src'></script>
 					<script type='text/javascript'>
