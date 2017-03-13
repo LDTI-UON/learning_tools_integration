@@ -83,7 +83,7 @@ $lang = array(
      'blackboard_custom_msg' => "For Blackboard, copy and paste this into your tool consumer\'s launch parameters:<br><br>",
      'blackboard_custom_vars' =>
         "\tvle_coursename=@X@course.course_name@X@\n\tvle_username=@X@user.id@X@\n\tvle_pk_string=@X@course.pk_string@X@\n\tvle_user_role=@X@user.role@X@\n\tdebug=true\n\tmaint=",
-        'set_outlook_password' => 'Save Password',
+        'set_external_password' => 'Save Password',
         'outlook_instructions' => "<p>You will <b>ONLY</b> be asked for your password for any of the following reasons:
     <ul>
       <li>access this tool for the first time</li>
@@ -91,7 +91,7 @@ $lang = array(
       <li>it's been over 90 days since your last login</li>
       <li>you've changed your login password for UoNline</li>
     </ul></p><p>What is my password used for? Your password is used to allow you to import users and groups from Blackboard directly into this tool.</p>",
-    'email_opt_out' => "Would you like to import Blackboard groups and users export directly from Grade Centre?<br> <span style='font-size: 8pt; color: lightgray'>
+    'gradebook_sync_optout' => "Would you like to import Blackboard groups and users export directly from Grade Centre?<br> <span style='font-size: 8pt; color: lightgray'>
 						Note: This will require you to provide your UoNline password.</span>",
     'password_title' => "Please provide your password",
 		'opt-out' => 'No',

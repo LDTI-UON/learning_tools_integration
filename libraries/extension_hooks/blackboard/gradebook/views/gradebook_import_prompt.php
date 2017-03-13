@@ -22,9 +22,10 @@ $hook_method = function($view_data) {
 
             if($query->num_rows() == 0) {
 
-               if(!isset($_POST['email_optout'])) {
+               if(!isset($_POST['gradebook_sync_optout'])) {
+
                    $form = form_open($this->base_url, $this->base_form_attr);
-                   $form .= "<div class='form-group'>";
+
                    $data = array(
                                           'name'        => 'optout',
                                           'id'          => 'optout',
@@ -38,17 +39,19 @@ $hook_method = function($view_data) {
                                           'checked'   => TRUE,
                                     );
 
-                   $form.= form_hidden('email_optout', 'posted');
+                   $form .= form_hidden('gradebook_sync_optout', 'posted');
+                   $form .= "<input type='submit' style='display:none'></input>";
+                   $form .= "<div class='radio-inline'>".form_radio($data).lang('opt-out')."</div><div class='radio-inline'>".form_radio($data1).lang('opt-in')."</div>";//.form_submit('submit', 'Okay', $this->form_submit_class);
 
-                   $form .= "<div class='radio-inline'>".form_radio($data).lang('opt-out')."</div><div class='radio-inline'>".form_radio($data1).lang('opt-in')."</div>    ".form_submit('submit', 'Okay', $this->form_submit_class);
-                   $form .= "</div>";
                    $form .= form_close();
                    $modal = array('id' => 'sync_message',
-                                                            'header' => 'Blackboard Gradebook Sync',
-                                                                   'instructions' =>
-                                                                                   lang('email_opt_out'),
-                                                                                   'form' => jsEscape($form)
-                                                                                 );
+                                  'header' => 'Blackboard Gradebook Sync',
+                                 'instructions' =>
+                                                         lang('gradebook_sync_optout'),
+                                                         'form' => jsEscape($form),
+                                                         'callback' => "function() { $('#modal form').submit(); }",
+                                                         'buttons' => json_encode(array("ok" => array('callback' => 'onSubmit')))
+                                                       );
                    $view_data['settings_modal'] = ee()->load->view('modal', $modal, TRUE);
                  } else {
                     ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => ee()->input->post('optout')));
@@ -71,7 +74,7 @@ $hook_method = function($view_data) {
 
                     $form = form_open($this->base_url, $this->base_form_attr)."<div class='container'>";
 
-                    $form .= "<div class='row'><div class='col-xs-10'><h2>".lang('password_title')."</h2></div></div>";
+                    $form .= "<div class='row'><div class='col-xs-4'><h5>".lang('password_title')."</h5></div></div>";
 
                         $data = array(
                                       'name'        => 'password',
@@ -82,7 +85,7 @@ $hook_method = function($view_data) {
                                       'class'       => 'form-control form-control-xs'
                                 );
 
-                    $form .= "<div class='row'><div class='col-xs-3'><label for='password'>Password:</label></div><div class='col-xs-4'>".form_password($data)."</div></div>";
+                    $form .= "<div class='row'><div class='col-xs-1'><label for='password'>Password:</label></div><div class='col-xs-2'>".form_password($data)."</div></div>";
 
                      $data = array(
                                       'name'        => 'password_conf',
@@ -94,21 +97,27 @@ $hook_method = function($view_data) {
                                 );
 
 
-                    $form .= "<div class='row'><div class='col-xs-3'><label for='password_conf'>Confirm Password: </label></div><div class='col-xs-4'>".form_password($data)."</div></div>";
-                    $form .= "<div class='row'><div class='col-xs-10'>";
-                    $form .= form_submit('submit', lang('set_outlook_password'), $this->form_submit_class);
-                    $form .= "</div></div></div>";
+                    $form .= "<div class='row'><div class='col-xs-1'><label for='password_conf'>Confirm Password: </label></div><div class='col-xs-2'>".form_password($data)."</div></div>";
+                    $form .= "<input type='submit' style='display:none'></input>";
+                    $form .= "</div></div>";
                     $form .= form_close();
 
+                    $modal = array('id' => 'sync_message',
+                           'header' => 'Blackboard User Sync',
+                           'size' => 'small',
+                          'instructions' => ''/*lang('outlook_instructions')*/,
+                          'form' => jsEscape($form),
+                          'buttons' => json_encode(array(
+                             'ok' => array(
+                                 'label' => lang('set_external_password'),
+                                 'callback' => 'onSubmit'
+                             ))),
+                          'callback' => "function() { $(\"#modal form\").submit(); }"
+                      );
 
-                    $contents = Utils::bootstrap_message_modal(
-                               array('id' => 'sync_message',
-                                      'header' => 'Blackboard User Sync',
-                                     'instructions' => ''/*lang('outlook_instructions')*/,
-                                     'form' => jsEscape($form))
-                           );
 
-                    $view_data['settings_modal'] = $contents;
+
+                    $view_data['settings_modal'] =   ee()->load->view('modal', $modal, TRUE);
                 } else {
                     $password = ee()->input->post('password');
 
