@@ -573,7 +573,11 @@ class Learning_tools_integration_ext {
 					$cache = ee()->config->item('lti_ghost');
 					$jquery_src = ee()->config->item('jquery_src');
 
-					$k = random_string();
+					// make sure we don't overwrite another user's data.
+					do {
+							$k = random_string();
+					} while(file_exists($cache.$k));
+
 					file_put_contents($cache.$k, serialize($member_data));
 
 					ee()->db->where(array('method' => 'create_lti_user'));
