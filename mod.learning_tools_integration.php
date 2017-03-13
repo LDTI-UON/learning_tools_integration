@@ -791,8 +791,12 @@ class Learning_tools_integration {
 
         die(json_encode($json_response));
     }
-
-    public function create_ghost_session() {
+    /*
+    *   Used as an action to crreae a new user on launch.
+    *   User details are serialised to a ghost folder in the extension,
+    *   then inserted into the database here.
+    */
+    public function create_lti_user() {
       $k = ee()->input->post('k');
       $l = ee()->input->post('l');
 
@@ -805,8 +809,6 @@ class Learning_tools_integration {
       $member->save();
 
       unlink($cache.DIRECTORY_SEPARATOR.$k);
-
-      $ref = $_SERVER['HTTP_REFERER'];
 
       $data = array("message" => "<p>Thank you. Your user profile has been created.
         Please <a href='$l'>return to the course</a> and click the link again for access.

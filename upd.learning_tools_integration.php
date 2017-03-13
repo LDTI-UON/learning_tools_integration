@@ -513,12 +513,6 @@
 	 					}
 
             if (version_compare($current, '3.4.1', '<')) {
-                  $data = array (
-                      'class' => $this->mod_class,
-                      'method' => 'create_ghost_session',
-                  );
-
-                  ee ()->db->insert ( 'actions', $data );
 
                   $data = array (
                       'class' => $this->mod_class,

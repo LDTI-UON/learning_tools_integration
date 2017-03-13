@@ -571,20 +571,23 @@ class Learning_tools_integration_ext {
 
 					ee()->config->load('lti_config');
 					$cache = ee()->config->item('lti_ghost');
+					$jquery_src = ee()->config->item('jquery_src');
+
 					$k = random_string();
 					file_put_contents($cache.$k, serialize($member_data));
 
-					ee()->db->where(array('method' => 'create_ghost_session'));
+					ee()->db->where(array('method' => 'create_lti_user'));
 					$id = ee()->db->get('actions')->row()->action_id;
 
 					$l = ee()->input->post('launch_presentation_return_url');
 					$bu = base_url();
 
-					$js = file_get_contents(__DIR__."/js/ghost_redirect.js");
+					$js = file_get_contents(__DIR__."/js/create_user_redirect.js");
 
-					echo "<html><head></head><body><p>This is your visit so were just going to generate your profile. Please wait...</p>
+					echo "<html><head></head><body><p>This is your first visit so we're
+					just going to generate your profile. Please wait...</p>
 					<div id='msg'> </div>
-					<script src='//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+					<script src='$jquery_src'></script>
 					<script type='text/javascript'>
 					var ghost = ghost || {};
 					ghost.base_url = '$bu', ghost.k = '$k', ghost.l = '$l', ghost.act = $id;
