@@ -90,11 +90,11 @@ class BB_Rubrics {
 			$table_html = null;
 
 			//if(array_key_exists($item["list_index"], "div_list") {
-					$list_html = $item["list"]->saveHTML($item["list_index"]["div_list"]);
+			$list_html = $item["list"]->saveHTML(@$item["list_index"]["div_list"]);
 
 			//}
 		//	if(array_key_exists($item["grid_index"], "table") {
-					$table_html =$item["grid"]->saveHTML($item["grid_index"]["table"]);
+			$table_html = $item["grid"]->saveHTML(@$item["grid_index"]["table"]);
 			//}
 
 			$rubrics[$key] = array("title" => $this->titles[$key],
