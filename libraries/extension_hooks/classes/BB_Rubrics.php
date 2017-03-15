@@ -86,22 +86,20 @@ class BB_Rubrics {
 		$rubrics = array();
 
 		foreach($this->doms as $key => $item) {
-			$list_html = null;
-			$table_html = null;
+					if($item) {
+								$list_html = null;
+								$table_html = null;
 
-			//if(array_key_exists($item["list_index"], "div_list") {
-			$list_html = $item["list"]->saveHTML(@$item["list_index"]["div_list"]);
+								$list_html = $item["list"]->saveHTML(@$item["list_index"]["div_list"]);
 
-			//}
-		//	if(array_key_exists($item["grid_index"], "table") {
-			$table_html = $item["grid"]->saveHTML(@$item["grid_index"]["table"]);
-			//}
+								$table_html = $item["grid"]->saveHTML(@$item["grid_index"]["table"]);
 
-			$rubrics[$key] = array("title" => $this->titles[$key],
-															"grid_html" => $table_html,
-																"list_html" => $list_html,
-                                  "total_score" => $item["total_score"]
-                                );
+								$rubrics[$key] = array("title" => $this->titles[$key],
+																				"grid_html" => $table_html,
+																					"list_html" => $list_html,
+					                                  "total_score" => $item["total_score"]
+					                                );
+					}
 		}
 
 		return $rubrics;
