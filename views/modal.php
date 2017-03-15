@@ -31,7 +31,7 @@ $(document).ready(function() {
 
 var onSubmit = function(){
   //  Process form data
-  $("#modal").hide();    // Hoisted from below and refers to the specific dialog
+  $("#modal").hide();
 }
 
 var formEle = $("#modal form");

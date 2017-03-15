@@ -435,18 +435,18 @@ private function import_data(& $file_rows, & $errors = "", $group_students, $sta
 				foreach ($duplicate_groups as $username => $student) {
 					$errors .= "<li>".$student['full_name']." (".$username.")<ol>";
 
-					$s = count($student['groups']) - 1;
+					$c = count($student['groups']) - 1;
 					foreach($student['groups'] as $i => $group) {
 						$g = $group;
 						if($i == $c) {
-							$g = "<strong>$group</strong>";
+							$g = "<u class='warning'>$group</u>";
 						}
 						$errors .= "<li>$g</li>";
 					}
 
 					$errors.= "</ol></li>";
 				}
-				$errors .= "</ol><br> These students are currently assigned to the last (bolded) group they were listed with in Blackboard Groups.</p>";
+				$errors .= "</ol><br> These students are currently assigned to the last group they were listed with in Blackboard Groups, <u class='warning'>underlined above</u>.</p>";
 			}
 	}
 

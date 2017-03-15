@@ -1,7 +1,7 @@
 <?= $form ?> <!-- // jshint ignore:line -->
 
 <script type="text/javascript">
-    var app = app | {};
+    var app = app || {};
 
     window.flashRow = function(input_id) {
         // placeholder function to allow instructor preview rubric to exit
@@ -22,7 +22,7 @@
 
 		var populate_rubric = function(id) {
 
-      $.post('<?= $base_url ?>/rubric', {'no_reload': '1', 'id' : id}, function(data) {
+      $.post('<?= $base_url ?>/rubric', {'no_reload': '1', 'id' : id }, function(data) {
         if(!session_expired(data)) {
 
             if($("#rubric_container").length === 0 && ! app.rubric_container) {
@@ -31,7 +31,7 @@
                   $("body").prepend(app.rubric_container);
             }
 
-            $("#rubric_container").html(data).show();
+            $("#rubric_container").html(data).trigger("rubric_loaded").show();
             $(".contentPane").css({ margin: 0 });
 
             $(".container-fluid").hide();
@@ -46,6 +46,7 @@
 
 $(document).on("change", "select[name=\'rubrics\']", function(e) {
            id = $(e.target).find("option:selected").val();
+
            var show_scores = show_scores_array[id];
             if(id != "del") {
                 var score = id.split('|')[1];
@@ -63,6 +64,8 @@ $(document).on("change", "select[name=\'rubrics\']", function(e) {
             }
         }).on("click", "#preview_btn", function(e) {
             if(id != "del") {
+              id = $("#rubric_dd").find("option:selected").val();
+
               populate_rubric(id);
             }
             $('#sync_message').remove();

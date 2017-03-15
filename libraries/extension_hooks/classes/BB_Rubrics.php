@@ -86,8 +86,20 @@ class BB_Rubrics {
 		$rubrics = array();
 
 		foreach($this->doms as $key => $item) {
-			$rubrics[$key] = array("title" => $this->titles[$key], "grid_html" => $item["grid"]->saveHTML($item["grid_index"]["table"]),
-								"list_html" => $item["list"]->saveHTML($item["list_index"]["div_list"]),
+			$list_html = null;
+			$table_html = null;
+
+			//if(array_key_exists($item["list_index"], "div_list") {
+					$list_html = $item["list"]->saveHTML($item["list_index"]["div_list"]);
+
+			//}
+		//	if(array_key_exists($item["grid_index"], "table") {
+					$table_html =$item["grid"]->saveHTML($item["grid_index"]["table"]);
+			//}
+
+			$rubrics[$key] = array("title" => $this->titles[$key],
+															"grid_html" => $table_html,
+																"list_html" => $list_html,
                                   "total_score" => $item["total_score"]
                                 );
 		}
@@ -167,6 +179,19 @@ class BB_Rubrics {
         return FALSE;
     }
 
+/* for inserting 'raw' html text nodes
+*		this is from
+*   Gumbo http://stackoverflow.com/questions/4400980/how-to-insert-html-to-php-domnode#4401089
+*/
+private function appendHTML(DOMNode $parent, $source) {
+    $tmpDoc = new DOMDocument();
+    $tmpDoc->loadHTML($source);
+    foreach ($tmpDoc->getElementsByTagName('body')->item(0)->childNodes as $node) {
+        $node = $parent->ownerDocument->importNode($node);
+        $parent->appendChild($node);
+    }
+}
+
 	private function generateRubricElements($name, $params, &$depth = 0) {
 
 		switch(strtolower($name)) {
@@ -190,21 +215,21 @@ class BB_Rubrics {
 					$this->data[(string)$this->init["rubricid"]] = $this->default;
 					$this->doms[(string)$this->init["rubricid"]] = array("grid" => new \DOMDocument('1.0'), "grid_index" => array(), "list" =>  new \DOMDocument('1.0'), "list_index" => array(), "total_score" => 0);
 
-					$this->pointer = & $this->data[(string)$this->init["rubricid"]];
+					$this->pointer =$this->data[(string)$this->init["rubricid"]];
 
-					$this->grid_dom_index = & $this->doms[(string)$this->init["rubricid"]]["grid_index"];
+					$this->grid_dom_index =$this->doms[(string)$this->init["rubricid"]]["grid_index"];
 
-					$this->grid_dom = & $this->doms[(string)$this->init["rubricid"]]["grid"];
-					$this->grid_dom_index['html'] = & $this->grid_dom->appendChild($this->grid_dom->createElement('html'));
+					$this->grid_dom =$this->doms[(string)$this->init["rubricid"]]["grid"];
+					$this->grid_dom_index['html'] =$this->grid_dom->appendChild($this->grid_dom->createElement('html'));
 					$this->grid_dom_index['html']->appendChild($this->grid_dom->createElement('head'));
-					$this->grid_dom_index['body'] = & $this->grid_dom_index['html']->appendChild($this->grid_dom->createElement('body'));
+					$this->grid_dom_index['body'] =$this->grid_dom_index['html']->appendChild($this->grid_dom->createElement('body'));
 
-					$this->list_dom_index = & $this->doms[(string)$this->init["rubricid"]]["list_index"];
+					$this->list_dom_index =$this->doms[(string)$this->init["rubricid"]]["list_index"];
 
-					$this->list_dom = & $this->doms[(string)$this->init["rubricid"]]["list"];
-					$this->list_dom_index['html'] = & $this->list_dom->appendChild($this->list_dom->createElement('html'));
+					$this->list_dom =$this->doms[(string)$this->init["rubricid"]]["list"];
+					$this->list_dom_index['html'] =$this->list_dom->appendChild($this->list_dom->createElement('html'));
 					$this->list_dom_index['html']->appendChild($this->list_dom->createElement('head'));
-					$this->list_dom_index['body'] = & $this->list_dom_index['html']->appendChild($this->list_dom->createElement('body'));
+					$this->list_dom_index['body'] =$this->list_dom_index['html']->appendChild($this->list_dom->createElement('body'));
 				}
 
 				$this->total_header_tags = 0;
@@ -228,12 +253,12 @@ class BB_Rubrics {
 				// set at top level for ease of access
         $this->doms[(string)$this->init["rubricid"]]["total_score"] = (int) $params['value'];
 
-				$this->grid_dom_index['table'] = & $this->grid_dom_index['body']->appendChild($this->grid_dom->createElement("table"));
-				$this->grid_dom_index['thead'] = & $this->grid_dom_index['table']->appendChild($this->grid_dom->createElement("thead"));
-				$this->grid_dom_index['thead_tr1'] = & $this->grid_dom_index['thead']->appendChild($this->grid_dom->createElement("tr"));
+				$this->grid_dom_index['table'] =$this->grid_dom_index['body']->appendChild($this->grid_dom->createElement("table"));
+				$this->grid_dom_index['thead'] =$this->grid_dom_index['table']->appendChild($this->grid_dom->createElement("thead"));
+				$this->grid_dom_index['thead_tr1'] =$this->grid_dom_index['thead']->appendChild($this->grid_dom->createElement("tr"));
 				$this->grid_dom_index['thead_tr1']->appendChild($this->grid_dom->createElement("th"));
 
-				$this->grid_dom_index['tbody'] = & $this->grid_dom_index['table']->appendChild($this->grid_dom->createElement("tbody"));
+				$this->grid_dom_index['tbody'] =$this->grid_dom_index['table']->appendChild($this->grid_dom->createElement("tbody"));
 
 				$this->grid_dom_index['table']->setAttribute("id", "__rubricGradingTable");
 				$this->grid_dom_index['table']->setAttribute("rubricid", $this->init["rubricid"]);
@@ -242,7 +267,7 @@ class BB_Rubrics {
 				$this->grid_dom_index['table']->setAttribute("class", "rubricGradingTable rubricTable");
 				$this->grid_dom_index['table']->setAttribute("prefix", "__");
 
-				$this->list_dom_index['div_list'] = & $this->list_dom_index['body']->appendChild($this->list_dom->createElement("div"));
+				$this->list_dom_index['div_list'] =$this->list_dom_index['body']->appendChild($this->list_dom->createElement("div"));
 				$this->list_dom_index['div_list']->setAttribute("id", "__rubricGradingList");
 				$this->list_dom_index['div_list']->setAttribute("rubricid", $this->init["rubricid"]);
 				$this->list_dom_index['div_list']->setAttribute("maxvalue", $this->init["maxvalue"]);
@@ -250,38 +275,38 @@ class BB_Rubrics {
 				$this->list_dom_index['div_list']->setAttribute("class", "rubricGradingList");
 				$this->list_dom_index['div_list']->setAttribute("prefix", "__");
 
-				$controls = & $this->list_dom_index['div_list']->appendChild($this->list_dom->createElement("div"));
+				$controls =$this->list_dom_index['div_list']->appendChild($this->list_dom->createElement("div"));
 				$controls->setAttribute("class", "u_controlsWrapper");
-				$input1 = & $controls->appendChild($this->list_dom->createElement("input"));
+				$input1 =$controls->appendChild($this->list_dom->createElement("input"));
 				$input1->setAttribute("type", "checkbox");
 				$input1->setAttribute("id", "rubricToggleDesc");
         $input1->setAttribute("checked", "1"); // default is checked
 
-				$label1 = & $controls->appendChild($this->list_dom->createElement("label", "Show Descriptions"));
+				$label1 =$controls->appendChild($this->list_dom->createElement("label", "Show Descriptions"));
 				$label1->setAttribute("for", "rubricToggleDesc");
 
-				//$input2 = & $controls->appendChild($this->list_dom->createElement("input"));
+				//$input2 =$controls->appendChild($this->list_dom->createElement("input"));
 				//$input2->setAttribute("type", "checkbox");
 				//$input2->setAttribute("id", "rubricToggleFeedback");
 
 
-				//$label2 = & $controls->appendChild($this->list_dom->createElement("label", "Show Feedback"));
+				//$label2 =$controls->appendChild($this->list_dom->createElement("label", "Show Feedback"));
 				//$label2->setAttribute("for", "rubricToggleFeedback");
 			break;
 			case "row":
 				$this->pointer['rows'] += 1;
 				// grid row
-				$tr = & $this->grid_dom_index['tbody']->appendChild($this->grid_dom->createElement("tr"));
+				$tr =$this->grid_dom_index['tbody']->appendChild($this->grid_dom->createElement("tr"));
 				$tr->setAttribute("class", "rubricGradingRow");
 				$this->current_row_id = (string)$params["id"];
 				$tr->setAttribute("id", $this->current_row_id);
 				if(!isset($this->grid_dom_index['rows'])) {
 					$this->grid_dom_index['rows'] = array();
 				}
-				$this->grid_dom_index['rows'][$this->current_row_id] = & $tr;
+				$this->grid_dom_index['rows'][$this->current_row_id] =$tr;
 
 				//list row
-				$div = & $this->list_dom_index['div_list']->appendChild($this->list_dom->createElement("div"));
+				$div =$this->list_dom_index['div_list']->appendChild($this->list_dom->createElement("div"));
 				$div->setAttribute("class", "rubricGradingRow columnPalette");
 				$div->setAttribute("rubricrowid", $this->current_row_id);
 
@@ -289,7 +314,7 @@ class BB_Rubrics {
 					$this->list_dom_index['div_rows'] = array();
 				}
 
-				$this->list_dom_index['div_rows'][$this->current_row_id] = & $div;
+				$this->list_dom_index['div_rows'][$this->current_row_id] =$div;
 
 				$this->col_headers = 0;
 
@@ -302,13 +327,13 @@ class BB_Rubrics {
 
 				if($depth == 2) {
 					$this->pointer['row_headers'][] = (string)$params['value'];
-					$th_t = & $this->grid_dom_index['rows'][$this->current_row_id]->appendChild($this->grid_dom->createElement("th"));
+					$th_t =$this->grid_dom_index['rows'][$this->current_row_id]->appendChild($this->grid_dom->createElement("th"));
 
-          $th_t->appendChild($this->grid_dom->createTextNode($params['value']));
-					$this->last_row_header = & $th_t;
+          $th_t->appendChild($this->grid_dom->createTextNode(html_entity_decode($params['value'])));
+					$this->last_row_header =$th_t;
 
-					$h4 = & $this->list_dom_index['div_rows'][$this->current_row_id]->appendChild($this->list_dom->createElement("h4"));
-					$this->last_div_header = & $h4;
+					$h4 =$this->list_dom_index['div_rows'][$this->current_row_id]->appendChild($this->list_dom->createElement("h4"));
+					$this->last_div_header =$h4;
 
           $h4->appendChild($this->list_dom->createTextNode($params['value']));
 
@@ -336,7 +361,7 @@ class BB_Rubrics {
 				if(!isset($this->grid_dom_index['cells'])) {
 					$this->grid_dom_index['cells'] = array();
 				}
-				$this->grid_dom_index['cells'][$this->current_cell_id] = & $td;
+				$this->grid_dom_index['cells'][$this->current_cell_id] =$td;
 
 				// list items
 				$div = $this->list_dom_index['div_rows'][$this->current_row_id]->appendChild($this->list_dom->createElement("div"));
@@ -348,7 +373,7 @@ class BB_Rubrics {
 				}
 				$cell_id = "cell_".$this->current_cell_id;
 
-			/*	$input = & $div->appendChild($this->list_dom->createElement("input"));
+			/*	$input =$div->appendChild($this->list_dom->createElement("input"));
 
 				$cell_id = "cell_".$this->current_cell_id;
 				$input->setAttribute("class", "rubricCellRadio");
@@ -360,31 +385,31 @@ class BB_Rubrics {
 					$input->setAttribute("disabled", "disabled");
 				}*/
 
-				$label = & $div->appendChild($this->list_dom->createElement("label", $this->last_cell_header));
+				$label =$div->appendChild($this->list_dom->createElement("label", $this->last_cell_header));
 				$label->setAttribute("class", "radioLabel");
 				$label->setAttribute("for", $cell_id);
 
-				$this->list_dom_index['div_cells'][$this->current_cell_id] = & $div;
-				$this->list_div = &$div;
+				$this->list_dom_index['div_cells'][$this->current_cell_id] =$div;
+				$this->list_div = $div;
 			break;
 			case "celldescription":
 
 				//grid cell header
-				$div = & $this->grid_dom_index['cells'][$this->current_cell_id]->appendChild($this->grid_dom->createElement("div"));
+				$div =$this->grid_dom_index['cells'][$this->current_cell_id]->appendChild($this->grid_dom->createElement("div"));
 				$div->setAttribute("class", "rubricCellHeader");
 
 				// grid cell header -> set points range
-				$rangeValue = & $div->appendChild($this->grid_dom->createElement("div"));
+				$rangeValue =$div->appendChild($this->grid_dom->createElement("div"));
 				$rangeValue->setAttribute("class", "rangeValue");
 
-				$this->grid_dom_index['range_values'][$this->current_cell_id] = & $rangeValue;
+				$this->grid_dom_index['range_values'][$this->current_cell_id] =$rangeValue;
 
 				// grid cell description
-				$td = & $this->grid_dom_index['cells'][$this->current_cell_id]->appendChild($this->grid_dom->createElement("div", $params['value']));
+				$td =$this->grid_dom_index['cells'][$this->current_cell_id]->appendChild($this->grid_dom->createElement("div", $params['value']));
 				$td->setAttribute("class", "rubricCellDescription");
 
 				// list cell description
-				$div = & $this->list_dom_index['div_rows'][$this->current_row_id]->appendChild($this->list_dom->createElement("div", $params['value']));
+				$div =$this->list_dom_index['div_rows'][$this->current_row_id]->appendChild($this->list_dom->createElement("div", $params['value']));
 				$div->setAttribute("class", "u_controlsWrapper u_indent description");
 
 			break;
@@ -393,31 +418,31 @@ class BB_Rubrics {
 
 				$this->pointer['col_scores'][] = (float)$params['value'];
 				// grid start value
-				$text_node = & $this->grid_dom->createTextNode($params["value"]);
-				$this->grid_dom_index['numpointsval'][$this->current_cell_id] = & $params["value"];
+				$text_node =$this->grid_dom->createTextNode($params["value"]);
+				$this->grid_dom_index['numpointsval'][$this->current_cell_id] =$params["value"];
 
-                $input_t = & $this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($this->grid_dom->createElement("input"));
+                $input_t =$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($this->grid_dom->createElement("input"));
                 $input_t->setAttribute("type", "radio");
                 $input_t->setAttribute("value", $params["value"]);
                 $input_t->setAttribute("class", "grade_input");
                 $input_t->setAttribute("name", "_radio_".$this->current_row_id);
 
-				$num_points = & $this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($text_node);
+				$num_points =$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($text_node);
 
 				if(!isset($this->grid_dom_index['numpoints'])) {
 					$this->grid_dom_index['numpoints'] = array();
 				}
 
-				$this->grid_dom_index['numpoints'][$this->current_cell_id] = & $num_points;
+				$this->grid_dom_index['numpoints'][$this->current_cell_id] =$num_points;
 
 				// list start value
-				$text_node = & $this->list_dom->createTextNode($params["value"]);
-				$this->list_dom_index['numpointsval'][$this->current_cell_id] = & $params["value"];
+				$text_node =$this->list_dom->createTextNode($params["value"]);
+				$this->list_dom_index['numpointsval'][$this->current_cell_id] =$params["value"];
 
-				$num_points = & $this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
+				$num_points =$this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
 
 				// moved from line 295
-				$input = &$this->list_div->appendChild($this->list_dom->createElement("input"));
+				$input = $this->list_div->appendChild($this->list_dom->createElement("input"));
 
 					$cell_id = "cell_".$this->current_cell_id;
 					$input->setAttribute("class", "rubricCellRadio");
@@ -430,61 +455,61 @@ class BB_Rubrics {
 					$this->list_dom_index['numpoints'] = array();
 				}
 
-				$this->list_dom_index['numpoints'][$this->current_cell_id] = & $num_points;
+				$this->list_dom_index['numpoints'][$this->current_cell_id] =$num_points;
 			break;
 			case "numericstartpointrange":
 					if($this->init["type"] !== "NUMERIC_RANGE") break;
                 if(isset($this->list_dom_index['numpoints']) && $this->list_dom_index['numpoints'][$this->current_cell_id]) break;
 				// grid start value
-				$text_node = & $this->grid_dom->createTextNode($params["value"]);
-				$this->grid_dom_index['numstartval'][$this->current_cell_id] = & $params["value"];
+				$text_node =$this->grid_dom->createTextNode($params["value"]);
+				$this->grid_dom_index['numstartval'][$this->current_cell_id] =$params["value"];
 
-				$num_start = & $this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($text_node);
+				$num_start =$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($text_node);
 
 				if(!isset($this->grid_dom_index['numstart'])) {
 					$this->grid_dom_index['numstart'] = array();
 				}
 
-				$this->grid_dom_index['numstart'][$this->current_cell_id] = & $num_start;
+				$this->grid_dom_index['numstart'][$this->current_cell_id] =$num_start;
 
 				// list start value
-				$text_node = & $this->list_dom->createTextNode($params["value"]);
-				$this->list_dom_index['numstartval'][$this->current_cell_id] = & $params["value"];
+				$text_node =$this->list_dom->createTextNode($params["value"]);
+				$this->list_dom_index['numstartval'][$this->current_cell_id] =$params["value"];
 
-				$num_start1 = & $this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
+				$num_start1 =$this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
 
 				if(!isset($this->list_dom_index['numstart'])) {
 					$this->list_dom_index['numstart'] = array();
 				}
 
-				$this->list_dom_index['numstart'][$this->current_cell_id] = & $num_start1;
+				$this->list_dom_index['numstart'][$this->current_cell_id] =$num_start1;
 			break;
 			case "numericendpointrange":
 				if($this->init["type"] !== "NUMERIC_RANGE") break;
         if(isset($this->list_dom_index['numpoints']) && $this->list_dom_index['numpoints'][$this->current_cell_id]) break;
 				// grid start value
-				$text_node = & $this->grid_dom->createTextNode(" - ".$params["value"]);
-				$this->grid_dom_index['numendval'][$this->current_cell_id] = & $params["value"];
+				$text_node =$this->grid_dom->createTextNode(" - ".$params["value"]);
+				$this->grid_dom_index['numendval'][$this->current_cell_id] =$params["value"];
 
-				$num_end = & $this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($text_node);
+				$num_end =$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($text_node);
 
 				if(!isset($this->grid_dom_index['numend'])) {
 					$this->grid_dom_index['numend'] = array();
 				}
 
-				$this->grid_dom_index['numend'][$this->current_cell_id] = & $num_end;
+				$this->grid_dom_index['numend'][$this->current_cell_id] =$num_end;
 
 				// list start value
-				$text_node = & $this->list_dom->createTextNode(" - ".$params["value"]);
+				$text_node =$this->list_dom->createTextNode(" - ".$params["value"]);
 				$this->list_dom_index['numendval'][$this->current_cell_id] = $params["value"];
 
-				$num_end1 = & $this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
+				$num_end1 =$this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
 
 				if(!isset($this->list_dom_index['numend'])) {
 					$this->list_dom_index['numend'] = array();
 				}
 
-				$this->list_dom_index['numend'][$this->current_cell_id] = & $num_end1;
+				$this->list_dom_index['numend'][$this->current_cell_id] =$num_end1;
 			break;
 
 			case "percentagemin":
@@ -494,11 +519,11 @@ class BB_Rubrics {
 				$val = (int) round((float)$perc, PHP_ROUND_HALF_UP);
 
 				// grid range box
-				$span = & $this->grid_dom->createElement("span", " ($val%)");
+				$span =$this->grid_dom->createElement("span", " ($val%)");
 				$this->grid_dom_index['range_values'][$this->current_cell_id]->insertBefore($span, $this->grid_dom_index['numend'][$this->current_cell_id]);
 
 				// list range box
-				$span1 = & $this->list_dom->createElement("span", " ($val%)");
+				$span1 =$this->list_dom->createElement("span", " ($val%)");
 				$this->list_dom_index['div_cells'][$this->current_cell_id]->insertBefore($span1, $this->list_dom_index['numstart'][$this->current_cell_id]->nextSibling);
 
 			break;
@@ -509,11 +534,11 @@ class BB_Rubrics {
 				$val = (int) round((float)$perc, PHP_ROUND_HALF_DOWN);
 
 				// grid input range box
-				$span = & $this->grid_dom->createElement("span", " ($val%)");
+				$span =$this->grid_dom->createElement("span", " ($val%)");
 
 				$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($span);
 
-				$input = & $this->grid_dom->createElement("input");
+				$input =$this->grid_dom->createElement("input");
 				$input->setAttribute("type", "text");
 				$input->setAttribute("size", "3");
 				$input->setAttribute("class", "grade_input");
@@ -533,10 +558,10 @@ class BB_Rubrics {
 				$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($input);
 
 				// list input range box
-				$span1 = & $this->list_dom->createElement("span", " ($val%)");
+				$span1 =$this->list_dom->createElement("span", " ($val%)");
 				$this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($span1);
 
-				$input1 = & $this->list_dom->createElement("input");
+				$input1 =$this->list_dom->createElement("input");
 				$input1->setAttribute("type", "text");
 				$input1->setAttribute("size", "3");
 				$input1->setAttribute("class", "grade_input");
@@ -563,7 +588,7 @@ class BB_Rubrics {
 					$this->pointer['row_weights'][] = (float)$params['value'];
 					// set weights in header
 					if(isset($this->last_row_header)) {
-						$p = & $this->grid_dom->createElement("p");
+						$p =$this->grid_dom->createElement("p");
 						$p->appendChild($this->grid_dom->createTextNode(" Weight: ".$this->row_percentage."%"));
 						$this->last_row_header->appendChild($p);
 
@@ -571,7 +596,7 @@ class BB_Rubrics {
 					}
 
 					if(isset($this->last_div_header)) {
-						$p = & $this->list_dom->createElement("p");
+						$p =$this->list_dom->createElement("p");
 						$p->appendChild($this->list_dom->createTextNode(" Weight: ".$this->row_percentage."%"));
 						$this->last_div_header->appendChild($p);
 
@@ -585,31 +610,31 @@ class BB_Rubrics {
 					$this->pointer['col_scores'][] = (float)$params['value'];
 
 					$str_perc = abs($params["value"])."%";
-					$text_node = & $this->grid_dom->createTextNode($str_perc);
+					$text_node =$this->grid_dom->createTextNode($str_perc);
 					$this->grid_dom_index['percentageval'][$this->current_cell_id] = $perc;
 
-	        $input_t = & $this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($this->grid_dom->createElement("input"));
+	        $input_t =$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($this->grid_dom->createElement("input"));
 	      	$input_t->setAttribute("type", "radio");
 	        $input_t->setAttribute("value", $perc);
 	        $input_t->setAttribute("class", "grade_input");
 	        $input_t->setAttribute("name", "_radio_".$this->current_row_id);
 
-					$num_points = & $this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($text_node);
+					$num_points =$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($text_node);
 
 					if(!isset($this->grid_dom_index['percentage'])) {
 						$this->grid_dom_index['percentage'] = array();
 					}
 
-					$this->grid_dom_index['percentage'][$this->current_cell_id] = & $num_points;
+					$this->grid_dom_index['percentage'][$this->current_cell_id] =$num_points;
 
 					// list start value
-					$text_node = & $this->list_dom->createTextNode($str_perc);
+					$text_node =$this->list_dom->createTextNode($str_perc);
 					$this->list_dom_index['percentageval'][$this->current_cell_id] = $perc;
 
-					$num_points = & $this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
+					$num_points =$this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
 
 					// moved from line 295
-					$input = &$this->list_div->appendChild($this->list_dom->createElement("input"));
+					$input = $this->list_div->appendChild($this->list_dom->createElement("input"));
 
 					$cell_id = "cell_".$this->current_cell_id;
 					$input->setAttribute("class", "rubricCellRadio");
@@ -622,7 +647,7 @@ class BB_Rubrics {
 						$this->list_dom_index['percentage'] = array();
 					}
 
-					$this->list_dom_index['percentage'][$this->current_cell_id] = & $num_points;
+					$this->list_dom_index['percentage'][$this->current_cell_id] =$num_points;
 				}
 			break;
 			case "position":

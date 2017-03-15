@@ -1,5 +1,5 @@
 
-<div class="locationPane" id="rub_onExitClose" data-input_id="<?= $input_id ?>" data-pre_pop="<?= $pre_pop ?>">
+<div class="locationPane" id="rub_onExitClose" style="z-index: 4" data-input_id="<?= $input_id ?>" data-pre_pop="<?= $pre_pop ?>">
 
 		<div id="contentPanel" class="contentPaneWide ">
 
@@ -118,4 +118,5 @@
 <script type="text/javascript">
 	<?= $js_controls ?>
 	<?= $hide_scores ?>
+	$(window).trigger('scrollWindow');
 </script>

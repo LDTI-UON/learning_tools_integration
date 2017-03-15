@@ -279,9 +279,9 @@ class Learning_tools_integration_ext {
 			$this->use_SSL = FALSE;
 		}
 
-		if(!$this->use_SSL) {
+		/*if(!$this->use_SSL) {
 			ee()->logger->developer("WARNING: LTI is being used on a non-secure connection.\n Always use LTI on SSL only in production.\n");
-		}
+		}*/
 
 		$new_launch = isset($_REQUEST['user_id']) && isset($_REQUEST['oauth_consumer_key']) && isset($_REQUEST['context_id']);
 

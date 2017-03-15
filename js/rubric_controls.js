@@ -1,12 +1,11 @@
 /**
- *
+ * note variable app is defined in PHP as string
  */
-var app = app | {};
 
-$(document).ready(function () {
+app.activateRubricControls = function() {
 		var text = 'Grid View';
 
-		var back = "<div id='rub_back' style='position: fixed; width: 100%; height: 100%; top:0;left:0;background-color: #000; opacity: 0.7'></div>";
+		var back = "<div id='rub_back' style='position: fixed; width: 100%; height: 100%; top:0;left:0;background-color: #000; opacity: 0.7; z-index: 3'></div>";
 		$("#rub_onExitClose").parent().prepend(back);
 
 		var p = $("#rub_onExitClose").data("pre_pop");
@@ -73,6 +72,8 @@ $(document).ready(function () {
 		};
 
         var syncInputs = function(o) {
+						//if(is_instructor) return false;
+
 						var i, score, el;
 
             if($(".active[role='tab']").attr("id") ==	 "gridViewTab") {
@@ -186,10 +187,12 @@ $(document).ready(function () {
 			var model = { rows: [] }; //, colLabels : [], rowLabels: [], maxValue: '0' };
 
 			$(".rubricTable .scoreSet").each(function() {
+				//if(is_instructor) break;
+
 				var r = $(this).closest("tr").index();
 				var c = $(this).closest("td").index();
 				var tr = -1, div = -1;
-				
+
 				if(isNaN($(this).val())) {
 						error_track(model);
 				}
@@ -197,9 +200,6 @@ $(document).ready(function () {
 				var score = parseFloat( $(this).val() );
 
 				model.rows[r] = { col: c, score: score };
-
-
-			//	$(this).closest("div.rubricGradingRow").addClass("_read");
 
 				tr = $(this).closest("tr").index();
 				div = $(this).closest("div.rubricGradingRow").index();
@@ -242,9 +242,8 @@ $(document).ready(function () {
 			var n = $("#rubric_container tbody > tr:not(._read), #rubric_container .rubricControlContainer div.rubricGradingRow:not('._read')").length;
 
 			$("tbody tr:not(._read) > th, .rubricGradingRow:not(._read) > h4").css({border: "2px solid red", display: "block"});
-			//console.log(n);
 
-			if(n > 0) {
+			if(n > 0 && !app.is_instructor) {
 					bootbox.alert({size: 'small', message: "Please grade all criteria.", callback: function() {
 							_progress = false;
 					}
@@ -262,4 +261,14 @@ $(document).ready(function () {
 			$(document).html("<p>There was an error processing your form, try returning to the course and clicking the link again, if this still does not work, please report this incident to the developer at <a href='mailto:paul.sijpkes@newcastle.edu.au?subject="+subject+"&body="+body+"'>The BOLD Team at UoN</a>.</p>");
 			return;
 		};
+
+
+};
+
+app.activateRubricControls();
+
+$(window).on('scrollWindow', function() {
+			setTimeout( function () {
+		    $('body, html').stop().animate({ scrollTop: 0 }, 500);
+			}, 0);
 });

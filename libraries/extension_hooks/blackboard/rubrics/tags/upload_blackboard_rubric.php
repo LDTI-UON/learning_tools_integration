@@ -58,7 +58,9 @@ $hook_method = function() {
       $file_data =    ee() -> upload -> data();
 
       $file_name = $file_data['file_name'];
-      $ext = strtoupper(end(explode(".", $file_name)));
+      $a = explode(".", $file_name);
+      $a = end($a);
+      $ext = strtoupper($a);
 
       if (!in_array($ext, array("ZIP"))) {
         $errors .= "<br>'$ext' Filetype not allowed.";
@@ -178,7 +180,7 @@ $hook_method = function() {
 
   $vars['form'] = $form;
   $vars['base_url'] = $this->base_url;
-
+  
   $vars['disable_instructor_score_setting'] = !empty($init_rubric);
 
   return ee() -> load -> view('instructor/rubric-interface.php', $vars, TRUE);
