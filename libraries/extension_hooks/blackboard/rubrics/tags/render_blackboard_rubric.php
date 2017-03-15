@@ -52,7 +52,7 @@ $hook_method = function() {
     if($is_instructor) {
         $vars['js_controls'] = "var instr = true;\n";
     }
-    $vars['js_controls'] .= "var app = app || {};\napp.is_instructor = instr || false;";
+    $vars['js_controls'] .= "var app = app || {};\napp.is_instructor = (typeof instr !== 'undefined');";
 
     $vars['js_controls'] .= file_get_contents("$this->mod_path/js/rubric_controls.js");
 

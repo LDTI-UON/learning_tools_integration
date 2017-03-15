@@ -29,20 +29,19 @@ $hook_method = function($view_data) {
                    $data = array(
                                           'name'        => 'optout',
                                           'id'          => 'optout',
-                                          'value'       => '1',
+                                          'value'       => '0',
                                           'checked'   => FALSE,
                                     );
                      $data1 = array(
                                           'name'        => 'optout',
                                           'id'          => 'optout',
-                                          'value'       => '0',
+                                          'value'       => '1',
                                           'checked'   => TRUE,
                                     );
 
-                   $form .= form_hidden('gradebook_sync_optout', 'posted');
+                   $form .= form_hidden('gradebook_sync_optout', '1');
                    $form .= "<input type='submit' style='display:none'></input>";
                    $form .= "<div class='radio-inline'>".form_radio($data).lang('opt-out')."</div><div class='radio-inline'>".form_radio($data1).lang('opt-in')."</div>";//.form_submit('submit', 'Okay', $this->form_submit_class);
-
                    $form .= form_close();
                    $modal = array('id' => 'sync_message',
                                   'header' => 'Blackboard Gradebook Sync',
@@ -57,7 +56,7 @@ $hook_method = function($view_data) {
                     ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => ee()->input->post('optout')));
                     redirect($this->base_url);
 
-                    return;
+                    exit();
                 }
             } else {
 
@@ -96,7 +95,6 @@ $hook_method = function($view_data) {
                                       'class'       => 'form-control form-control-xs'
                                 );
 
-
                     $form .= "<div class='row'><div class='col-xs-1'><label for='password_conf'>Confirm Password: </label></div><div class='col-xs-2'>".form_password($data)."</div></div>";
                     $form .= "<input type='submit' style='display:none'></input>";
                     $form .= "</div></div>";
@@ -115,8 +113,6 @@ $hook_method = function($view_data) {
                           'callback' => "function() { $(\"#modal form\").submit(); }"
                       );
 
-
-
                     $view_data['settings_modal'] =   ee()->load->view('modal', $modal, TRUE);
                 } else {
                     $password = ee()->input->post('password');
@@ -128,7 +124,7 @@ $hook_method = function($view_data) {
                     ee()->db->update('lti_instructor_credentials', array('password' => $crypted_password, 'state' => '1'));
 
                     redirect($this->base_url);
-                    return;
+                    exit();
                 }
             }
 
