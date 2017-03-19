@@ -93,22 +93,7 @@ The gradebook import and group functions require some URIs to Blackboards servic
 ```
 #!shell
 
-ee_install_dir/system/user/config/config.php
-```
-
-Paste this code into the config file. You will need to modify the paths to match your institution.
-```
-#!php
-
-
-/ LTI config items /
-/ This is for gradebook export /
-
-// Blackboard's login page path.
-$config['blackboard_auth_path'] = 'webapps/login/';
-
-// Blackboard's getJSONData REST service query
-$config['blackboard_gradebook_uri_query'] = '/webapps/gradebook/do/instructor/getJSONData?course_id=';
+ee_install_dir/system/user/addons/learning_tools_integration/config
 ```
 
 #EE Plugins#

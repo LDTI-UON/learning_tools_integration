@@ -70,9 +70,9 @@ class Learning_tools_integration_ext {
 	private static $session_info;
 	private $session_domain;
 	private $cookie_name = "ee_lti_plugin";
-	private $use_SSL = TRUE;
+	private $use_SSL = FALSE;
 
-	private $debug = FALSE;
+	private $debug = TRUE;
 
 	public $lti_error = NULL; //for error tag in templates
 
@@ -278,6 +278,7 @@ class Learning_tools_integration_ext {
 		if(strpos($protocol, "https") === FALSE) {
 			$this->use_SSL = FALSE;
 		}
+		if($this->debug) $this->use_SSL = FALSE;
 
 		/*if(!$this->use_SSL) {
 			ee()->logger->developer("WARNING: LTI is being used on a non-secure connection.\n Always use LTI on SSL only in production.\n");
@@ -452,16 +453,12 @@ class Learning_tools_integration_ext {
 
 						$this->lti_error = $error;
 						ee()->config->_global_vars['lti_has_error'] = $this->lti_error;
-
-							//exit;
 				}
 		} catch (OAuthException $e) {
 						$error = error_call($e, $this);
 
 						$this->lti_error = $error;
 						ee()->config->_global_vars['lti_has_error'] = $this->lti_error;
-
-						//exit;
 		}
 
 		//$userKey = $context -> getUserKey();

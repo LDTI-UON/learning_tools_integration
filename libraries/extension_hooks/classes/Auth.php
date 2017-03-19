@@ -10,6 +10,7 @@ class Auth {
 
   private $host;
   private $path;
+  private $port;
   private $lti_module;
 
   public $cookies;
@@ -21,23 +22,44 @@ class Auth {
   const FAIL = 2;
 
   function __construct(&$lti_module)  {
+
+      ee()->config->load('lti_config', TRUE);
       $this->scheme = $lti_module->use_SSL ? "https" : "http";
       $this->host = $lti_module->lti_url_host;
       $this->path = ee()->config->item('blackboard_auth_path');
-
+      $this->port = $lti_module->lti_url_port;
       $this->lti_module = $lti_module;
   }
 
   public function get_blackboard_url() {
-      return $this->scheme.'://'.$this->host;
+
+      $base = $this->scheme.'://'.$this->host;
+
+      if($this->port !== NULL) {
+          $base .= ":".$this->port;
+      }
+
+      return $base;
+  }
+
+  private function get_auth_url() {
+    if($this->lti_module->dev) {
+        return "http://dev.bb.local:8080/webapps/login/";
+    }
+
+    return $this->get_blackboard_url().'/'.$this->path;
+  }
+
+  public function bb_lms_rest($user) {
+
   }
 
    public function bb_lms_login($user, $pass) {
-    $url = $this->scheme.'://'.$this->host.'/'.$this->path;
-//    $url = "https://uonline.newcastle.edu.au/webapps/login/";
+    $url = $this->get_auth_url();
+    $cookie_path = ee()->config->item('lti_cookies');
 
     // contextualise cookies
-    $cookies = PATH_THIRD."learning_tools_integration/data/".$this->lti_module->member_id."_".$this->lti_module->context_id."_".$this->lti_module->institution_id."_cookie.txt";
+    $cookies = $cookie_path.$this->lti_module->member_id."_".$this->lti_module->context_id."_".$this->lti_module->institution_id."_cookie.txt";
 
     if(file_exists($cookies)) {
         unlink($cookies);
@@ -49,9 +71,10 @@ class Auth {
     $agent = Utils::getRandomUserAgent();
 
     $this->curl = curl_init();
+    $host = $this->port ? $this->host.":".$this->port : $this->host;
 
     curl_setopt($this->curl, CURLOPT_URL, $url);
-    curl_setopt($this->curl, CURLOPT_HTTPHEADER, array("Content-Length: $length", "Content-Type: application/x-www-form-urlencoded", "Cache-Control:max-age=0", "Host: $this->host"));
+    curl_setopt($this->curl, CURLOPT_HTTPHEADER, array("Content-Length: $length", "Content-Type: application/x-www-form-urlencoded", "Cache-Control:max-age=0", "Host: $host"));
     curl_setopt($this->curl, CURLOPT_COOKIEJAR, $cookies);
     curl_setopt($this->curl, CURLOPT_COOKIEFILE, $cookies);
     curl_setopt($this->curl, CURLOPT_USERAGENT, $agent);
@@ -62,20 +85,25 @@ class Auth {
     curl_setopt($this->curl, CURLOPT_FRESH_CONNECT, TRUE);
 
     $page = curl_exec($this->curl);
-
-    $doc = new \DOMDocument();
+      $ob = $page;
+    $doc = new \DOMDocument("1.0", "utf-8");
 
     $page = htmlspecialchars($page);
 
     if(strlen($page) > 0) {
-        if($doc->loadHTML($page)) {
+        $loaded = $doc->loadHTML($page);
+        if($loaded) {
+            //$el = $doc->getELementById("loginErrorMessage");
             $el = $doc->getELementById("loginErrorMessage");
-
+          /*  echo "Element: ";
+            var_dump($el);
+            echo "<hr><div>$page</div>";
+            exit;*/
             if($el !== NULL) {
                 return Auth::LOGIN_ERROR;
             }
 
-            $el = $doc->getELementById("paneTabs");
+            $el = $doc->getELementById("globalNavPageNavArea");
 
             if($el === NULL) {
                if(strpos($page, "redirect") === FALSE) {
@@ -83,6 +111,8 @@ class Auth {
                }
             }
         }
+    } else {
+        return Auth::FAIL;
     }
 
     $this->cookies = $cookies;

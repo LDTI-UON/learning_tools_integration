@@ -38,7 +38,7 @@ class Learning_tools_integration {
     private $perpage = 10;
     private $pagination_segment = 3; // default only
     private $allowed_groups;
-    public $use_SSL = TRUE;
+    public $use_SSL = FALSE;
 
     public $launch_presentation_return_url = "";
     public $tool_consumer_instance_name = "";
@@ -64,6 +64,7 @@ class Learning_tools_integration {
     public $isInstructor = 0;
     public $lti_url_host = "";
     public $lti_url_path = "";
+    public $lti_url_port = null;
 
     public $institution;
     public $institution_id;
@@ -107,14 +108,10 @@ class Learning_tools_integration {
 
     private $plugin_setup_text;
 
-   // private $session_domain;
-
-    /* allow registration for admin user via LTI */
-    private $admin_key = 'pkmUgZgiBm';
-
     private $general_message = '';
 
-    public $debug = FALSE;
+    public $debug = TRUE;
+    public $dev = TRUE;
 
     private $maintenance_message = FALSE;
     private $maintenance_key = 'hashKeyHere';
@@ -501,6 +498,7 @@ class Learning_tools_integration {
 
             $this->lti_url_host = parse_url($this->launch_presentation_return_url, PHP_URL_HOST);
             $this->lti_url_path = parse_url($this->launch_presentation_return_url, PHP_URL_PATH);
+            $this->lti_url_port = parse_url($this->launch_presentation_return_url, PHP_URL_PORT);
         }
 
         foreach($this->extension_launch['no_template'] as $launch) {

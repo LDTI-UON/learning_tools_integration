@@ -23,68 +23,104 @@ $hook_method = function($view_data) {
             if($query->num_rows() == 0) {
 
                if(!isset($_POST['gradebook_sync_optout'])) {
+                  $attr = $this->base_form_attr;
+                  $attr['id'] = "optout";
 
-                   $form = form_open($this->base_url, $this->base_form_attr);
+                   $form = form_open($this->base_url, $attr);
 
                    $data = array(
                                           'name'        => 'optout',
-                                          'id'          => 'optout',
-                                          'value'       => '0',
-                                          'checked'   => FALSE,
+                                        //  'id'          => 'optout',
+                                          'value'       => 'out',
+                                          'checked'    => TRUE,
                                     );
                      $data1 = array(
                                           'name'        => 'optout',
-                                          'id'          => 'optout',
-                                          'value'       => '1',
-                                          'checked'   => TRUE,
+                                        //  'id'          => 'optout',
+                                          'value'       => 'in',
                                     );
 
                    $form .= form_hidden('gradebook_sync_optout', '1');
-                   $form .= "<input type='submit' style='display:none'></input>";
-                   $form .= "<div class='radio-inline'>".form_radio($data).lang('opt-out')."</div><div class='radio-inline'>".form_radio($data1).lang('opt-in')."</div>";//.form_submit('submit', 'Okay', $this->form_submit_class);
+
+                   $form .= "<div class='radio-inline' style='margin-top: 1em;'><label>";
+                   $form .= form_radio($data);
+                   $form .= lang('opt-out');
+                   $form .= "</label></div>";
+
+                   $form .= "<div class='radio-inline' style='margin-top: 1em; margin-right: 1em;'><label>";
+                   $form .= form_radio($data1);
+                   $form .= lang('opt-in');
+                   $form .= "</label></div>";
+                   $form .= "<input type='submit' value='submit' id='optout_submit' style='display:none'>";
                    $form .= form_close();
                    $modal = array('id' => 'sync_message',
                                   'header' => 'Blackboard Gradebook Sync',
-                                 'instructions' =>
-                                                         lang('gradebook_sync_optout'),
-                                                         'form' => jsEscape($form),
-                                                         'callback' => "function() { $('#modal form').submit(); }",
-                                                         'buttons' => json_encode(array("ok" => array('callback' => 'onSubmit')))
-                                                       );
-                   $view_data['settings_modal'] = ee()->load->view('modal', $modal, TRUE);
+                                 'instructions' => lang('gradebook_sync_optout'),
+                                  'form' => jsEscape($form),
+                                  'callback_f' => "function(){ console.log($('div.modal form#optout')); $('div.modal form#optout').submit(); }",
+                                  'button_label' => 'OK',
+                                  'button_type' => 'ok'
+                                  );
+                    $view_data['settings_modal'] = ee()->load->view('modal', $modal, TRUE);
                  } else {
-                    ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => ee()->input->post('optout')));
+                    $disabled = ee()->input->post('optout') == "out" ? 1 : 0;
+                    ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => $disabled));
                     redirect($this->base_url);
 
                     exit();
                 }
             } else {
 
+                $password = $query->row()->password;
+
+                if($password) {
+                    $decrypted = Encryption::decrypt($password, Encryption::get_salt($this->user_id.$this->context_id));
+                }
+
+                $auth = NULL;
+                if(isset($decrypted)) {
+                    $bb_auth = new Auth($this);
+                    $auth = $bb_auth->bb_lms_login($this->username, $decrypted);
+                }
+
+            //    echo "AUTH: $auth";
                 if($query->row()->disabled == 0) {
-                    if($query->row()->password === NULL) {
+                    if($auth === NULL || $auth === 1) {
 
                 ee()->load->library('form_validation');
-                ee()->form_validation->set_rules('password', 'Password', 'required|matches[password_conf]');
-                ee()->form_validation->set_rules('password_conf', 'Password Confirmation', 'required');
+                $rules = array('required' => 'Please fill in both fields',
+                'matches[password_conf]' => "Passwords don't match");
+
+                ee()->form_validation->set_rules('password_conf', 'Password Confirmation', 'required', $rules);
+                unset($rules['matches[password_conf]']);
+
+                ee()->form_validation->set_rules('password', 'Password', 'required|matches[password_conf]', $rules);
 
                 $form_valid = ee()->form_validation->run();
 
                 if (empty($form_valid) || $form_valid === FALSE) {
 
                     $form = form_open($this->base_url, $this->base_form_attr)."<div class='container'>";
+                    $e = form_error('password');
 
-                    $form .= "<div class='row'><div class='col-xs-4'><h5>".lang('password_title')."</h5></div></div>";
+                    if($auth === 1) {
+                        $e = "Incorrect password, please try again.";
+                    }
 
-                        $data = array(
-                                      'name'        => 'password',
-                                      'id'          => 'password',
-                                      'value'       => '',
-                                      'maxlength'   => '18',
-                                      'size'        => '12',
-                                      'class'       => 'form-control form-control-xs'
-                                );
+                    $form .= "<div class='row'><div class='col-sm-3'><h5>"
+                              .lang('password_title')."</h5>
+                              <p style='color: red'><b>$e</b></p></div></div>";
 
-                    $form .= "<div class='row'><div class='col-xs-1'><label for='password'>Password:</label></div><div class='col-xs-2'>".form_password($data)."</div></div>";
+                    $data = array(
+                                  'name'        => 'password',
+                                  'id'          => 'password',
+                                  'value'       => '',
+                                  'maxlength'   => '18',
+                                  'size'        => '12',
+                                  'class'       => 'form-control form-control-xs'
+                            );
+
+                    $form .= "<div class='row'><div class='col-sm-0'><label for='password'>Password:</label></div><div class='col-sm-2'>".form_password($data)."</div></div>";
 
                      $data = array(
                                       'name'        => 'password_conf',
@@ -95,8 +131,8 @@ $hook_method = function($view_data) {
                                       'class'       => 'form-control form-control-xs'
                                 );
 
-                    $form .= "<div class='row'><div class='col-xs-1'><label for='password_conf'>Confirm Password: </label></div><div class='col-xs-2'>".form_password($data)."</div></div>";
-                    $form .= "<input type='submit' style='display:none'></input>";
+                    $form .= "<div class='row'><div class='col-sm-0'><label for='password_conf'>Confirm Password: </label></div><div class='col-sm-2'>".form_password($data)."</div></div>";
+                    $form .= "<input type='submit' id='auth_submit' style='display:none'></input>";
                     $form .= "</div></div>";
                     $form .= form_close();
 
@@ -105,13 +141,10 @@ $hook_method = function($view_data) {
                            'size' => 'small',
                           'instructions' => ''/*lang('outlook_instructions')*/,
                           'form' => jsEscape($form),
-                          'buttons' => json_encode(array(
-                             'ok' => array(
-                                 'label' => lang('set_external_password'),
-                                 'callback' => 'onSubmit'
-                             ))),
-                          'callback' => "function() { $(\"#modal form\").submit(); }"
-                      );
+                          'callback_f' => "function(){ $('div.modal form').submit();};",
+                          'button_label' => lang('set_external_password'),
+                          'button_type' => 'ok'
+                    );
 
                     $view_data['settings_modal'] =   ee()->load->view('modal', $modal, TRUE);
                 } else {
@@ -132,21 +165,16 @@ $hook_method = function($view_data) {
             if(isset($query->row()->uploaded)) {
                 $time_diff = (Integer) time() - strtotime($query->row()->uploaded);
 
-                    if((isset($_POST['force_sync']) ||
+                if((isset($_POST['force_sync']) ||
                                 (
                                     !empty($_REQUEST['user_id']) && !empty($_REQUEST['context_id'])
                                 )
                         ) && !empty($query->row()->password)) {
 
-                        $decrypted = Encryption::decrypt($query->row()->password, Encryption::get_salt($this->user_id.$this->context_id));
-
                         ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id));
 
                         if($decrypted !== FALSE) {
 
-                        $bb_auth = new Auth($this);
-
-                        $auth = $bb_auth->bb_lms_login($this->username, $decrypted);
                         $this->gradebook_auth = $auth;
 
                         $jsstr = "";

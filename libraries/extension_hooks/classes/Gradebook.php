@@ -8,6 +8,7 @@ private $cachedGradeBook;
 private $settings;
 
 function __construct($lti_module) {
+      ee()->config->load('lti_config', TRUE);
       $this->lti_module = $lti_module;
 }
 
@@ -114,7 +115,7 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
         $page2 = curl_exec($bb_auth->curl);
 
         curl_close($bb_auth->curl);
-        
+
         $this->cachedGradeBook = json_decode($page2, TRUE);
 
         return $this->cachedGradeBook;
