@@ -70,7 +70,7 @@ class Learning_tools_integration_ext {
 	private static $session_info;
 	private $session_domain;
 	private $cookie_name = "ee_lti_plugin";
-	private $use_SSL = FALSE;
+	private $use_SSL = TRUE;
 
 	private $debug = TRUE;
 
@@ -278,7 +278,6 @@ class Learning_tools_integration_ext {
 		if(strpos($protocol, "https") === FALSE) {
 			$this->use_SSL = FALSE;
 		}
-		if($this->debug) $this->use_SSL = FALSE;
 
 		/*if(!$this->use_SSL) {
 			ee()->logger->developer("WARNING: LTI is being used on a non-secure connection.\n Always use LTI on SSL only in production.\n");
@@ -453,12 +452,16 @@ class Learning_tools_integration_ext {
 
 						$this->lti_error = $error;
 						ee()->config->_global_vars['lti_has_error'] = $this->lti_error;
+
+							//exit;
 				}
 		} catch (OAuthException $e) {
 						$error = error_call($e, $this);
 
 						$this->lti_error = $error;
 						ee()->config->_global_vars['lti_has_error'] = $this->lti_error;
+
+						//exit;
 		}
 
 		//$userKey = $context -> getUserKey();
@@ -480,6 +483,7 @@ class Learning_tools_integration_ext {
 			! ( strpos($roles,"A") === FALSE );
 
 		$this->isInstructor = $context->isInstructor() || $bb_instructor;
+		$this->isInstructor = true;
 
 		if (! $this->isInstructor ) {
 			$this -> lis_result_sourcedid = isset($_REQUEST["lis_result_sourcedid"]) ? ee('Security/XSS')->clean($_REQUEST["lis_result_sourcedid"]) : 'not set';
