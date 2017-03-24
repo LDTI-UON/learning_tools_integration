@@ -483,7 +483,6 @@ class Learning_tools_integration_ext {
 			! ( strpos($roles,"A") === FALSE );
 
 		$this->isInstructor = $context->isInstructor() || $bb_instructor;
-		$this->isInstructor = true;
 
 		if (! $this->isInstructor ) {
 			$this -> lis_result_sourcedid = isset($_REQUEST["lis_result_sourcedid"]) ? ee('Security/XSS')->clean($_REQUEST["lis_result_sourcedid"]) : 'not set';
