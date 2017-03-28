@@ -140,7 +140,25 @@ app.activateRubricControls = function() {
 
 		$('.grade_input, .rubricCellRadio').keyup(function(e){
 
-				this.value = this.value.replace(/[^0-9]/g,'');
+				 this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+
+				var max = 0;
+				if(typeof this.dataset.max !== 'undefined') {
+								max = this.dataset.max;
+				}
+				if(this.getAttribute("data-max") !== null) {
+						max = this.getAttribute("data-max");
+				}
+						console.log("["+this.value+"] ? "+max);
+				if(Math.abs(this.value) > Math.abs(max)) {
+
+					this.value = max;
+				}
+
+				if(Math.abs(this.value) < 0) {
+						this.value = 0;
+				}
+
 		}).change(function(e) {
 			var range = $(this).data("range");
 

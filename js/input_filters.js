@@ -8,6 +8,7 @@ $(document).ready(function() {
 			$("form#filters").submit();
 		} else {
 			this.value = this.value.replace(/[^0-9]/g,'');
+			
 		}
 	});
 	$('input#st_search').keyup(function (e) {
