@@ -82,6 +82,7 @@ $(document).on("change", "select[name=\'rubrics\']", function(e) {
 
           $("#rub_loader").show();
           $("#loader_msg").text("");
+          var id = $("select[name=\'rubrics\'] option:selected").val();
           var is_checked = $(e.target).is(':checked') ? "1" : "0";
           var key = id.split('|')[0];
           show_scores_array[key] = is_checked;

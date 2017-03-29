@@ -9,6 +9,7 @@ $config['lti_cookies'] = '/var/www/lti/cache/cookies/';
 
 // jquery dist.
 $config['jquery_src'] = '//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js';
+$config['chosen_css'] = '//cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.min.css';
 
 //LTI config items
 $config['blackboard_url'] = "http://dev.bb.local:8080/";
