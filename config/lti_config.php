@@ -11,5 +11,6 @@ $config['lti_cookies'] = '/var/www/lti/cache/cookies/';
 $config['jquery_src'] = '//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js';
 
 //LTI config items
+$config['blackboard_url'] = "http://dev.bb.local:8080/";
 $config['blackboard_auth_path'] = 'webapps/login/';
 $config['blackboard_gradebook_uri_query'] = '/webapps/gradebook/do/instructor/getJSONData?course_id=';

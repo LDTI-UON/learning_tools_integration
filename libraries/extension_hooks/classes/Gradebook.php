@@ -107,7 +107,7 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
 
         $blackboard_gradebook_uri_query = ee()->config->item('blackboard_gradebook_uri_query');
         $url2 = $bb_auth->get_blackboard_url($this->lti_module).$blackboard_gradebook_uri_query.$this->lti_module->pk_string;
-
+            echo $url2.BR;
         curl_setopt($bb_auth->curl, CURLOPT_HEADER, 0);
         curl_setopt($bb_auth->curl, CURLOPT_URL, $url2);
         curl_setopt($bb_auth->curl, CURLOPT_REFERER, $bb_auth->url);
@@ -117,6 +117,7 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
         curl_close($bb_auth->curl);
 
         $this->cachedGradeBook = json_decode($page2, TRUE);
+
 
         return $this->cachedGradeBook;
     }

@@ -22,7 +22,6 @@ class Auth {
   const FAIL = 2;
 
   function __construct(&$lti_module)  {
-
       ee()->config->load('lti_config', TRUE);
       $this->scheme = $lti_module->use_SSL ? "https" : "http";
       $this->host = $lti_module->lti_url_host;
@@ -32,11 +31,14 @@ class Auth {
   }
 
   public function get_blackboard_url() {
+      if($this->lti_module->dev) {
+          $base = "http://dev.bb.local:8080/";
+      }  else {
+        $base = $this->scheme.'://'.$this->host;
 
-      $base = $this->scheme.'://'.$this->host;
-
-      if($this->port !== NULL) {
-          $base .= ":".$this->port;
+        if($this->port !== NULL) {
+            $base .= ":".$this->port;
+        }
       }
 
       return $base;
@@ -47,7 +49,7 @@ class Auth {
         return "http://dev.bb.local:8080/webapps/login/";
     }
 
-    return $this->get_blackboard_url().'/'.$this->path;
+    return $this->get_blackboard_url().$this->path;
   }
 
   public function bb_lms_rest($user) {

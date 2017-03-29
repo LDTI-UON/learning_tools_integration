@@ -11,7 +11,7 @@ $hook_method = function() {
     if(is_array($json)) {
       $as_json = json_encode($json);
 
-      file_put_contents(PATH_THIRD.'learning_tools_integration'.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR.'raw_gradebook.json', $as_json);
+      file_put_contents(ee()->config->item('lti_cache').'raw_gradebook.json', $as_json);
 
       $str = "<h1>Grade Centre Dump</h1><em>The raw json has been placed in the raw_gradebook.json file in the application cache directory.</em><h2>Keys</h2><pre>".var_export(array_keys($json), TRUE)."</pre>".
         "<h1>Grade Book</h1>";

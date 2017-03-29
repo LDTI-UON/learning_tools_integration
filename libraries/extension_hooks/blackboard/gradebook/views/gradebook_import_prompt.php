@@ -6,6 +6,7 @@ use LTI\ExtensionHooks\Utils;
 
 $hook_method = function($view_data) {
 
+
         function jsEscape($str) {
             return $str; //no longer required
             $str = str_replace(array("\r\n", "\n", "\r"), ' ', $str);
@@ -14,15 +15,18 @@ $hook_method = function($view_data) {
             return $str;
         }
 
-        ee() -> load -> helper('url');
-            $view_data['settings_modal'] = "";
+        $is_super = ee()->session->userdata('group_id') == 1;
 
-            $password_req = FALSE;
-            $query = ee()->db->get_where('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id));
+        ee() -> load -> helper('url');
+
+        $view_data['settings_modal'] = "";
+
+        $password_req = FALSE;
+        $query = ee()->db->get_where('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id));
 
             if($query->num_rows() == 0) {
 
-               if(!isset($_POST['gradebook_sync_optout'])) {
+               if(!isset($_POST['gradebook_sync_optout']) && $is_super) {
                   $attr = $this->base_form_attr;
                   $attr['id'] = "optout";
 
@@ -69,7 +73,7 @@ $hook_method = function($view_data) {
 
                     exit();
                 }
-            } else {
+            } else if($is_super) {
 
                 $password = $query->row()->password;
 
@@ -169,7 +173,7 @@ $hook_method = function($view_data) {
                                 (
                                     !empty($_REQUEST['user_id']) && !empty($_REQUEST['context_id'])
                                 )
-                        ) && !empty($query->row()->password)) {
+                        ) && !empty($query->row()->password) && $is_super) {
 
                         ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id));
 
