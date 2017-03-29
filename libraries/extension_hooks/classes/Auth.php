@@ -22,7 +22,7 @@ class Auth {
   const FAIL = 2;
 
   function __construct(&$lti_module)  {
-      ee()->config->load('lti_config', TRUE);
+
       $this->scheme = $lti_module->use_SSL ? "https" : "http";
       $this->host = $lti_module->lti_url_host;
       $this->path = ee()->config->item('blackboard_auth_path');
@@ -34,11 +34,7 @@ class Auth {
       if($this->lti_module->dev) {
           $base = "http://dev.bb.local:8080/";
       }  else {
-        $base = $this->scheme.'://'.$this->host;
-
-        if($this->port !== NULL) {
-            $base .= ":".$this->port;
-        }
+          $base = ee()->config->item("blackboard_url");
       }
 
       return $base;
@@ -60,6 +56,9 @@ class Auth {
     $url = $this->get_auth_url();
     $cookie_path = ee()->config->item('lti_cookies');
 
+    if($this->lti_module->debug) {
+        ee()->logger->developer("Accessing $url");
+    }
     // contextualise cookies
     $cookies = $cookie_path.$this->lti_module->member_id."_".$this->lti_module->context_id."_".$this->lti_module->institution_id."_cookie.txt";
 

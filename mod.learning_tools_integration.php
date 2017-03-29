@@ -110,8 +110,8 @@ class Learning_tools_integration {
 
     private $general_message = '';
 
-    public $debug = TRUE;
-    public $dev = TRUE;
+    public $debug = FALSE;
+    public $dev = FALSE;
 
     private $maintenance_message = FALSE;
     private $maintenance_key = 'hashKeyHere';
@@ -156,6 +156,11 @@ class Learning_tools_integration {
      */
     public function __construct() {
        static::$instance =& $this;
+       ee()->config->load('lti_config', TRUE);
+
+       if($this->debug) {
+          ee()->load->library('logger');
+       }
 
        $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
        $this->lib_path = $this->mod_path.DIRECTORY_SEPARATOR.'libraries';

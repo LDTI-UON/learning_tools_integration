@@ -108,6 +108,10 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
         $blackboard_gradebook_uri_query = ee()->config->item('blackboard_gradebook_uri_query');
         $url2 = $bb_auth->get_blackboard_url($this->lti_module).$blackboard_gradebook_uri_query.$this->lti_module->pk_string;
 
+        if($this->lti_module->debug) {
+            ee()->logger->developer("Accessing gradebook at: $url2");
+        }
+
         curl_setopt($bb_auth->curl, CURLOPT_HEADER, 0);
         curl_setopt($bb_auth->curl, CURLOPT_URL, $url2);
         curl_setopt($bb_auth->curl, CURLOPT_REFERER, $bb_auth->url);

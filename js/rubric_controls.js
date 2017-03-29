@@ -140,7 +140,7 @@ app.activateRubricControls = function() {
 
 		$('.grade_input, .rubricCellRadio').keyup(function(e){
 
-				 this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+				 this.value = this.value.replace(/[^0-9\-]/g, '');
 
 				var max = 0;
 				if(typeof this.dataset.max !== 'undefined') {
@@ -214,8 +214,10 @@ app.activateRubricControls = function() {
 				if(isNaN($(this).val())) {
 						error_track(model);
 				}
-
-				var score = parseFloat( $(this).val() );
+				var n = $(this).val();
+				
+				if(n.trim() == '-' || n.trim() == "") n = 0;
+				var score = parseFloat(n);
 
 				model.rows[r] = { col: c, score: score };
 
@@ -249,7 +251,7 @@ app.activateRubricControls = function() {
 
 				$(".contentPane").css({margin: ''});
 
-				$(document).trigger('updateTableState');
+
 
 				$(".container-fluid").show();
 				flashRow(input_id);
@@ -262,13 +264,19 @@ app.activateRubricControls = function() {
 			$("tbody tr:not(._read) > th, .rubricGradingRow:not(._read) > h4").css({border: "2px solid red", display: "block"});
 
 			if(n > 0 && !app.is_instructor) {
-					bootbox.alert({size: 'small', message: "Please grade all criteria.", callback: function() {
+					bootbox.alert({size: 'small', message: "Please grade all criteria. If you wish to give a 0, please enter a hyphen ('-').", callback: function() {
 							_progress = false;
 					}
 				});
 			} else {
 					hide_rubric();
 			}
+
+			if(typeof ltipa.check_yourself === 'function') {
+					console.log("DFSL:FJDJJLDSF");
+					ltipa.check_yourself();
+			}
+
 			return;
 		});
 

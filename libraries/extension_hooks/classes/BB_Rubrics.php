@@ -464,14 +464,14 @@ private function appendHTML(DOMNode $parent, $source) {
 
 				$this->rangeInput_Grid =$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($this->grid_dom->createElement("input"));
 				$this->rangeInput_Grid->setAttribute("type", "text");
-				$this->rangeInput_Grid->setAttribute("value", $params["value"]);
+				$this->rangeInput_Grid->setAttribute("value", abs($params["value"]));
 				$this->rangeInput_Grid->setAttribute("class", "grade_input");
 				$this->rangeInput_Grid->setAttribute("size", "3");
 				$this->rangeInput_Grid->setAttribute("name", "_number_".$this->current_row_id);
 
 				// grid start value
-				$text_node =$this->grid_dom->createTextNode(" (".$params["value"]);
-				$this->grid_dom_index['numstartval'][$this->current_cell_id] =$params["value"];
+				$text_node =$this->grid_dom->createTextNode(" (".abs($params["value"]));
+				$this->grid_dom_index['numstartval'][$this->current_cell_id] = abs($params["value"]);
 
 				$num_start =$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($text_node);
 
@@ -483,14 +483,14 @@ private function appendHTML(DOMNode $parent, $source) {
 
 				$this->rangeInput_List =$this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($this->list_dom->createElement("input"));
 				$this->rangeInput_List->setAttribute("type", "text");
-				$this->rangeInput_List->setAttribute("value", $params["value"]);
+				$this->rangeInput_List->setAttribute("value", abs($params["value"]));
 				$this->rangeInput_List->setAttribute("class", "grade_input");
 				$this->rangeInput_List->setAttribute("size", "3");
 				$this->rangeInput_List->setAttribute("name", "_number_".$this->current_row_id);
 
 				// list start value
-				$text_node =$this->list_dom->createTextNode(" (".$params["value"]);
-				$this->list_dom_index['numstartval'][$this->current_cell_id] = $params["value"];
+				$text_node =$this->list_dom->createTextNode(" (".abs($params["value"]));
+				$this->list_dom_index['numstartval'][$this->current_cell_id] = abs($params["value"]);
 
 				$num_start1 =$this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
 
@@ -505,11 +505,11 @@ private function appendHTML(DOMNode $parent, $source) {
         if(isset($this->list_dom_index['numpoints']) && $this->list_dom_index['numpoints'][$this->current_cell_id]) break;
 
 				// grid start value
-				$text_node =$this->grid_dom->createTextNode(" - ".$params["value"].")");
-				$this->grid_dom_index['numendval'][$this->current_cell_id] =$params["value"];
+				$text_node =$this->grid_dom->createTextNode(" - ".abs($params["value"]).")");
+				$this->grid_dom_index['numendval'][$this->current_cell_id] = abs($params["value"]);
 
-				$this->rangeInput_Grid->setAttribute("data-max", $params["value"]);
-				$this->rangeInput_List->setAttribute("data-max", $params["value"]);
+				$this->rangeInput_Grid->setAttribute("data-max", abs($params["value"]));
+				$this->rangeInput_List->setAttribute("data-max", abs($params["value"]));
 
 				$num_end =$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($text_node);
 
@@ -520,8 +520,8 @@ private function appendHTML(DOMNode $parent, $source) {
 				$this->grid_dom_index['numend'][$this->current_cell_id] =$num_end;
 
 				// list start value
-				$text_node =$this->list_dom->createTextNode(" - ".$params["value"].")");
-				$this->list_dom_index['numendval'][$this->current_cell_id] = $params["value"];
+				$text_node =$this->list_dom->createTextNode(" - ".abs($params["value"]).")");
+				$this->list_dom_index['numendval'][$this->current_cell_id] = abs($params["value"]);
 
 				$num_end1 =$this->list_dom_index['div_cells'][$this->current_cell_id]->appendChild($text_node);
 
