@@ -10,26 +10,40 @@ if (isset($students) && count($students) > 0 || isset($_POST['st_search'])) {
 	ee()->table->set_template($tmpl);
 
 	if($include_groups) {
-		 ee()->table->set_heading(
-	        lang('screen_name'),
-	        lang('username'),
-	        lang('email'),
-	        lang('file_name'),
-	        //lang('group_no'),
-	        lang('group_name')
-	     );
-
+		$heading = array(
+				lang('screen_name'),
+				lang('username'),
+				lang('email'),
+				lang('file_name'),
+				lang('group_name')
+		 );
 	} else {
-	    ee()->table->set_heading(
-	        lang('screen_name'),
-	        lang('username'),
-	        lang('email'),
-	        lang('file_name')
-	     );
+
+			$heading = array(
+					lang('screen_name'),
+					lang('username'),
+					lang('email'),
+					lang('file_name')
+		 	);
 	}
 
+$indexes = array();
+$scripts = array();
+$actions = array();
+if(isset($student_table_plugin_headers) && is_array($student_table_plugin_headers)) {
+	foreach($student_table_plugin_headers as $plugin => $plugin_headers) {
+ 				$heading = array_merge($heading, $plugin_headers);
+				$indexes = array_merge($indexes, $student_table_plugin_col_indexes[$plugin]);
+				$actions[$plugin] = $student_table_actions[$plugin];
+				$scripts[] = $student_table_scripts[$plugin];
+	}
+}
 
-	if(isset($students)) {
+$json_actions = json_encode($actions);
+
+ee()->table->set_heading($heading);
+
+if(isset($students)) {
 	    foreach($students as $index => $student)
 	    {
 				$class = '';
@@ -37,32 +51,40 @@ if (isset($students) && count($students) > 0 || isset($_POST['st_search'])) {
 						$class='success';
 				}
 
-
+				$row = null;
+				$email_trunc = substr($student['email'], 0, 12);
 
 				if($include_groups) {
-							ee()->table->add_row(
+							$row = array(
 										Utils::add_class_to_cell($student['screen_name'], $class),
-								//	array($student['screen_name'], 'class' => $class),
-									$student['username'],
-									"<a href='mailto:$student[email]'>$student[email]</a>",
+										$student['username'],
+									"<a href='mailto:$student[email]'>$email_trunc...</a>",
 									empty($student['file_display_name']) ? " - " : $student['file_display_name'],
 									$student['group_name']
 							);
-
 				} else {
-
-					ee()->table->add_row(
-									$student['screen_name'],
-									$student['username'],
-									"<a href='mailto:$student[email]'>$student[email]</a>",
-									empty($student['file_display_name']) ? " - " : $student['file_display_name']
+							$row = array(
+											$student['screen_name'],
+											$student['username'],
+											"<a href='mailto:$student[email]'>$email_trunc...</a>",
+											empty($student['file_display_name']) ? " - " : $student['file_display_name']
 							);
 				}
 
+				if(count($indexes) > 0) {
+						$fields = array();
+						foreach($indexes as $index) {
+								$fields[] = $student[$index];
+						}
+
+						$row = array_merge($row, $fields);
+				}
+
+				ee()->table->add_row($row);
 	    }
 
 	} else {
-		 ee()->table->add_row(array('colspan' => 6, 'style' => 'text-align: left','data' => "Nothing to show"));
+		 ee()->table->add_row(array('colspan' => 6, 'style' => 'text-align: left', 'data' => "Nothing to show"));
 	}
 ?>
 
@@ -74,9 +96,16 @@ if (isset($students) && count($students) > 0 || isset($_POST['st_search'])) {
     <?= $pagination ?>
     <?= $per_page ?>
 </div>
-
-
 <?php
+/* add EE actions */
+echo "<script>";
+echo "var acts = $json_actions;";
+echo "var base_url = '$base_url';";
+		foreach($scripts as $script) {
+						echo $script;
+		}
+
+echo "</script>";
 } else {
 		echo lang('no_students_in_this_context');
 }
