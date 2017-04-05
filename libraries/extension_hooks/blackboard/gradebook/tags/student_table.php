@@ -46,7 +46,7 @@ $hook_method = function () {
         }
     }
 
-    $groups = !empty($this -> include_groups) ? ",lti_group_contexts.group_no, lti_group_contexts.group_name" : '';
+    $groups = !empty($this -> include_groups) ? ",lti_group_contexts.group_no, lti_group_contexts.group_name, lti_group_contexts.group_id" : '';
     //ee() -> db -> save_queries = true;
     ee() -> db -> select("members.member_id, members.screen_name, members.username, members.email, lti_member_resources.display_name $groups");
     ee() -> db -> join("lti_member_contexts", "members.member_id = exp_lti_member_contexts.member_id AND exp_lti_member_contexts.context_id = '$this->context_id'

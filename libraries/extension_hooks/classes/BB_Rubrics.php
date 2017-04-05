@@ -38,7 +38,8 @@ class BB_Rubrics {
 													"row_headers" => array(),
 													"col_headers" => array(),
 													"row_weights" => array(),
-													"col_scores" => array()
+													"col_scores" => array(),
+													"range_count" => 0,
 										);
 
 		$this->simpleParse();
@@ -216,7 +217,7 @@ private function appendHTML(DOMNode $parent, $source) {
 					$this->data[(string)$this->init["rubricid"]] = $this->default;
 					$this->doms[(string)$this->init["rubricid"]] = array("grid" => new \DOMDocument('1.0'), "grid_index" => array(), "list" =>  new \DOMDocument('1.0'), "list_index" => array(), "total_score" => 0);
 
-					$this->pointer =$this->data[(string)$this->init["rubricid"]];
+					$this->pointer =& $this->data[(string)$this->init["rubricid"]];
 
 					$this->grid_dom_index =$this->doms[(string)$this->init["rubricid"]]["grid_index"];
 
@@ -459,9 +460,10 @@ private function appendHTML(DOMNode $parent, $source) {
 				$this->list_dom_index['numpoints'][$this->current_cell_id] =$num_points;
 			break;
 			case "numericstartpointrange":
-					if($this->init["type"] !== "NUMERIC_RANGE") break;
-                if(isset($this->list_dom_index['numpoints']) && $this->list_dom_index['numpoints'][$this->current_cell_id]) break;
-
+				if($this->init["type"] !== "NUMERIC_RANGE") break;
+        if(isset($this->list_dom_index['numpoints']) && $this->list_dom_index['numpoints'][$this->current_cell_id]) break;
+				$this->pointer['col_scores'][$this->pointer['range_count']] = array("range" => array("min" => 0, "max" => 0));
+				$this->pointer['col_scores'][$this->pointer['range_count']]["range"]["min"] = (float) $params['value'];
 				$this->rangeInput_Grid =$this->grid_dom_index['range_values'][$this->current_cell_id]->appendChild($this->grid_dom->createElement("input"));
 				$this->rangeInput_Grid->setAttribute("type", "text");
 				$this->rangeInput_Grid->setAttribute("value", abs($params["value"]));
@@ -502,8 +504,10 @@ private function appendHTML(DOMNode $parent, $source) {
 			break;
 			case "numericendpointrange":
 				if($this->init["type"] !== "NUMERIC_RANGE") break;
-        if(isset($this->list_dom_index['numpoints']) && $this->list_dom_index['numpoints'][$this->current_cell_id]) break;
+      	if(isset($this->list_dom_index['numpoints']) && $this->list_dom_index['numpoints'][$this->current_cell_id]) break;
 
+				$this->pointer['col_scores'][$this->pointer['range_count']]["range"]["max"] = (float) $params['value'];
+				$this->pointer['range_count'] = $this->pointer['range_count'] + 1;
 				// grid start value
 				$text_node =$this->grid_dom->createTextNode(" - ".abs($params["value"]).")");
 				$this->grid_dom_index['numendval'][$this->current_cell_id] = abs($params["value"]);
