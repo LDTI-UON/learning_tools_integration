@@ -205,7 +205,7 @@ app.activateRubricControls = function() {
 			var model = { rows: [] }; //, colLabels : [], rowLabels: [], maxValue: '0' };
 
 			$(".rubricTable .scoreSet").each(function() {
-				//if(is_instructor) break;
+				if(app.is_instructor) return FALSE;
 
 				var r = $(this).closest("tr").index();
 				var c = $(this).closest("td").index();
@@ -215,7 +215,7 @@ app.activateRubricControls = function() {
 						error_track(model);
 				}
 				var n = $(this).val();
-				
+
 				if(n.trim() == '-' || n.trim() == "") n = 0;
 				var score = parseFloat(n);
 
@@ -233,7 +233,6 @@ app.activateRubricControls = function() {
 						$(this).closest("div.rubricGradingRow").index();
 						$("div#contentAreaBlock0 tbody > tr:nth-child("+div+")").addClass("_read");
 				}
-
 
 				total += score;
 			});
@@ -273,7 +272,6 @@ app.activateRubricControls = function() {
 			}
 
 			if(typeof ltipa.check_yourself === 'function') {
-					console.log("DFSL:FJDJJLDSF");
 					ltipa.check_yourself();
 			}
 

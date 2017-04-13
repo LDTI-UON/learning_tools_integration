@@ -1,4 +1,11 @@
 <?php
+# @Author: ps158
+# @Date:   2016-09-20T15:36:13+10:00
+# @Last modified by:   ps158
+# @Last modified time: 2017-04-13T13:10:10+10:00
+
+
+
 namespace LTI\ExtensionHooks;
 
 class GradebookImport {
@@ -136,7 +143,8 @@ public function import_from_blackboard($group_students, $json) {
         $uid = $gradebook_row[$LN_index]['uid'];
 
         $added_to_group = FALSE;
-        foreach ($gradeBook['groups'] as $group_index => $group) {
+				$i = 1;
+				foreach ($gradeBook['groups'] as $group_index => $group) {
 
             if(in_array($uid, $group['uids'])) {
                 $view_alias = $group['id'];
@@ -149,6 +157,7 @@ public function import_from_blackboard($group_students, $json) {
                      }
                  }
 
+								$group_name = !empty($group_name) ? $group_name : "Group ". $i++;
                 $row[$this->col_header_indexes['group_name']] = $group_name;
                 $file_rows[$group_name][] = $row;
                 $added_to_group = TRUE;

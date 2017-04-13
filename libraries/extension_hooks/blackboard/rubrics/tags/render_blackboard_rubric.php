@@ -1,4 +1,11 @@
 <?php
+# @Author: ps158
+# @Date:   2016-09-20T15:36:13+10:00
+# @Last modified by:   ps158
+# @Last modified time: 2017-04-12T16:59:39+10:00
+
+
+
 use LTI\ExtensionHooks\Utils;
 
 
@@ -18,6 +25,7 @@ $hook_method = function() {
 
 
   $path = Utils::build_course_upload_path($lti_cache, $this->context_id, $this->institution_id, $this->course_id);
+
     $rubric_dir = $path.DIRECTORY_SEPARATOR."rubrics".DIRECTORY_SEPARATOR."html";
     $dir = scandir($rubric_dir);
     $vars = array();

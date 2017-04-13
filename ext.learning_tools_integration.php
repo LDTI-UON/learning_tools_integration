@@ -1,4 +1,11 @@
 <?php
+# @Author: ps158
+# @Date:   2017-03-28T16:04:23+11:00
+# @Last modified by:   ps158
+# @Last modified time: 2017-04-13T15:08:32+10:00
+
+
+
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 
@@ -40,6 +47,7 @@ class Learning_tools_integration_ext {
 	public $group_id = '6';
 	public $internal_context_id = 0;
 	public $isInstructor = 0;
+	public $is_preview_user = FALSE;
 	public $general_message = "";
 
 	protected $flashdata = null;
@@ -562,9 +570,10 @@ class Learning_tools_integration_ext {
 				}
 
 				if(!empty($this->vle_username)) {
+
 					if(FALSE !== strpos($this->vle_username, "previewuser")) {
-						// ensure we are using unique email for previewuser
-						$this->email = $this->vle_username."@".$this->session_domain;
+								$this->email = $this->vle_username."@".$this->session_domain;
+								$this->is_preview_user = TRUE;
 					}
 
           $member_data = array('username' => $this->vle_username, 'screen_name' => $this->screen_name, 'group_id' => $this->group_id, 'email' => $this->email, 'last_visit' => time(), 'last_activity' => time(), 'join_date' => time());
@@ -608,6 +617,10 @@ class Learning_tools_integration_ext {
 				$this->screen_name = $current_member->screen_name; //query->row()->screen_name;
 			}
 		} else {
+				if(FALSE !== strpos($this->vle_username, "previewuser")) {
+							$this->is_preview_user = TRUE;
+				}
+
 				$id = $lti_member->member_id;
 		}
 
@@ -647,7 +660,8 @@ class Learning_tools_integration_ext {
 				'context_label' => $this -> context_label, 'ext_lms' => $this -> ext_lms, 'isInstructor' => $this -> isInstructor, 'course_key' => $this -> course_key,
 				'course_name' => $this -> course_name, 'user_short_name' => $this -> user_short_name, 'resource_title' => $this -> resource_title,
 				'resource_link_description' => $this -> resource_link_description, 'ext_launch_presentation_css_url' => $this -> ext_launch_presentation_css_url,
-                                'institution_id' => $this->institution_id, 'course_id' => $this->course_id, 'pk_string' =>$this->vle_pk_string, 'base_url' => ee()->config->item('site_url'), 'css_link_tags' => $this->css_link_tags(), 'user_email' => $this->email,
+        'institution_id' => $this->institution_id, 'course_id' => $this->course_id, 'pk_string' =>$this->vle_pk_string, 'base_url' => ee()->config->item('site_url'),
+				'css_link_tags' => $this->css_link_tags(), 'user_email' => $this->email, 'is_preview_user' => $this->is_preview_user, 'vle_username' => $this->vle_username
 				 );
 
 		// persist base segment for future tag calls
@@ -708,8 +722,9 @@ class Learning_tools_integration_ext {
 				ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];
 
 				//Blackboard specific
-				ee()->config->_global_vars['bb_pk_string'] = $this->vle_pk_string;
-				ee()->config->_global_vars['bb_username'] = $this->vle_username;
+				ee()->config->_global_vars['bb_pk_string'] = $session_info['pk_string'];
+				ee()->config->_global_vars['bb_username'] = $session_info['vle_username'];
+				ee()->config->_global_vars['is_preview_user'] = $session_info['is_preview_user'];
 	}
 
 	 private function css_link_tags() {
