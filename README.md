@@ -3,7 +3,7 @@
 ### LTI Module for ExpressionEngine (EE)  ###
 Tested with up to ExpressionEngine 3.5.3
 
-## New in Version 3.3.4 ##
+## New in Version 3.4.1 ##
 * Moved pagination icons location references from template to config file
 * Added AJAX LMS grade read and write tags
 
