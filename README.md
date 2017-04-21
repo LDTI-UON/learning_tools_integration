@@ -19,7 +19,8 @@ It has had rudimentary testing in Moodle, further development is desired in this
 ### Getting started ###
 
  Get a copy of [EE Core at Ellislabs](https://store.ellislab.com/#ee-core) (note this is limited to 3 back-end administrative and content development users, you will need to pay for the full version if you need more administrators).
- Download the zip file of the latest release at [Github](git@github.com:BOLDLab/learning_tools_integration.git)
+ Download the zip file of the latest release at [Github](https://github.com/BOLDLab/learning_tools_integration)
+ Or clone it with git:
  ```
  git clone git@github.com:BOLDLab/learning_tools_integration.git
  ```
