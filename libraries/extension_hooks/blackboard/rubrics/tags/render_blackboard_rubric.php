@@ -2,12 +2,8 @@
 # @Author: ps158
 # @Date:   2016-09-20T15:36:13+10:00
 # @Last modified by:   ps158
-# @Last modified time: 2017-04-12T16:59:39+10:00
-
-
-
+# @Last modified time: 2017-04-19T14:34:52+10:00
 use LTI\ExtensionHooks\Utils;
-
 
 /*
 * Direct method via exp:module:method syntax

@@ -2,10 +2,7 @@
 # @Author: ps158
 # @Date:   2017-03-28T16:04:23+11:00
 # @Last modified by:   ps158
-# @Last modified time: 2017-04-13T15:51:29+10:00
-
-
-
+# @Last modified time: 2017-04-21T11:37:20+10:00
 
 // cache areas
 $config['lti_cache'] = '/var/www/lti/cache/';
@@ -22,6 +19,12 @@ $config['chosen_css'] = '//cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.mi
 $config['blackboard_url'] = "http://dev.bb.local:8080/";
 $config['blackboard_auth_path'] = 'webapps/login/';
 $config['blackboard_gradebook_uri_query'] = '/webapps/gradebook/do/instructor/getJSONData?course_id=';
+
+// pagination buttons
+$config['prev_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_previous.gif";
+$config['next_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_next.gif";
+$config['first_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_rewind.gif";
+$config['last_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_ffwd.gif";
 
 $config['preview_comments'] = array(
          array("comment" =>

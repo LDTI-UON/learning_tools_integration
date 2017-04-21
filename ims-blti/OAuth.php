@@ -1,4 +1,11 @@
 <?php
+# @Author: ps158
+# @Date:   2016-09-20T15:18:03+10:00
+# @Last modified by:   ps158
+# @Last modified time: 2017-04-20T10:20:00+10:00
+
+
+
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 
@@ -350,6 +357,7 @@ class OAuthRequest {
    */
   public function get_normalized_http_url() {
     $parts = parse_url($this->http_url);
+
     $port = @$parts['port'];
     $scheme = $parts['scheme'];
     $host = $parts['host'];

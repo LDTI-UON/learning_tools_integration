@@ -2,7 +2,7 @@
 # @Author: ps158
 # @Date:   2017-03-28T16:04:23+11:00
 # @Last modified by:   ps158
-# @Last modified time: 2017-04-13T15:08:32+10:00
+# @Last modified time: 2017-04-20T10:40:50+10:00
 
 
 
@@ -487,8 +487,8 @@ class Learning_tools_integration_ext {
 		$roles = ee()->input->post('custom_vle_user_role');
 		$bb_instructor =
 			! ( strpos($roles,"instructor") === FALSE )  ||
-			! ( strpos($roles,"administrator") === FALSE ) ||
-			! ( strpos($roles,"A") === FALSE );
+			! ( strpos($roles,"administrator") === FALSE );// ||
+			//! ( strpos($roles,"A") === FALSE );
 
 		$this->isInstructor = $context->isInstructor() || $bb_instructor;
 
@@ -720,7 +720,7 @@ class Learning_tools_integration_ext {
 				ee()->config->_global_vars['lti_user_email'] = $session_info['user_email'];
 				ee()->config->_global_vars['ext_launch_presentation_css_url'] = $session_info['ext_launch_presentation_css_url'];
 				ee()->config->_global_vars['css_link_tags'] = $session_info['css_link_tags'];
-
+				ee()->config->_global_vars['lis_result_sourcedid'] = $session_info['lis_result_sourcedid'];
 				//Blackboard specific
 				ee()->config->_global_vars['bb_pk_string'] = $session_info['pk_string'];
 				ee()->config->_global_vars['bb_username'] = $session_info['vle_username'];

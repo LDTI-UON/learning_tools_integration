@@ -1,4 +1,11 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+# @Author: ps158
+# @Date:   2017-03-28T16:04:23+11:00
+# @Last modified by:   ps158
+# @Last modified time: 2017-04-21T11:44:48+10:00
+
+
+
 
 /**
  * ExpressionEngine - by EllisLab
@@ -30,6 +37,7 @@
 class Learning_tools_integration {
     public $return_data;
     public $mod_class = 'Learning_tools_integration';
+    public $mod_dir = "learning_tools_integration";
     public $mod_path;
 
     public $base_url = "";
@@ -397,14 +405,15 @@ class Learning_tools_integration {
                   $this->_load_hooks();
               }
 
-              $this -> prev_link_url =   ee() -> TMPL -> fetch_param('prev_link_url');
-              $this -> next_link_url =   ee() -> TMPL -> fetch_param('next_link_url');
-              $this -> first_link_url =   ee() -> TMPL -> fetch_param('first_link_url');
-              $this -> last_link_url =   ee() -> TMPL -> fetch_param('last_link_url');
-      		        $group_id =    ee() -> TMPL -> fetch_param('group_id');
+              $this -> prev_link_url =   ee() -> config->item('prev_link_url');
+              $this -> next_link_url =   ee() -> config->item('next_link_url');
+              $this -> first_link_url =   ee() -> config->item('first_link_url');
+              $this -> last_link_url =   ee() -> config->item('last_link_url');
 
-      		        $pls = ee() -> TMPL -> fetch_param('plugins');
-      		        static::$lti_plugins = explode(",", strtolower($pls));
+              $group_id =    ee() -> TMPL -> fetch_param('group_id');
+
+      		  $pls = ee() -> TMPL -> fetch_param('plugins');
+      		  static::$lti_plugins = explode(",", strtolower($pls));
         }
 
         $this->plugin_setup_text = array();
@@ -688,10 +697,7 @@ class Learning_tools_integration {
         $form.= form_close();
         return $form;
     }
-    public function save_user_grade() {
-      	if ($this -> isInstructor == 1) {
-            return "No grades for instructors, sorry!";
-        }
+    public function write_user_grade() {
 
         ee() -> load -> helper('url');
 
@@ -702,12 +708,27 @@ class Learning_tools_integration {
         $key = $result -> row('oauth_consumer_key');
         $secret = $result -> row('secret');
 
+        if(isset(ee()->config->_global_vars['lis_result_sourcedid'])) {
+          $srcid = ee()->config->_global_vars['lis_result_sourcedid'];
+        }
+
+        if(isset(ee()->config->_global_vars['lis_outcome_service_url'])) {
+          $url = ee()->config->_global_vars['lis_outcome_service_url'];
+        }
+
+        if(empty($url)) {
+            $url = ee()->input->post('url');
+        }
+
+        if(empty($srcid)) {
+            $srcid = ee()->input->post('srcid');
+            $this->lis_result_sourcedid = $srcid;
+        }
+
         $id = uniqid();
 
         require_once ("xml/replace-grade-envelope.php");
         $xml_length = strlen($xml);
-
-        $url = $this -> lis_outcome_service_url;
 
         require_once("ims-blti/OAuth.php");
 
@@ -737,30 +758,41 @@ class Learning_tools_integration {
         $json_response['severity'] = (string)$xml_o -> imsx_POXHeader -> imsx_POXResponseHeaderInfo -> imsx_statusInfo -> imsx_severity;
         $json_response['description'] = (string)$xml_o -> imsx_POXHeader -> imsx_POXResponseHeaderInfo -> imsx_statusInfo -> imsx_description;
 
-        die(json_encode($json_response));
+        echo json_encode($json_response);
+        return;
     }
 
     public function read_user_grade() {
-    	if ($this -> isInstructor == 1) {
-            return "No grades for instructors, sorry!";
-        }
-
         ee() -> load -> helper('url');
 
-        $grade = ee() -> input -> post('grade');
         $segment = ee() -> input -> post('segment');
 
         $result =     ee() -> db -> get_where('blti_keys', array('url_segment' => $segment));
         $key = $result -> row('oauth_consumer_key');
         $secret = $result -> row('secret');
 
+        if(isset(ee()->config->_global_vars['lis_result_sourcedid'])) {
+          $srcid = ee()->config->_global_vars['lis_result_sourcedid'];
+        }
+
+        if(isset(ee()->config->_global_vars['lis_outcome_service_url'])) {
+          $url = ee()->config->_global_vars['lis_outcome_service_url'];
+        }
+
+        if(empty($url)) {
+            $url = ee()->input->post('url');
+        }
+
+        if(empty($srcid)) {
+            $srcid = ee()->input->post('srcid');
+            $this->lis_result_sourcedid = $srcid;
+        }
+
         $id = uniqid();
 
         require_once ("xml/read-grade-envelope.php");
+
         $xml_length = strlen($xml);
-
-        $url = $this -> lis_outcome_service_url;
-
         $bodyHash = base64_encode(sha1($xml, TRUE));
 
         require_once("ims-blti/OAuth.php");
@@ -793,6 +825,52 @@ class Learning_tools_integration {
         $json_response['resultScore'] = (string)$xml_o -> imsx_POXBody -> readResultResponse -> result -> resultScore -> textString;
 
         die(json_encode($json_response));
+    }
+
+    public function grade_read_js() {
+        $res = ee()->db->get_where("actions", array("method" => "read_user_grade"));
+        $read_int = $res->row()->action_id;
+
+        $segments = ee()->uri->segment_array();
+        $n = count($segments);
+        $segment = $segments[$n];
+
+        $url = ee()->config->_global_vars['lis_outcome_service_url'];
+        $srcid = ee()->config->_global_vars['lis_result_sourcedid'];
+
+        $js_vars =
+        "var read_ACT = \"$this->base_url?ACT=$read_int\";\n".
+        "var segment = \"$segment\";\n".
+        "var url = \"".$url."\";\n".
+        "var srcid = \"".$srcid."\";\n".
+        "var read_callback = function(data) { data = JSON.parse(data);\n".ee()->TMPL->tagdata." };";
+
+        $js_file = file_get_contents(PATH_THIRD.$this->mod_dir."/js/read_grade.js");
+
+        return $js_vars.$js_file;
+    }
+
+    public function grade_write_js() {
+        $res = ee()->db->get_where("actions", array("method" => "write_user_grade"));
+        $write_int = $res->row()->action_id;
+
+        $segments = ee()->uri->segment_array();
+        $n = count($segments);
+        $segment = $segments[$n];
+
+        $url = ee()->config->_global_vars['lis_outcome_service_url'];
+        $srcid = ee()->config->_global_vars['lis_result_sourcedid'];
+
+        $js_vars = "var write_ACT = \"$this->base_url?ACT=$write_int\";\n".
+        "var segment = \"$segment\";\n".
+        "var url = \"".$url."\";\n".
+        "var srcid = \"".$srcid."\";\n".
+
+        "var write_callback = function(data) { data = JSON.parse(data);\n".ee()->TMPL->tagdata." };";
+
+        $js_file = file_get_contents(PATH_THIRD.$this->mod_dir."/js/write_grade.js");
+
+        return $js_vars.$js_file;
     }
     /*
     *   Used as an action to crreae a new user on launch.

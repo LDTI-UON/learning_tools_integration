@@ -1,9 +1,12 @@
 # README #
 
-### LTI Module for ExpressionEngine(EE)  ###
-Tested with up to EE
+### LTI Module for ExpressionEngine (EE)  ###
+Tested with up to ExpressionEngine 3.5.3
 
-## Version 3.3.38 ##
+## Version 3.3.4 ##
+Moved pagination icons location references from template to config file
+
+** Version 3.3.38 **
 More intelligent use of tags, easier to develop custom templates.
 Bootstrap
 Bootbox modals
@@ -15,7 +18,6 @@ using a token generated with the remember_lti_user plugin.
  Incorporated UoN Rails app for user creation of LTI links.
 
 ** Version 3.2.0 **
- removed total reliance on EE sessions
  fixed javascript bug in rubric
 
 ** Version 3.0.0 **
@@ -35,39 +37,36 @@ It has had rudimentary testing in Moodle, further development is desired in this
 
 ### Getting started ###
 
- Get a copy of [EE Core at Ellislabs](https://store.ellislab.com/#ee-core) (note this is limited to  back-end administrative and content development users, you will need to pay for the full version if you need more administrators).
- [Download the zip file of the latest release at devot:ee](https://devot-ee.com/add-ons/learning-tools-integration)
+ Get a copy of [EE Core at Ellislabs](https://store.ellislab.com/#ee-core) (note this is limited to 3 back-end administrative and content development users, you will need to pay for the full version if you need more administrators).
+ Download the zip file of the latest release at [Github](git@github.com:BOLDLab/learning_tools_integration.git)
+ ```
+ git clone git@github.com:BOLDLab/learning_tools_integration.git
+ ```
  Follow the instructions at the above link and the [installing add-ons section](https://docs.expressionengine.com/latest/cp/addons/index.html) of the EE documentation.
 
-The extension_hooks directory is in a [separate repository](https://bitbucket.org/sijpkes/ee-lti-extension-hooks/overview) as this is where most of the LMS specific code is housed.  If you would like to contribute and build specific extensions to suit other LMSs, you are more than welcome!
+# Extension Hooks for EE LTI Module #
+Template tags available for integration with Blackboard Learn
+## User and Group Import ##
 
-#Extension Hooks for EE LTI Module
-
-##Tags available for integration with Blackboard Learn##
-
-##User and Group Import##
-EE Tags provided
 ```
-#!html
 {student_table}
 {upload_student_list}
 ```
 Allows manual and automated import of Users and/or Groups using CSV or with secure authentication to Blackboard Learns Gradebook JSON export REST URI.
 
-##Blackboard Rubrics##
-EE Tags provided
-```
-#!html
+## Blackboard Rubrics ##
 
+
+```
 {upload_blackboard_rubric}
 {render_blackboard_rubric}
 ```
 Provides tags that allow import and display of rubric ZIP archives exported from Blackboard learn, provides tags for viewing the Rubrics.  These can be used with the Peer Assessment plugin below.
 
-##Secure Resource Delivery##
-EE Tags provided
+## Secure Resource Delivery ##
+
+
 ```
-#!html
 {download_resource}
 {random_form_error}
 {random_form}
@@ -78,34 +77,53 @@ EE Tags provided
 ```
 This extension provides tags to allow the setup of randomly assigned question and answer resources to students.  A link is placed in Blackboard for the question and the solution.  The solution can then be released via an adaptive release rule at the Instructor's discretion.
 
-##Settings##
-EE Tags Provided
+## AJAX Grade Read and Write ##
+Use these tags as convenient grade read and write back functions to the LMS in your own javascript code in templates. This tag follows standard IMS Global grade read/write security protocol. See [IMS LTI Implementation guide -> 4.3 Security for application/xml Messages](http://www.imsglobal.org/specs/ltiv1p1/implementation-guide).  
+
+Strangely enough, the data attributes are worded as if something will go wrong, but usually you only need to check that `data.codeMajor === 'success'` and `data.description` for output.  
+
+The sample template for this is `examples/sample_grade_readwrite_LMS.html`.
+
+Usage:
 ```
-#!html
+<script>
+    {grade_write_js}
+        /* your javascript here to handle data
+         data.description, data.severity, data.codeMajor */
+    {/grade_write_js}
+
+    {grade_read_js}
+        /* your javascript here to handle data, options for data are:
+        data.description, data.codeMajor, data.resultScore, data.severity */
+    {/grade_read_js}
+</script>
+```
+
+## Settings ##
+
+
+```
 {general_settings_form}
 ```
 This tag provides a settings form for instructors to turn plugins and features on and off, it can be restricted to certain users.
 
 ## Gradebook User and Group import ##
 This extension runs automatically once added and will import all users from the LMS after it is provided with the Instructor's password. The password is encryped using the [Defuse encryption library](https://github.com/defuse/php-encryption)
+
 ### Config File ###
 The gradebook import and group functions require some URIs to Blackboards services.  These are set in the config.php file located here:
 ```
-#!shell
-
-ee_install_dir/system/user/addons/learning_tools_integration/config
+cd EE install directory/system/user/addons/learning_tools_integration/config
 ```
 
-#EE Plugins#
+# EE Plugins #
 
-###[Peer Review Module](https://bitbucket.org/sijpkes/lti-peer-assessment)###
-This EE plugin is in constant development as I get more interest from academics here at UoN.  Grab this from BitBucket via the above link.
+### [Peer Review Module](git@github.com:BOLDLab/lti_peer_assessment.git) ###
+This EE plugin is in constant development as we get more interest from academics here at UoN.  Grab this from BitBucket via the above link.
 
 This plugin requires all the above extension hooks to run
 This plugin has ONLY been tested in Blackboard Learn.
 
-
-
 ### Contribution guidelines ###
 
-Contributors are need, so if you're interested in contributing please contact [Paul Sijpkes](mailto:paul.sijpkes@newcastle.edu.au) at the University of Newcastle, Australia (PH +).
+Contributors are need, so if you're interested in contributing please contact the repo owner.
