@@ -1,0 +1,128 @@
+<!--
+@Author: ps158
+@Date:   2017-05-01T15:06:59+10:00
+@Last modified by:   ps158
+@Last modified time: 2017-05-01T15:28:11+10:00
+-->
+
+<!-- Exported from Blackboard Learn -->
+<?xml version="1.0" encoding="UTF-8"?>
+<LEARNRUBRICS>
+    <Rubric id="_6825_1"><Title value="Team Contribution"/><Description value=""/><ContactName value=""/><Version value="6"/><CreatorId value="_2224540_1"/><Type value="NUMERIC"/><Status value="ACTIVE"/><Public value="false"/><DeletedIndicator value="false"/><MaxValue value="35.0"/><Keywords value=""/>
+        <DATES><CREATED value="2017-05-01 14:36:46 AEST"/><UPDATED value="2017-05-01 15:05:33 AEST"/></DATES>
+        <RubricRows>
+            <Row id="_27873_1"><Header value="Dependability"/><Position value="0"/><Percentage value="14.285714"/>
+                <RubricColumns>
+                    <Column><Header value="Unsatisfactory"/><Position value="0"/>
+                        <Cell id="_122952_1"><CellDescription value="Attended hardly any to no group meetings. Did not notify if not attending."/><NumericPoints value="0.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="5.0"/><Percentage value="0.0"/><PercentageMax value="25.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Needs Improvement"/><Position value="1"/>
+                        <Cell id="_122953_1"><CellDescription value="Attended some group meetings. Sometimes notified if not attending."/><NumericPoints value="1.0"/><NumericStartPointRange value="6.0"/><NumericEndPointRange value="10.0"/><Percentage value="20.0"/><PercentageMax value="50.0"/><Percentagemin value="30.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Competent"/><Position value="2"/>
+                        <Cell id="_122954_1"><CellDescription value="Mostly attended group meetings and alwaysn notified the group when not attending."/><NumericPoints value="3.0"/><NumericStartPointRange value="11.0"/><NumericEndPointRange value="15.0"/><Percentage value="60.0"/><PercentageMax value="75.0"/><Percentagemin value="55.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Outstanding"/><Position value="3"/>
+                        <Cell id="_122955_1"><CellDescription value="Attended all group meetings."/><NumericPoints value="5.0"/><NumericStartPointRange value="16.0"/><NumericEndPointRange value="20.0"/><Percentage value="100.0"/><PercentageMax value="100.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                </RubricColumns>
+            </Row>
+            <Row id="_27874_1"><Header value="Accecptance of Assigned Tasks"/><Position value="1"/><Percentage value="14.285714"/>
+                <RubricColumns>
+                    <Column><Header value="Unsatisfactory"/><Position value="0"/>
+                        <Cell id="_122956_1"><CellDescription value="Unwilling or hesitant to work on assigned tasks and completed few of them."/><NumericPoints value="0.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="10.0"/><Percentage value="0.0"/><PercentageMax value="25.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Needs Improvement"/><Position value="1"/>
+                        <Cell id="_122957_1"><CellDescription value="Contributed to some assigned tasks and completed some of them."/><NumericPoints value="1.0"/><NumericStartPointRange value="6.0"/><NumericEndPointRange value="15.0"/><Percentage value="20.0"/><PercentageMax value="50.0"/><Percentagemin value="30.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Competent"/><Position value="2"/>
+                        <Cell id="_122958_1"><CellDescription value="Willing to complete assigned tasks and completed most of them."/><NumericPoints value="3.0"/><NumericStartPointRange value="11.0"/><NumericEndPointRange value="15.0"/><Percentage value="60.0"/><PercentageMax value="75.0"/><Percentagemin value="55.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Outstanding"/><Position value="3"/>
+                        <Cell id="_122959_1"><CellDescription value="Enthusiastic to complete assigned tasks and completed all of them."/><NumericPoints value="5.0"/><NumericStartPointRange value="16.0"/><NumericEndPointRange value="20.0"/><Percentage value="100.0"/><PercentageMax value="100.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                </RubricColumns>
+            </Row>
+            <Row id="_27875_1"><Header value="Positive Discussion Contribution"/><Position value="2"/><Percentage value="14.285714"/>
+                <RubricColumns>
+                    <Column><Header value="Unsatisfactory"/><Position value="0"/>
+                        <Cell id="_122960_1"><CellDescription value="Contributed very little to team discussion. Contributions could be somewhat negative."/><NumericPoints value="0.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="5.0"/><Percentage value="0.0"/><PercentageMax value="25.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Needs Improvement"/><Position value="1"/>
+                        <Cell id="_122961_1"><CellDescription value="Contributed somewhat to team discussion. Contributions were sometimes positive and usually constructive."/><NumericPoints value="1.0"/><NumericStartPointRange value="6.0"/><NumericEndPointRange value="10.0"/><Percentage value="20.0"/><PercentageMax value="50.0"/><Percentagemin value="30.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Competent"/><Position value="2"/>
+                        <Cell id="_122962_1"><CellDescription value="Discussion contributions were generally positive and constructive."/><NumericPoints value="3.0"/><NumericStartPointRange value="11.0"/><NumericEndPointRange value="15.0"/><Percentage value="60.0"/><PercentageMax value="75.0"/><Percentagemin value="55.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Outstanding"/><Position value="3"/>
+                        <Cell id="_122963_1"><CellDescription value="Constructive and positive contributions to team discussion were always made."/><NumericPoints value="5.0"/><NumericStartPointRange value="16.0"/><NumericEndPointRange value="20.0"/><Percentage value="100.0"/><PercentageMax value="100.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                </RubricColumns>
+            </Row>
+            <Row id="_27876_1"><Header value="Completed Work on Time"/><Position value="3"/><Percentage value="14.285714"/>
+                <RubricColumns>
+                    <Column><Header value="Unsatisfactory"/><Position value="0"/>
+                        <Cell id="_122964_1"><CellDescription value="Rarely completed work on time. Did not notify or make other arrangements when work was going to be late."/><NumericPoints value="0.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="10.0"/><Percentage value="0.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Needs Improvement"/><Position value="1"/>
+                        <Cell id="_122965_1"><CellDescription value="Sometimes completed work on time. Occasionally made alternative arrangements when work was not on schedule."/><NumericPoints value="1.0"/><NumericStartPointRange value="11.0"/><NumericEndPointRange value="25.0"/><Percentage value="20.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Competent"/><Position value="2"/>
+                        <Cell id="_122966_1"><CellDescription value="Usually completed work on time.  Made alternative arrangements when work was not on schedule."/><NumericPoints value="3.0"/><NumericStartPointRange value="26.0"/><NumericEndPointRange value="39.0"/><Percentage value="60.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Outstanding"/><Position value="3"/>
+                        <Cell id="_122967_1"><CellDescription value="Always completed work on time. Always made alternative arrangements if schedule was disrupted for legitimate reasons."/><NumericPoints value="5.0"/><NumericStartPointRange value="39.0"/><NumericEndPointRange value="40.0"/><Percentage value="100.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                </RubricColumns>
+            </Row>
+            <Row id="_27877_1"><Header value="Helped Others if Required"/><Position value="4"/><Percentage value="14.285714"/>
+                <RubricColumns>
+                    <Column><Header value="Unsatisfactory"/><Position value="0"/>
+                        <Cell id="_122968_1"><CellDescription value="Did little to help other group members. Unwilling to help others."/><NumericPoints value="0.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="0.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Needs Improvement"/><Position value="1"/>
+                        <Cell id="_122969_1"><CellDescription value="Occasionally gave assistance to other team members. Sometimes willing to help others."/><NumericPoints value="1.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="20.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Competent"/><Position value="2"/>
+                        <Cell id="_122970_1"><CellDescription value="Usually gave assistance to other group members. Usually willing to help others."/><NumericPoints value="3.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="60.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Outstanding"/><Position value="3"/>
+                        <Cell id="_122971_1"><CellDescription value="Regularly gave assistance to other team members. Always willing to provide help to other group members."/><NumericPoints value="5.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="100.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                </RubricColumns>
+            </Row>
+            <Row id="_27878_1"><Header value="Completed work accurately and competently."/><Position value="5"/><Percentage value="14.285714"/>
+                <RubricColumns>
+                    <Column><Header value="Unsatisfactory"/><Position value="0"/>
+                        <Cell id="_122972_1"><CellDescription value="Work was sloppy and inaccurate. Lacked attention to detail."/><NumericPoints value="0.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="0.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Needs Improvement"/><Position value="1"/>
+                        <Cell id="_122973_1"><CellDescription value="Work was sometimes accurate but inconsistent. Sometimes showed attention to detail."/><NumericPoints value="1.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="20.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Competent"/><Position value="2"/>
+                        <Cell id="_122974_1"><CellDescription value="Work was mostly accurate and showed attention to detail."/><NumericPoints value="3.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="60.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Outstanding"/><Position value="3"/>
+                        <Cell id="_122975_1"><CellDescription value="Work was outstanding and very accurate."/><NumericPoints value="5.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="100.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                </RubricColumns>
+            </Row>
+            <Row id="_27879_1"><Header value="Worked well with Others"/><Position value="6"/><Percentage value="14.285714"/>
+                <RubricColumns>
+                    <Column><Header value="Unsatisfactory"/><Position value="0"/>
+                        <Cell id="_122976_1"><CellDescription value="Did not work well with other team members."/><NumericPoints value="0.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="0.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Needs Improvement"/><Position value="1"/>
+                        <Cell id="_122977_1"><CellDescription value="Sometimes worked well with other team members but there were some problems."/><NumericPoints value="1.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="20.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Competent"/><Position value="2"/>
+                        <Cell id="_122978_1"><CellDescription value="Mostly worked well with other team members with few issues. Had good working relationships with other team members."/><NumericPoints value="3.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="60.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                    <Column><Header value="Outstanding"/><Position value="3"/>
+                        <Cell id="_122979_1"><CellDescription value="Worked very well with other team members and had an amiable and positive relationship with all members."/><NumericPoints value="5.0"/><NumericStartPointRange value="0.0"/><NumericEndPointRange value="0.0"/><Percentage value="100.0"/><PercentageMax value="0.0"/><Percentagemin value="0.0"/></Cell>
+                    </Column>
+                </RubricColumns>
+            </Row>
+        </RubricRows>
+    </Rubric>
+</LEARNRUBRICS>

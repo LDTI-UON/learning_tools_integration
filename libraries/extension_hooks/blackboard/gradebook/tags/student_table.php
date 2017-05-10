@@ -1,4 +1,11 @@
 <?php
+# @Author: ps158
+# @Date:   2016-09-20T15:36:13+10:00
+# @Last modified by:   ps158
+# @Last modified time: 2017-04-21T13:33:20+10:00
+
+
+
 use LTI\ExtensionHooks\Settings;
 
 $hook_method = function () {
@@ -77,7 +84,13 @@ $hook_method = function () {
 
     $total =   ee() -> db -> count_all_results();
 
-    ee() -> db -> select("lti_group_contexts.id as group_context_id, members.member_id, members.screen_name, members.username, members.email, lti_member_contexts.last_launched_on, lti_member_resources.display_name $groups");
+    $group_context_column = "";
+
+    if (!empty($groups)) { 
+        $group_context_column = "lti_group_contexts.id as group_context_id, ";
+    };
+
+    ee() -> db -> select($group_context_column."members.member_id, members.screen_name, members.username, members.email, lti_member_contexts.last_launched_on, lti_member_resources.display_name $groups");
     ee() -> db -> join("lti_member_contexts", "members.member_id = lti_member_contexts.member_id AND exp_lti_member_contexts.context_id = '$this->context_id'
                     AND lti_member_contexts.tool_consumer_instance_id = '$this->tool_consumer_instance_id' AND lti_member_contexts.is_instructor = '0'");
 

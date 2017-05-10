@@ -54,9 +54,11 @@ $hook_method = function() {
 
     $vars['hide_scores'] = empty($show_scores) ? file_get_contents("$this->mod_path/js/rubric_hide_scores.js") : "";
     if($is_instructor) {
-        $vars['js_controls'] = "var instr = true;\n";
+        $vars['js_controls'] = "var instr = true;\n\n";
+    } else {
+        $vars['js_controls'] = "var instr = false;\n\n";
     }
-    $vars['js_controls'] .= "var app = app || {};\napp.is_instructor = (typeof instr !== 'undefined');";
+    $vars['js_controls'] .= "var app = app || {};\napp.is_instructor = instr;";
 
     $vars['js_controls'] .= file_get_contents("$this->mod_path/js/rubric_controls.js");
 
@@ -65,6 +67,7 @@ $hook_method = function() {
     } else {
       $vars['exit_button_value'] = "Save &amp; Close";
     }
+    
     $vars['input_id'] = $input_id;
     $vars['username'] = htmlentities($user['screen_name']);
     $vars['pre_pop'] = htmlentities($pre_pop, ENT_QUOTES, 'UTF-8');

@@ -216,7 +216,7 @@ app.activateRubricControls = function() {
 				}
 				var n = $(this).val();
 
-				if(n.trim() == '-' || n.trim() == "") n = 0;
+				if(n.trim() == '-' || n.trim() === "") n = 0;
 				var score = parseFloat(n);
 
 				model.rows[r] = { col: c, score: score };
@@ -260,10 +260,10 @@ app.activateRubricControls = function() {
 
 			var n = $("#rubric_container tbody > tr:not(._read), #rubric_container .rubricControlContainer div.rubricGradingRow:not('._read')").length;
 
-			$("tbody tr:not(._read) > th, .rubricGradingRow:not(._read) > h4").css({border: "2px solid red", display: "block"});
+			$("tbody tr:not(._read) > th, .rubricGradingRow:not(._read) > h4").css({border: "2px solid red"});
 
 			if(n > 0 && !app.is_instructor) {
-					bootbox.alert({size: 'small', message: "Please grade all criteria. If you wish to give a 0, please enter a hyphen ('-').", callback: function() {
+					bootbox.alert({size: 'small', message: "Please grade all criteria.", callback: function() {
 							_progress = false;
 					}
 				});
