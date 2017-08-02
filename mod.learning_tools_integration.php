@@ -150,7 +150,7 @@ class Learning_tools_integration {
     private $tmpl_value_tags;
 
     public $form_class = 'form-horizontal';
-    public $form_submit_class = "class='btn btn-default'";
+    public $form_submit_class = "class='btn btn-default' title='Syncronise Users and Groups with Blackboard'";
     public $input_class = 'form-control';
     public $button_class = 'btn btn-default';
     public $modal_class = 'modal fade';
@@ -173,7 +173,6 @@ class Learning_tools_integration {
        $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
        $this->lib_path = $this->mod_path.DIRECTORY_SEPARATOR.'libraries';
        $this->hook_path = $this->lib_path.DIRECTORY_SEPARATOR.'extension_hooks';
-       $this->init();
 
        if(isset(ee()->TMPL)) {
              if (ee()->TMPL->fetch_param('form_class')) {
@@ -197,7 +196,9 @@ class Learning_tools_integration {
                  $this->form_submit_class = "class='$fs'";
              }
       }
-       $this->base_form_attr = array("class" => $this->form_class, "method" => 'POST');
+      $this->base_form_attr = array("class" => $this->form_class, "method" => 'POST');
+
+      $this->return_data = $this->init();
 	}
 
 
@@ -222,7 +223,8 @@ class Learning_tools_integration {
    private function use_extension_hooks() {
        return file_exists($this->lib_path) && file_exists($this->hook_path);
    }
-    private function initialise_hook_toggles() {
+
+   private function initialise_hook_toggles() {
       require_once($this->hook_path.DIRECTORY_SEPARATOR.'tmpl_params.php');
 
       if(isset($tmpl_extension_toggles)) {
@@ -309,6 +311,7 @@ class Learning_tools_integration {
       if(empty($hook_dir)) {
           $hook_dir = $this->hook_path;
       }
+
 
       $dir = dir($hook_dir);
 
@@ -449,8 +452,29 @@ class Learning_tools_integration {
         	}
         }
 
+
+
+    /*  if(!function_exists('output_array_structure')) {
+            function output_array_structure($array, $type="") {
+              echo "<ol>";
+                  foreach ($array as $structure=>$data){
+                      echo "<li $type>
+                        $structure
+                      </li>";
+
+                      if(is_array($data)) {
+                            output_array_structure($data, "type='a'");
+                      }
+                  }
+              echo "</ol>";
+            }
+        }
+
+        output_array_structure($this -> context_vars);*/
+
+
         if (ee()->TMPL) {
-            $this -> return_data = ee() -> TMPL -> parse_variables(ee() -> TMPL -> tagdata, $this -> context_vars);
+              return ee() -> TMPL -> parse_variables(ee() -> TMPL -> tagdata, $this -> context_vars);
         }
     }
 
@@ -582,7 +606,10 @@ class Learning_tools_integration {
         } else {
           $view_data = $tag_data;
         }
-
+        /*echo "<pre>";
+        echo htmlspecialchars(print_r(var_export($view_data, TRUE),TRUE));
+        echo "</pre>";
+        exit;*/
         return $view_data;
     }
 
@@ -664,6 +691,15 @@ class Learning_tools_integration {
         ob_end_clean();
 
         return "<script type='text/javascript'>$str</script>";
+    }
+    public function syncronize_gradebook() {
+        ee()->load->helper('form');
+
+        $form = form_open($this->base_url, $this->base_form_attr, array("class" => $this->form_class));
+        $form .= form_hidden('syncronize', '1');
+        $form .= form_submit('submit', '  Sync', $this->form_submit_class);
+        $form.= form_close();
+        return $form;
     }
     private function save_grade_example_form() {
         ee()->load->helper('form');
@@ -796,6 +832,7 @@ class Learning_tools_integration {
         $bodyHash = base64_encode(sha1($xml, TRUE));
 
         require_once("ims-blti/OAuth.php");
+
         // build oauth_body_hash
         $consumer = new OAuthConsumer($key, $secret);
         $request = OAuthRequest::from_consumer_and_token($consumer, '', 'POST', $url, array('oauth_body_hash' => $bodyHash));
@@ -824,7 +861,9 @@ class Learning_tools_integration {
         $json_response['description'] = (string)$xml_o -> imsx_POXHeader -> imsx_POXResponseHeaderInfo -> imsx_statusInfo -> imsx_description;
         $json_response['resultScore'] = (string)$xml_o -> imsx_POXBody -> readResultResponse -> result -> resultScore -> textString;
 
-        die(json_encode($json_response));
+        echo json_encode($json_response);
+
+        return;
     }
 
     public function grade_read_js() {
@@ -872,6 +911,12 @@ class Learning_tools_integration {
 
         return $js_vars.$js_file;
     }
+
+    public function write_b64_to_file_js() {
+        $res = ee()->db->get_where("actions", array("method" => "write_b64_to_file"));
+        $write_b64_int = $res->row()->action_id;
+        // finish this for meiosis
+    }
     /*
     *   Used as an action to crreae a new user on launch.
     *   User details are serialised to a ghost folder in the extension,
@@ -900,6 +945,82 @@ class Learning_tools_integration {
       echo $str;
 
       exit();
+    }
+
+    public function write_b64_to_file() {
+      require_once("libraries/valid_base64.php");
+
+      $type = ee()->input->post('t');  //mime type
+      $filename = ee()->input->post('n');
+
+      // pull the raw binary data from the POST array
+      $data = substr($_POST['data'], strpos($_POST['data'], ",") + 1);
+      if(!validBase64($data)) return false;
+
+      $upload_dir = ee()->config->item('lti_upload');
+      $d = $upload_dir.DIRECTORY_SEPARATOR."/".$this->context_id;
+
+      if(!file_exists($upload_dir.DIRECTORY_SEPARATOR."/".$this->context_id)) {
+          mkdir($d);
+      }
+      // decode it
+      $decodedData = base64_decode($data);
+      // print out the raw data,
+      echo ($decodedData);
+      //$filename = "test.pdf";
+      // write the data out to the file
+      $fp = fopen($d.DIRECTORY_SEPARATOR.$filename, 'wb');
+      fwrite($fp, $decodedData);
+      fclose($fp);
+    }
+
+    public function restrict_access() {
+      if(ee()->session->userdata('group_id') == 1) return;
+
+      if(isset($_SERVER['HTTP_REFERER'])) {
+        $referer = $_SERVER['HTTP_REFERER'];
+        $purl = parse_url($referer);
+
+        $scheme = $purl['scheme'];
+        $host = $purl['host'];
+        $path = $purl['path'];
+
+        $allowed_scheme = ee()->TMPL->fetch_param('scheme');
+        $allowed_scheme = empty($allowed_scheme) ? "https" : $allowed_scheme;
+
+        $host_list = ee()->TMPL->fetch_param('host');
+        $allowed_hosts = explode(",", $host_list);
+
+        $hostOK = TRUE;
+
+        foreach($allowed_hosts as $ok_host) {
+          $hostOK = trim($host) === trim($ok_host);
+            if($hostOK)
+              break;
+        }
+
+        $path_el = ee()->TMPL->fetch_param('path_el');
+        $el_arr = array();
+
+        $pathOK = TRUE;
+
+        if(!empty($path_el)) {
+            $el_arr = explode(',', $el_arr);
+
+            foreach($el_arr as $el) {
+                  $pathOK = $pathOK && (strpos($path, $el) !== FALSE);
+            }
+        }
+
+        if(! ($scheme == $allowed_scheme && $hostOK && $pathOK)){
+
+            die("<p>No access from: $referer </p>)");
+        } /*else {
+            $this->return_data = "<p>You can access this</p>";
+        }*/
+      } else {
+          die("<p>No access allowed.</p>");
+      }
     }
   }
 

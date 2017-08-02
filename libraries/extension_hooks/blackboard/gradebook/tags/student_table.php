@@ -4,8 +4,6 @@
 # @Last modified by:   ps158
 # @Last modified time: 2017-04-21T13:33:20+10:00
 
-
-
 use LTI\ExtensionHooks\Settings;
 
 $hook_method = function () {
@@ -86,7 +84,7 @@ $hook_method = function () {
 
     $group_context_column = "";
 
-    if (!empty($groups)) { 
+    if (!empty($groups)) {
         $group_context_column = "lti_group_contexts.id as group_context_id, ";
     };
 

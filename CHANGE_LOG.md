@@ -5,9 +5,9 @@
 * Bug fixes
 
 ** Version 3.2.2 **
-* Added BB_EMBED get parameter to allow embedding of tools in Blackboard
-* using a token generated with the remember_lti_user plugin.
-* Incorporated UoN Rails app for user creation of LTI links.
+  * Added BB_EMBED get parameter to allow embedding of tools in Blackboard
+  * using a token generated with the remember_lti_user plugin.
+  * Incorporated UoN Rails app for user creation of LTI links.
 
 ** Version 3.2.0 **
  fixed javascript bug in rubric

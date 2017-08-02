@@ -16,7 +16,7 @@ class Learning_tools_integration_ext {
 
 	var $name       = 'Learning Tools Integration';
 	/*version line (do not delete the line below, auto updated on build) */
-	var $version 			= '3.4.1';//#build version#
+	var $version 			= '3.4.2';//#build version#
 
 	var $description    = 'authenticates user based on LTI launch';
 	var $settings_exist = 'n';
@@ -204,14 +204,13 @@ class Learning_tools_integration_ext {
 
     // **** don't use in the CP ****
 		if(strpos(@$_SERVER['REQUEST_URI'], 'admin.php') !== FALSE) {
-			return FALSE;
+			return;
 		}
-
 		if(!empty($_GET['ACT'])) {
-			return FALSE;
+			return;
 		}
 
-		if(isset($_GET['URL'])) return FALSE;
+		if(isset($_GET['URL'])) return;
 
 		/* embed in iFrame in Blackboard */
 		if(!empty($_GET['BB_EMBED'])) {
@@ -219,7 +218,7 @@ class Learning_tools_integration_ext {
 						$referer = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
 						static::set_safe_xframe_header($referer);
 				}
-				return FALSE;
+				return;
 		}
 
 		if(ee()->config->item('website_session_type') !== 'c') {
@@ -232,18 +231,18 @@ class Learning_tools_integration_ext {
 
 		if(!ee()->input->post("segment") && !isset($_GET['s']) && !isset($_GET['ltiACT'])) { // if not an ajax or download request
 			$segs = ee()->uri->segment_array();
-			if(empty($segs[1])) return FALSE;
+			if(empty($segs[1])) return;
 
 			$myseg = $segs[1];
 
 			if(strlen($myseg) == 0) {
-						return FALSE;
+						return;
 			}
 
 			$result = ee()->db->get_where('blti_keys', array('url_segment' => $segs[1]));
 
 			if($result->num_rows() == 0) {
-					return FALSE;
+					return;
 			}
 		} else {
 			if(ee()->input->post("segment")) {
@@ -265,7 +264,7 @@ class Learning_tools_integration_ext {
 									$ACT_hook();
 							}
 
-							return FALSE;
+							return;
 					} else {
 						die('This resource is not available. <pre> '.var_export($this->LTI_ACT_services, TRUE));
 					}

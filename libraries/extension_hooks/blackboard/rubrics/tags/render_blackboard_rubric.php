@@ -22,8 +22,11 @@ $hook_method = function() {
 
   $path = Utils::build_course_upload_path($lti_cache, $this->context_id, $this->institution_id, $this->course_id);
 
+    $default_dir = ee()->lti->config("lti_cache")."/default/rubrics/html/";
     $rubric_dir = $path.DIRECTORY_SEPARATOR."rubrics".DIRECTORY_SEPARATOR."html";
     $dir = scandir($rubric_dir);
+    $defdir = scandir($default_dir);
+    $dir = array_merge($dir, $defdir);
     $vars = array();
 
     foreach($dir as $item) {
@@ -31,9 +34,14 @@ $hook_method = function() {
           if(strpos($item, "|grid|") !== FALSE) {
             $vars['grid'] = html_entity_decode(file_get_contents($rubric_dir.DIRECTORY_SEPARATOR.$item));
           }
-
+          if(strpos($item, "|defgrid|") !== FALSE) {
+            $vars['grid'] = html_entity_decode(file_get_contents($default_dir.DIRECTORY_SEPARATOR.$item));
+          }
           if(strpos($item, "|list|") !== FALSE) {
             $vars['list'] = html_entity_decode(file_get_contents($rubric_dir.DIRECTORY_SEPARATOR.$item));
+          }
+          if(strpos($item, "|deflist|") !== FALSE) {
+            $vars['list'] = html_entity_decode(file_get_contents($default_dir.DIRECTORY_SEPARATOR.$item));
           }
       }
     }
@@ -67,7 +75,7 @@ $hook_method = function() {
     } else {
       $vars['exit_button_value'] = "Save &amp; Close";
     }
-    
+
     $vars['input_id'] = $input_id;
     $vars['username'] = htmlentities($user['screen_name']);
     $vars['pre_pop'] = htmlentities($pre_pop, ENT_QUOTES, 'UTF-8');

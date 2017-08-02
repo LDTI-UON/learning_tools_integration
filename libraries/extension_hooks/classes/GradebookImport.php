@@ -4,8 +4,6 @@
 # @Last modified by:   ps158
 # @Last modified time: 2017-04-13T13:10:10+10:00
 
-
-
 namespace LTI\ExtensionHooks;
 
 class GradebookImport {
@@ -13,6 +11,8 @@ class GradebookImport {
 private $context;
 private $new_user_group_id; // expressionengine group_id for new members
 private $lti_plugin_setups = array();
+
+private $parent_object;
 
 /*
  * Define Blackboard Group Export column headers
@@ -76,8 +76,10 @@ private function define_column_locations($row) {
 	}
 }
 
-public function __construct($member_id, $context_id, $lti_plugin_setups = array(), $new_user_group_id = 6) {
+public function __construct($member_id, $context_id, $lti_plugin_setups = array(), $new_user_group_id = 6, &$parent_object = NULL) {
 		// get instructor context
+		$this->parent_object = $parent_object;
+
 		$c = ee()->db->get_where('lti_member_contexts', array('member_id' => $member_id, 'context_id' => $context_id));
 		$this->context = $c->row();
 

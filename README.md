@@ -108,4 +108,4 @@ This plugin has ONLY been tested in Blackboard Learn.
 
 ### Contribution guidelines ###
 
-Contributors are need, so if you're interested in contributing please contact the repo owner.
+If you're interested in contributing please contact the repo owner.

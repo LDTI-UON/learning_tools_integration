@@ -168,12 +168,8 @@ $hook_method = function($view_data) {
             $time_diff = 0;
             if(isset($query->row()->uploaded)) {
                 $time_diff = (Integer) time() - strtotime($query->row()->uploaded);
-
-                if((isset($_POST['force_sync']) ||
-                                (
-                                    !empty($_REQUEST['user_id']) && !empty($_REQUEST['context_id'])
-                                )
-                        ) && !empty($query->row()->password) && $is_super) {
+              //  $is_super = !empty($_REQUEST['user_id']) && !empty($_REQUEST['context_id'];
+                if(isset($_POST['syncronize']) && !empty($query->row()->password)) {
 
                         ee()->db->where(array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id));
 
@@ -189,7 +185,7 @@ $hook_method = function($view_data) {
 
                                 // groups only imported if the grade book has been changed or
                                 // the syncronize button has been selected
-                                $lastLogEntryTS = isset($_POST['force_sync']) ? -1 : $query->row()->lastLogEntryTS;
+                                $lastLogEntryTS = isset($_POST['syncronize']) ? -1 : $query->row()->lastLogEntryTS;
 
                                 $bb_groups = new Gradebook($this);
                                 $imported = $bb_groups->bb_import_groups_from_gradebook($lastLogEntryTS);

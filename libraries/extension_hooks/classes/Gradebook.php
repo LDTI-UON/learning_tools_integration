@@ -70,14 +70,14 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
         }
 
     } else {
-      die(__LINE__);
+      //die(__LINE__);
         return array("errors" => "Unable to get date of last grade centre entry.");
     }
         $settings = Settings::get_general_settings();
 
         $plugin_settings = $settings["plugins_active"];
 
-        $s_file = new GradebookImport($this->lti_module->member_id, $this->lti_module->context_id, $plugin_settings);
+        $s_file = new GradebookImport($this->lti_module->member_id, $this->lti_module->context_id, $plugin_settings, 6, $this->lti_module);
 
         $arr = $s_file->import_from_blackboard($group_students, $full_gradebook);
 
