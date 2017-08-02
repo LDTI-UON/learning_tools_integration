@@ -22,7 +22,7 @@ $hook_method = function() {
 
   $path = Utils::build_course_upload_path($lti_cache, $this->context_id, $this->institution_id, $this->course_id);
 
-    $default_dir = ee()->lti->config("lti_cache")."/default/rubrics/html/";
+    $default_dir = ee()->config->item("lti_cache")."/default/rubrics/html/";
     $rubric_dir = $path.DIRECTORY_SEPARATOR."rubrics".DIRECTORY_SEPARATOR."html";
     $dir = scandir($rubric_dir);
     $defdir = scandir($default_dir);
