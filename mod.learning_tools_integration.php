@@ -680,13 +680,13 @@ class Learning_tools_integration {
         	include_once ("js/$name.js");
         } else {
 	        foreach(static::$lti_plugins as $pearl) {
-	            if(strlen($name) > 0) {
+	            if(!empty(trim($name)) && !empty(trim($pearl))) {
 	                include_once (PATH_THIRD."$pearl/js/".$pearl."_".$name.".js");
-	            } else {
+	            } else if(!empty(trim($pearl))) {
 	                include_once (PATH_THIRD."$pearl/js/$pearl.js");
 	            }
 	        }
-        }
+      }
         $str = ob_get_contents();
         ob_end_clean();
 
