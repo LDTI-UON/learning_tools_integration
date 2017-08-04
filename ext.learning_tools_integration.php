@@ -526,7 +526,7 @@ class Learning_tools_integration_ext {
 		$_tkey = explode(":", $context->getUserKey());
 		$this->user_id = $_tkey[1];
 
-		$this->vle_username = ee('Security/XSS')->clean($_REQUEST['custom_vle_username']);
+		$this->vle_username = ee()->input->post('custom_vle_username');
 
 		$sql_data = array();
 		// check if instructor has imported this user (LTI user_id will be NULL)
