@@ -166,6 +166,8 @@ class Learning_tools_integration {
        static::$instance =& $this;
        ee()->config->load('lti_config', TRUE);
 
+       $this->dev = ee()->config->item('development');
+
        if($this->debug) {
           ee()->load->library('logger');
        }

@@ -3,7 +3,7 @@
 # @Date:   2017-03-28T16:04:23+11:00
 # @Last modified by:   ps158
 # @Last modified time: 2017-04-21T11:37:20+10:00
-
+$config['development'] = TRUE;
 // cache areas
 $config['lti_cache'] = '/var/www/lti/cache/';
 $config['lti_upload'] = "/var/www/lti/cache/upload/";
@@ -16,7 +16,7 @@ $config['jquery_src'] = '//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.mi
 $config['chosen_css'] = '//cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.min.css';
 
 //LTI config items
-$config['blackboard_url'] = "http://dev.bb.local:8080/";
+$config['blackboard_url'] = "https://uonline.newcastle.edu.au/";
 $config['blackboard_auth_path'] = 'webapps/login/';
 $config['blackboard_gradebook_uri_query'] = '/webapps/gradebook/do/instructor/getJSONData?course_id=';
 
