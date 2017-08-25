@@ -149,7 +149,12 @@ app.activateRubricControls = function() {
 				if(this.getAttribute("data-max") !== null) {
 						max = this.getAttribute("data-max");
 				}
-						console.log("["+this.value+"] ? "+max);
+						//console.log("["+this.value+"] ? "+max);
+
+				if(isNaN(this.value)) {
+						this.value = 0;
+				}
+
 				if(Math.abs(this.value) > Math.abs(max)) {
 
 					this.value = max;
@@ -158,6 +163,7 @@ app.activateRubricControls = function() {
 				if(Math.abs(this.value) < 0) {
 						this.value = 0;
 				}
+
 
 		}).change(function(e) {
 			var range = $(this).data("range");
@@ -263,7 +269,7 @@ app.activateRubricControls = function() {
 			$("tbody tr:not(._read) > th, .rubricGradingRow:not(._read) > h4").css({border: "2px solid red"});
 
 			if(n > 0 && !app.is_instructor) {
-					bootbox.alert({size: 'small', message: "Please grade all criteria.", callback: function() {
+					bootbox.alert({size: 'small', message: "Please grade all criteria. Insert a hyphen '-' for zero (0).", callback: function() {
 							_progress = false;
 					}
 				});
