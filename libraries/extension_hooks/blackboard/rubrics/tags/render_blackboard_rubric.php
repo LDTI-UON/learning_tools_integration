@@ -22,15 +22,23 @@ $hook_method = function() {
 
   $path = Utils::build_course_upload_path($lti_cache, $this->context_id, $this->institution_id, $this->course_id);
 
-    $default_dir = ee()->config->item("lti_cache")."/default/rubrics/html/";
+    $default_dir  = ee()->config->item('lti_cache');
+    $default_dir = $default_dir."default/rubrics/html";
+
     $rubric_dir = $path.DIRECTORY_SEPARATOR."rubrics".DIRECTORY_SEPARATOR."html";
-    $dir = scandir($rubric_dir);
-    $defdir = scandir($default_dir);
+    $dir = file_exists($rubric_dir) ? scandir($rubric_dir) : array();
+    $defdir = file_exists($default_dir) ? scandir($default_dir) : array();
     $dir = array_merge($dir, $defdir);
     $vars = array();
 
+  //  ee()->logger->developer("RUBRIC FOLDER:");
+    //ee()->logger->developer($dir);
+
+
     foreach($dir as $item) {
+      //ee()->logger->developer($default_dir.DIRECTORY_SEPARATOR.$item);
       if(strpos($item, $id) !== FALSE) {
+        //  ee()->logger->developer("FOUND: ".$default_dir.DIRECTORY_SEPARATOR.$item);
           if(strpos($item, "|grid|") !== FALSE) {
             $vars['grid'] = html_entity_decode(file_get_contents($rubric_dir.DIRECTORY_SEPARATOR.$item));
           }

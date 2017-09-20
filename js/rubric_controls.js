@@ -49,7 +49,7 @@ app.activateRubricControls = function() {
 							});
 
 } else {
-		$(".grade_input").prop("value", '');
+		$("input.grade_input[type='text']").prop("value", '');
 }
 		var checkInputs = function(o, el, score) {
 							if($(o).hasClass("scoreSet")) {
@@ -206,7 +206,7 @@ app.activateRubricControls = function() {
 			var model = { rows: [] }; //, colLabels : [], rowLabels: [], maxValue: '0' };
 
 			$(".rubricTable .scoreSet").each(function() {
-					if(app.is_instructor) return FALSE;
+					if(app.is_instructor) return false;
 
 				var r = $(this).closest("tr").index();
 				var c = $(this).closest("td").index();
