@@ -114,6 +114,8 @@ class Learning_tools_integration {
 
     public static $lti_plugins;
 
+    public static $celtic_debug_launch = FALSE;
+
     private $plugin_setup_text;
 
     private $general_message = '';
@@ -166,8 +168,14 @@ class Learning_tools_integration {
        static::$instance =& $this;
        ee()->config->load('lti_config', TRUE);
 
+       $this->dev = ee()->config->item('development');
+
        if($this->debug) {
           ee()->load->library('logger');
+       }
+
+       if(isset($_REQUEST['custom_celtic'])) {
+          static::$celtic_debug_launch = TRUE;
        }
 
        $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
@@ -417,6 +425,10 @@ class Learning_tools_integration {
 
       		  $pls = ee() -> TMPL -> fetch_param('plugins');
       		  static::$lti_plugins = explode(",", strtolower($pls));
+
+            if(static::$celtic_debug_launch) {
+                  var_dump(static::$lti_plugins);
+            }
         }
 
         $this->plugin_setup_text = array();

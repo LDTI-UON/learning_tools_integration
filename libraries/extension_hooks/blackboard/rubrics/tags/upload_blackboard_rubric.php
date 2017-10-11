@@ -29,6 +29,7 @@ $hook_method = function() {
   }
   $write_path = ee()->config->item('lti_cache');
 
+  $default_rubrics = $write_path."default/rubrics/html";
   $path = Utils::build_course_upload_path($write_path, $this->context_id, $this->institution_id, $this->course_id);
 
   $rubric_dir = $path.DIRECTORY_SEPARATOR."rubrics";
@@ -97,10 +98,19 @@ $hook_method = function() {
     }
   }
 
-    $dir = array();
+  $dir = array(); $d_dir = array();
+
   if(file_exists($rubric_html_dir)) {
     $dir = scandir($rubric_html_dir);
   }
+
+  if(file_exists($default_rubrics)) {
+    $d_dir = scandir($default_rubrics);
+  }
+
+  $dir = array_merge($dir, $d_dir);
+
+  ee()->logger->developer(var_export($dir, TRUE));
 
   ee() -> load -> helper('form');
 
@@ -117,26 +127,26 @@ $hook_method = function() {
   $raw_init_id = "del";
 
   foreach($dir as $item) {
-    if(strpos($item, '.html') !== FALSE) {
-        $filename = explode("|", $item);
-        $title = $filename[0];
-        $score = $filename[2];
+          if(strpos($item, '.html') !== FALSE) {
+              $filename = explode("|", $item);
+              $title = $filename[0];
+              $score = $filename[2];
 
-        $id = explode(".", $filename[count($filename)-1])[0];
+              $id = explode(".", $filename[count($filename)-1])[0];
 
-        if($init_rubric == $id) {
-            $init_rubric = $init_rubric."|".$score;
-            $raw_init_id = $id;
-        }
+              if($init_rubric == $id) {
+                  $init_rubric = $init_rubric."|".$score;
+                  $raw_init_id = $id;
+              }
 
-        $row = ee()->db->get_where('lti_course_link_resources', array("rubric_id" => $id))->row();
-        $raw = !empty($row) ? $row->resource_settings : NULL;
-        $settings = unserialize($raw);
-        $show_scores[$id] = $raw !== NULL && isset($settings['rubric']['show_column_scores']) ? $settings['rubric']['show_column_scores'] : 1;
+              $row = ee()->db->get_where('lti_course_link_resources', array("rubric_id" => $id))->row();
+              $raw = !empty($row) ? $row->resource_settings : NULL;
+              $settings = unserialize($raw);
+              $show_scores[$id] = $raw !== NULL && isset($settings['rubric']['show_column_scores']) ? $settings['rubric']['show_column_scores'] : 1;
 
-        $id = $id."|".$score;
-        $options[$id] = $title;
-    }
+              $id = $id."|".$score;
+              $options[$id] = $title;
+          }
   }
 
   $vars['show_scores'] = json_encode($show_scores);

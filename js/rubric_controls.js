@@ -12,68 +12,69 @@ app.activateRubricControls = function() {
 
     $(".chosen-container").hide();
 
-		$(p).each(function() {
-			//console.log("populating from DB");
-			$(this.rows).each(function(i, v) {
-				var col = (this.col - 1);
-				var list_q = ".rubricGradingList .rubricGradingRow:eq("+i+") .rubricGradingCell:eq("+col+")";
-				var row_score = this.score;
+		var el = null;
+		console.log(p);
+		if(typeof p !== 'undefined' && typeof p.length !== 'undefined') {
+				$(p).each(function() {
+						el = this;
+				});
+		} else {
+				el = p;
+		}
 
-                $(".rubricTable .rubricGradingRow:eq("+i+") td:eq("+col+") .grade_input, "+
-                  list_q +" .grade_input, "+list_q + " .rubricCellRadio").each(function() {
+		if(el !== null) {
+							$(el.rows).each(function(i, v) {
 
-										if(this.tagName == "INPUT") {
-														if($(this).prop('type') == 'text') {
-																$(this).prop("value", row_score);
-															//	console.log("value reset from "+row_score);
+								var col = (this.col - 1);
+								var list_q = ".rubricGradingList .rubricGradingRow:eq("+i+") .rubricGradingCell:eq("+col+")";
+								var row_score = this.score;
+
+				                $(".rubricTable .rubricGradingRow:eq("+i+") td:eq("+col+") .grade_input, "+
+				                  list_q +" .grade_input, "+list_q + " .rubricCellRadio").each(function() {
+
+														if(this.tagName == "INPUT") {
+																		if($(this).prop('type') == 'text') {
+																				$(this).prop("value", row_score);
+																		}
+
+																		if($(this).prop('type') == 'radio') {
+																				$(this).prop("checked", true);
+																		}
+
+																		$(this).addClass("scoreSet");
+														} else {
+																console.log("ERROR: Non INPUT tag was parsed.");
 														}
+												});
+							});
 
-														if($(this).prop('type') == 'radio') {
-																/*if(row_score != $(this).prop("value")) {
-																		console.log("The saved rubric does not match the loaded rubric.");
-																		console.log("radio input value: "+$(this).prop("value")+": "+row_score);
-																		v.score = v.score;
-																}*/
-
-																$(this).prop("checked", true);
-														}
-
-														$(this).addClass("scoreSet");
-										} else {
-												console.log("ERROR: Non INPUT tag was parsed.");
-										}
-								});
-			});
-		});
-
+} else {
+		$("input.grade_input[type='text']").prop("value", '');
+}
 		var checkInputs = function(o, el, score) {
+							if($(o).hasClass("scoreSet")) {
+									el.addClass("scoreSet");
 
-				if($(o).hasClass("scoreSet")) {
+									if(el.prop('type') == "radio") {
+												el.prop("checked", true);
+									}
+									if(el.prop('type') == "text") {
+												el.prop("value", score);
+									}
 
-						el.addClass("scoreSet");
+							} else {
+									el.removeClass("scoreSet");
 
-						if(el.prop('type') == "radio") {
-									el.prop("checked", true);
-						}
-						if(el.prop('type') == "text") {
-									el.prop("value", score);
-						}
-
-				} else {
-						el.removeClass("scoreSet");
-
-						if(el.prop('type') == "radio") {
-									el.prop("checked", false);
-						}
-						if(el.prop('type') == "text") {
-									el.	prop("value", "");
-						}
-				}
+									if(el.prop('type') == "radio") {
+												el.prop("checked", false);
+									}
+									if(el.prop('type') == "text") {
+												el.	prop("value", "");
+									}
+							}
 		};
 
         var syncInputs = function(o) {
-						//if(is_instructor) return false;
-
 						var i, score, el;
 
             if($(".active[role='tab']").attr("id") ==	 "gridViewTab") {
@@ -139,8 +140,7 @@ app.activateRubricControls = function() {
 		});
 
 		$('.grade_input, .rubricCellRadio').keyup(function(e){
-
-				 this.value = this.value.replace(/[^0-9\-]/g, '');
+				this.value = this.value.replace(/[^0-9]/g, '');
 
 				var max = 0;
 				if(typeof this.dataset.max !== 'undefined') {
@@ -149,12 +149,12 @@ app.activateRubricControls = function() {
 				if(this.getAttribute("data-max") !== null) {
 						max = this.getAttribute("data-max");
 				}
-						console.log("["+this.value+"] ? "+max);
+				if(isNaN(this.value)) {
+						this.value = 0;
+				}
 				if(Math.abs(this.value) > Math.abs(max)) {
-
 					this.value = max;
 				}
-
 				if(Math.abs(this.value) < 0) {
 						this.value = 0;
 				}
@@ -162,20 +162,20 @@ app.activateRubricControls = function() {
 		}).change(function(e) {
 			var range = $(this).data("range");
 
-            if(typeof range !== 'undefined') {
-								if(isNaN(range.min) || isNaN(range.max)) {
-											bootbox.alert("Error: numeric range not set "+JSON.stringify(range));
-								}
+      if(typeof range !== 'undefined') {
+					if(isNaN(range.min) || isNaN(range.max)) {
+								bootbox.alert("Error: numeric range not set "+JSON.stringify(range));
+					}
 
-                if(!isNaN(this.value)) {
-                        if(parseFloat(this.value) < parseFloat(range.min)) {
-                            this.value = range.min;
-                        }
-                        else if(parseFloat(this.value) > parseFloat(range.max)) {
-                            this.value = range.max;
-                        }
-                }
-            }
+          if(!isNaN(this.value)) {
+                  if(parseFloat(this.value) < parseFloat(range.min)) {
+                      this.value = range.min;
+                  }
+                  else if(parseFloat(this.value) > parseFloat(range.max)) {
+                      this.value = range.max;
+                  }
+          }
+      }
 
 			$(this).addClass("scoreSet").addClass("s_s_n").css({'background-color': ''});
 
@@ -191,6 +191,7 @@ app.activateRubricControls = function() {
 
 
 		$("#rub_onExitClose").on("click", ".button-1", function(e) {
+
 			e.preventDefault();
 			var pdoc = document;
 			var input_id = $("#rub_onExitClose").data("input_id");
@@ -205,16 +206,26 @@ app.activateRubricControls = function() {
 			var model = { rows: [] }; //, colLabels : [], rowLabels: [], maxValue: '0' };
 
 			$(".rubricTable .scoreSet").each(function() {
-				if(app.is_instructor) return FALSE;
+					if(app.is_instructor) return false;
 
 				var r = $(this).closest("tr").index();
 				var c = $(this).closest("td").index();
 				var tr = -1, div = -1;
 
+				console.log("r: "+r);
+				console.log("c: "+c);
+
+				var n = $(this).val();
+
+				if(!n) {
+						n = $(this)[0].nextSibling.nodeValue;
+				}
+
 				if(isNaN($(this).val())) {
 						error_track(model);
 				}
-				var n = $(this).val();
+
+				console.log("Rubric val: '"+ n+"'");
 
 				if(n.trim() == '-' || n.trim() === "") n = 0;
 				var score = parseFloat(n);
@@ -271,8 +282,10 @@ app.activateRubricControls = function() {
 					hide_rubric();
 			}
 
-			if(typeof ltipa.check_yourself === 'function') {
-					ltipa.check_yourself();
+			if(typeof ltipa !== 'undefined') {
+					if(typeof ltipa.check_yourself === 'function') {
+								ltipa.check_yourself();
+					}
 			}
 
 			return;

@@ -74,7 +74,11 @@ if(isset($students)) {
 				if(count($indexes) > 0) {
 						$fields = array();
 						foreach($indexes as $index) {
-								$fields[] = $student[$index];
+							if(isset($student[$index])) {
+										$fields[] = $student[$index];
+							} else {
+										$fields[] = "admins only";
+							}
 						}
 
 						$row = array_merge($row, $fields);
