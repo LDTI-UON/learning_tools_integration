@@ -13,7 +13,6 @@ app.activateRubricControls = function() {
     $(".chosen-container").hide();
 
 		var el = null;
-		console.log(p);
 		if(typeof p !== 'undefined' && typeof p.length !== 'undefined') {
 				$(p).each(function() {
 						el = this;
@@ -24,12 +23,17 @@ app.activateRubricControls = function() {
 
 		if(el !== null) {
 							$(el.rows).each(function(i, v) {
+								// calculate difference b/w columns and grade_inputs
+								// this allows for header cells within rubric.
+								var giLen = $(".rubricTable .rubricGradingRow:eq("+i+") .grade_input").length;
+								var colLen = $(".rubricTable .rubricGradingRow:eq("+i+") td, .rubricTable .rubricGradingRow:eq("+i+") th").length;
+								var dif = Math.abs(colLen - giLen);
 
-								var col = (this.col - 1);
+								var col = (this.col - dif);
 								var list_q = ".rubricGradingList .rubricGradingRow:eq("+i+") .rubricGradingCell:eq("+col+")";
 								var row_score = this.score;
 
-				                $(".rubricTable .rubricGradingRow:eq("+i+") td:eq("+col+") .grade_input, "+
+				                $(".rubricTable .rubricGradingRow:eq("+i+") .grade_input:eq("+col+"), "+
 				                  list_q +" .grade_input, "+list_q + " .rubricCellRadio").each(function() {
 
 														if(this.tagName == "INPUT") {
@@ -212,8 +216,8 @@ app.activateRubricControls = function() {
 				var c = $(this).closest("td").index();
 				var tr = -1, div = -1;
 
-				console.log("r: "+r);
-				console.log("c: "+c);
+				//console.log("r: "+r);
+				//console.log("c: "+c);
 
 				var n = $(this).val();
 
@@ -225,7 +229,7 @@ app.activateRubricControls = function() {
 						error_track(model);
 				}
 
-				console.log("Rubric val: '"+ n+"'");
+				//console.log("Rubric val: '"+ n+"'");
 
 				if(n.trim() == '-' || n.trim() === "") n = 0;
 				var score = parseFloat(n);
@@ -260,9 +264,6 @@ app.activateRubricControls = function() {
 				$("#rubric_"+input_id, pdoc).val(JSON.stringify(model));
 
 				$(".contentPane").css({margin: ''});
-
-
-
 				$(".container-fluid").show();
 				flashRow(input_id);
 
