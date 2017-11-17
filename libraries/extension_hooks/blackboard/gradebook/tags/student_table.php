@@ -85,7 +85,7 @@ $hook_method = function () {
     $group_context_column = "";
 
     if (!empty($groups)) {
-        $group_context_column = "lti_group_contexts.id as group_context_id, ";
+        $group_context_column = "lti_group_contexts.id as group_context_id, lti_group_contexts.group_id,";
     };
 
     ee() -> db -> select($group_context_column."members.member_id, members.screen_name, members.username, members.email, lti_member_contexts.last_launched_on, lti_member_resources.display_name $groups");
@@ -111,6 +111,7 @@ $hook_method = function () {
         $vars['students'][$row['member_id']]['email'] = $row['email'];
         $vars['students'][$row['member_id']]['file_display_name'] = $row['display_name'];
         $vars['students'][$row['member_id']]['last_launched_on'] = $row['last_launched_on'];
+
         if (!empty($groups)) {
             $vars['students'][$row['member_id']]['group_no'] = $row['group_no'];
             $vars['students'][$row['member_id']]['group_name'] = $row['group_name'];

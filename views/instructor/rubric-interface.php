@@ -98,8 +98,6 @@ $(document).on("change", "select[name=\'rubrics\']", function(e) {
           });
 });
 
-//$("select[name=\'rubrics\']").trigger("change");
-
 <?php if ($disable_instructor_score_setting !== FALSE): ?> // jshint ignore:line
 $(document).ready(function() {
     $("#total_score").prop('disabled', true).after("<em id=scoreOverride>(Overriden by rubric total score)</em>");

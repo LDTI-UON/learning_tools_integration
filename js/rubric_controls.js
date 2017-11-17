@@ -200,8 +200,6 @@ app.activateRubricControls = function() {
 			var pdoc = document;
 			var input_id = $("#rub_onExitClose").data("input_id");
 
-			//$(".grade_input, div.rubricGradingCell").removeClass("_read");
-
 			$(".rubricTable th, .rubricGradingRow > h4").css({border: ''});
 
 			$("#score_"+input_id, pdoc).closest('tr').find('td');
@@ -215,10 +213,6 @@ app.activateRubricControls = function() {
 				var r = $(this).closest("tr").index();
 				var c = $(this).closest("td").index();
 				var tr = -1, div = -1;
-
-				//console.log("r: "+r);
-				//console.log("c: "+c);
-
 				var n = $(this).val();
 
 				if(!n) {
@@ -299,8 +293,6 @@ app.activateRubricControls = function() {
 			$(document).html("<p>There was an error processing your form, try returning to the course and clicking the link again, if this still does not work, please report this incident to the developer at <a href='mailto:paul.sijpkes@newcastle.edu.au?subject="+subject+"&body="+body+"'>The BOLD Team at UoN</a>.</p>");
 			return;
 		};
-
-
 };
 
 app.activateRubricControls();

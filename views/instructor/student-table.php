@@ -18,7 +18,6 @@ if (isset($students) && count($students) > 0 || isset($_POST['st_search'])) {
 				lang('group_name')
 		 );
 	} else {
-
 			$heading = array(
 					lang('screen_name'),
 					lang('username'),
@@ -48,8 +47,10 @@ if(isset($students)) {
 	    {
 				$class = '';
 				if($student['last_launched_on'] > 0) {
-						$class='success';
+						$class .='success ';
 				}
+
+				//if($student['has_assessed'])
 
 				$row = null;
 				$email_trunc = substr($student['email'], 0, 12);
@@ -77,7 +78,7 @@ if(isset($students)) {
 							if(isset($student[$index])) {
 										$fields[] = $student[$index];
 							} else {
-										$fields[] = "admins only";
+										$fields[] = "----";
 							}
 						}
 
