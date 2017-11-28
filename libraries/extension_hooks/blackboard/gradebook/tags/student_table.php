@@ -10,6 +10,9 @@ $hook_method = function () {
     // pagination varies according to input
     $segments =   ee() -> uri -> segment_array();
     $my_segment = end($segments);
+    $vars = array();
+    $plugin_filters = array();
+    $resource_link_id = $this->resource_link_id;
 
     if(count($segments) > 3) {
       $prev = $segments[count($segments) - 3];
@@ -23,23 +26,27 @@ $hook_method = function () {
         $rownum = 0;
     }
 
-    // is_numeric avoids XSS issues
-    $ppage = isset($_REQUEST['per_page']) && is_numeric($_REQUEST['per_page'])? $_REQUEST['per_page'] : $this->perpage;
-    $st_search = isset($_REQUEST['st_search']) ? ee('Security/XSS')->clean($_REQUEST['st_search']) : "";
+    $ppage = NULL;
+    $st_search = NULL;
 
-    // check if user went via pagination
-    if(count($segments) > 3) {
+    if(isset($_COOKIE["ppage"]) && !empty($_COOKIE["ppage"]))
+          $ppage = $_COOKIE["ppage"];
 
-      if(!isset($_REQUEST['per_page'])) {
-        if($segments[$this->pagination_segment] !== $ppage) {
-          $ppage = $segments[$this->pagination_segment];
-        }
-      }
-      if(!isset($_REQUEST['st_search'])) {
-        if($segments[$this->pagination_segment+1] !== $st_search) {
-          $st_search = $segments[$this->pagination_segment+1];
-        }
-      }
+    if(isset($_COOKIE["st_search"]) && !empty($_COOKIE["st_search"]))
+          $st_search = $_COOKIE["st_search"];
+
+    if(empty($ppage) || (isset($_REQUEST['per_page']) && $ppage != $_REQUEST['per_page'])) {
+          $ppage = isset($_REQUEST['per_page']) && is_numeric($_REQUEST['per_page']) ? ee()->input->get_post('per_page') : $this->perpage;
+
+          unset($_COOKIE["ppage"]);
+          setcookie("ppage", $ppage, time() + 1800, $this->base_url);
+     }
+
+    if(empty($st_search) || (isset($_REQUEST['st_search']) && $st_search != $_REQUEST['st_search'])) {
+          $st_search = isset($_REQUEST['st_search']) ? ee()->input->get_post('st_search') : "";
+
+          unset($_COOKIE["st_search"]);
+          setcookie("st_search", $st_search, time() + 1800, $this->base_url);
     }
 
     if(!isset($this->include_groups)) {
@@ -51,7 +58,21 @@ $hook_method = function () {
         }
     }
 
+    foreach(static::$lti_plugins as $plugin) {
+            if(file_exists(PATH_THIRD."$plugin/libraries/".$plugin."_student_table_request.php")) {
+                  include(PATH_THIRD."$plugin/libraries/".$plugin."_student_table_request.php");
+            }
+    }
+
     $groups = !empty($this -> include_groups) ? ",lti_group_contexts.group_no, lti_group_contexts.group_name, lti_group_contexts.group_id" : '';
+
+    $wsql = "(".ee()->db->dbprefix."lti_member_resources.type IS NULL OR ".ee()->db->dbprefix."lti_member_resources.type = 'P')";
+
+    foreach(static::$lti_plugins as $plugin) {
+        if(file_exists(PATH_THIRD."$plugin/libraries/".$plugin."_student_table.php")) {
+              include(PATH_THIRD."$plugin/libraries/".$plugin."_student_table.php");
+        }
+    }
     //ee() -> db -> save_queries = true;
     ee() -> db -> select("members.member_id, members.screen_name, members.username, members.email, lti_member_resources.display_name $groups");
     ee() -> db -> join("lti_member_contexts", "members.member_id = exp_lti_member_contexts.member_id AND exp_lti_member_contexts.context_id = '$this->context_id'
@@ -63,7 +84,6 @@ $hook_method = function () {
 
     ee() -> db -> join('lti_member_resources', 'lti_member_contexts.id = lti_member_resources.internal_context_id', 'left outer');
 
-    $wsql = "(".ee()->db->dbprefix."lti_member_resources.type IS NULL OR ".ee()->db->dbprefix."lti_member_resources.type = 'P')";
 
     if(!empty($st_search) && $st_search !== "__empty__") {
       $gsql = "";
@@ -102,7 +122,8 @@ $hook_method = function () {
     ee() -> db -> limit($ppage, $rownum);
 
     $query =   ee() -> db -> get();
-    $vars = array();
+
+    $vars['result_count'] = count($query->result_array());
 
     foreach ($query->result_array() as $row) {
         $vars['students'][$row['member_id']]['member_id'] = $row['member_id'];
@@ -118,8 +139,8 @@ $hook_method = function () {
         }
 
         foreach(static::$lti_plugins as $plugin) {
-                if(file_exists(PATH_THIRD."$plugin/libraries/".$plugin."_student_table.php")) {
-                      include(PATH_THIRD."$plugin/libraries/".$plugin."_student_table.php"); //@TODO finish plugin extension
+                if(file_exists(PATH_THIRD."$plugin/libraries/".$plugin."_student_table_row.php")) {
+                      include(PATH_THIRD."$plugin/libraries/".$plugin."_student_table_row.php");
                 }
         }
     }
@@ -128,11 +149,22 @@ $hook_method = function () {
     // Pass the relevant data to the paginate class so it can display the "next page" links
     ee() -> load -> library('pagination');
 
-    $data_segments = array();
-    $data_segments[] = $ppage;
-    $data_segments[] = empty($st_search) ? "__empty__" : $st_search;
+    if(!isset($_COOKIE["ppage"]) && $ppage)
+        $_COOKIE["ppage"] = $ppage;
 
-    $p_config = $this -> pagination_config('student_table', $total, $ppage, $data_segments);
+    if(!isset($_COOKIE["st_search"]) && $st_search)
+        $_COOKIE["st_search"] = $st_search;
+
+    foreach($plugin_filters as $key => $val) {
+        if(!empty($val)) {
+              $_COOKIE[$key] = $val;
+        } else {
+            unset($_COOKIE[$key]);
+        }
+    }
+  
+    $p_config = $this -> pagination_config('student_table', $total, $ppage);
+
     ee() -> pagination -> initialize($p_config);
 
     $vars['pagination'] =   ee() -> pagination -> create_links();
@@ -143,12 +175,20 @@ $ppage_output = form_open_multipart($this->base_url, array("id" => "filters"));
 $ppage_output .= lang('student_rows_per_page') . ":&nbsp;".form_input(array('name' => 'per_page', 'id' => 'per_page', 'value' => $ppage, 'maxlength' => '5', 'size' => '5'));
 $ppage_output .= "&nbsp;".lang('search_students') . ":&nbsp;".form_input(array('name' => 'st_search', 'id' => 'st_search', 'value' => empty($st_search) || $st_search === "__empty__" ? "" : $st_search, 'maxlength' => '20', 'size' => '9'));
 
+  foreach(static::$lti_plugins as $plugin) {
+          if(file_exists(PATH_THIRD."$plugin/libraries/".$plugin."_student_table_ppage.php")) {
+                include_once(PATH_THIRD."$plugin/libraries/".$plugin."_student_table_ppage.php");
+          }
+  }
+
 $ppage_output .= form_close();
 $ppage_output .= "<script type='text/javascript'>".file_get_contents($this->mod_path.'/js/input_filters.js')."</script>";
 $vars['per_page'] = $ppage_output;
 $vars['table_class'] = $this->table_class;
 $vars['table_wrapper_class'] = $this->table_wrapper_class;
 $vars['base_url'] = $this->base_url;
+$vars['lti_plugins'] = static::$lti_plugins;
+
 return ee() -> load -> view('instructor/student-table', $vars, TRUE);
 };
 /*

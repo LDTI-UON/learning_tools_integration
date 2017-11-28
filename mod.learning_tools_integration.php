@@ -618,10 +618,7 @@ class Learning_tools_integration {
         } else {
           $view_data = $tag_data;
         }
-        /*echo "<pre>";
-        echo htmlspecialchars(print_r(var_export($view_data, TRUE),TRUE));
-        echo "</pre>";
-        exit;*/
+
         return $view_data;
     }
 
@@ -629,21 +626,12 @@ class Learning_tools_integration {
             return "<script>(function() { console.log(\"$str\"); })();</script>";
     }
 
-    private function pagination_config($method, $total_rows, $per_page = -1, $data_segments = NULL) {
+    private function pagination_config($method, $total_rows, $per_page = -1) {
     	$config = array();
-    	$dcount = 0;
-    	$data = "";
 
-    	if($data_segments !== NULL) {
-    		$dcount = count($data_segments);
-    		$data = "/".implode('/', $data_segments);
-    	}
-
-        $config['base_url'] = site_url()."/".$this->base_segment."/".$method.$data;
+        $config['base_url'] = site_url()."/".$this->base_segment."/".$method;
         $config['total_rows'] = $total_rows;
-
         $config['page_query_string'] = FALSE;
-        $config['uri_segment'] = $this->pagination_segment + $dcount;
         $config['full_tag_open'] = '<p id="paginationLinks">';
         $config['full_tag_close'] = '</p>';
 
