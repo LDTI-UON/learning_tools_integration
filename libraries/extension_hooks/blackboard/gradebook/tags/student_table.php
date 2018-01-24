@@ -100,7 +100,7 @@ $hook_method = function () {
 
     ee() -> db -> from('members');
 
-    $total =   ee() -> db -> count_all_results();
+    $total = ee() -> db -> count_all_results();
 
     $group_context_column = "";
 
@@ -162,7 +162,7 @@ $hook_method = function () {
             unset($_COOKIE[$key]);
         }
     }
-  
+
     $p_config = $this -> pagination_config('student_table', $total, $ppage);
 
     ee() -> pagination -> initialize($p_config);
