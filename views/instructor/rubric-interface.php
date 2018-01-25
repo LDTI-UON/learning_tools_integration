@@ -4,7 +4,7 @@
     var app = app || {};
 
     window.flashRow = function(input_id) {
-        // placeholder function to allow instructor preview rubric to exit
+        // shim function to allow instructor preview rubric to exit
         return;
     };
 

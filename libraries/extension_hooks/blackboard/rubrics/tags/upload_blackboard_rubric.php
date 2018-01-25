@@ -23,10 +23,15 @@ $hook_method = function() {
 
   $init_rubric_res = ee()->db->get_where("lti_course_link_resources", array("course_id" => $this->course_id, "resource_link_id" => $this->resource_link_id));
 
-  $init_rubric = 0;
+  $init_rubric = NULL;
   if($init_rubric_res->num_rows() == 1) {
     $init_rubric = $init_rubric_res->row()->rubric_id;
   }
+
+  if(empty($init_rubric) || $init_rubric === 'undefined' && $init_rubric !== 'no_rubric') {
+      $init_rubric = ee()->config->item('default_rubric_uid');
+  }
+
   $write_path = ee()->config->item('lti_cache');
 
   $default_rubrics = $write_path."default/rubrics/html";
@@ -110,8 +115,6 @@ $hook_method = function() {
 
   $dir = array_merge($dir, $d_dir);
 
-  ee()->logger->developer(var_export($dir, TRUE));
-
   ee() -> load -> helper('form');
 
   $options = array("del" => "-- no rubric --");
@@ -134,19 +137,21 @@ $hook_method = function() {
 
               $id = explode(".", $filename[count($filename)-1])[0];
 
-              if($init_rubric == $id) {
-                  $init_rubric = $init_rubric."|".$score;
-                  $raw_init_id = $id;
-              }
+                  if($init_rubric == $id) {
+                      $init_rubric = $init_rubric."|".$score;
+                      $raw_init_id = $id;
+                  }
+
 
               $row = ee()->db->get_where('lti_course_link_resources', array("rubric_id" => $id))->row();
               $raw = !empty($row) ? $row->resource_settings : NULL;
               $settings = unserialize($raw);
+
               $show_scores[$id] = $raw !== NULL && isset($settings['rubric']['show_column_scores']) ? $settings['rubric']['show_column_scores'] : 1;
 
               $id = $id."|".$score;
               $options[$id] = $title;
-          }
+            }
   }
 
   $vars['show_scores'] = json_encode($show_scores);
@@ -190,6 +195,7 @@ $hook_method = function() {
 
   $vars['form'] = $form;
   $vars['base_url'] = $this->base_url;
+  //$vars['rubric_id'] = ee()->input->get('rubric_id');
 
   $vars['disable_instructor_score_setting'] = !empty($init_rubric);
 

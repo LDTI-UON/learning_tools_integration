@@ -26,6 +26,8 @@ $config['next_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_next.g
 $config['first_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_rewind.gif";
 $config['last_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_ffwd.gif";
 
+$config['default_rubric_uid'] = "_6912_1";
+
 $config['preview_comments'] = array(
          array("comment" =>
        "Preview was an insightful member of the group.
