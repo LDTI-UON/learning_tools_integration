@@ -98,14 +98,25 @@ The gradebook import and group functions require some URIs to Blackboards servic
 cd EE install directory/system/user/addons/learning_tools_integration/config
 ```
 
-# EE Plugins #
+## Installation of APEG (Adaptive Peer Evaluation for Groups)##
 
-### [Peer Review Module](git@github.com:BOLDLab/lti_peer_assessment.git) ###
-This EE plugin is in constant development as we get more interest from academics here at UoN.  Grab this from BitBucket via the above link.
+# Installation
 
-This plugin requires all the above extension hooks to run
-This plugin has ONLY been tested in Blackboard Learn.
+## Requirements
 
-### Contribution guidelines ###
+* WebServer with PHP 5 or later
+* mySQL Database version 5.5 or later
 
-If you're interested in contributing please contact the repo owner.
+* Git version control system
+
+## Steps
+
+1. Download and install a webserver (Apache is recommended), PHP 7+, mySQL 5.5+, git and [ExpressionEngine Core CMS](https://store.ellislab.com/#ee-core)
+
+    _There are countless resources on the web to install the above.  The suggested items are all open source or free_
+
+2. Clone and Install the ExpressionEngine Modules
+  The most up to date version of the application is available at Github and comes in two parts at the [BOLDLab organization](https://github.com/BOLDLab).   
+
+3. `git clone` the learning_tools_integration and lti_peer_assessment repos into the addons folder of the EE distribution. Then follow the normal install process for addons in EE.
+
