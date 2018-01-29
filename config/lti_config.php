@@ -49,3 +49,6 @@ $config['preview_comments'] = array(
                          "locked" => 0,
                          "current" => TRUE,
                      );
+
+// data for sample group members, modify these to match DB member ids
+$config['sample_members'] = array("ids" => [4651,4652,4653,4654,4655]);

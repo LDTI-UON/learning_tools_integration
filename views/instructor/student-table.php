@@ -96,10 +96,8 @@ if(isset($students)) {
 	foreach($lti_plugins as $plugin) {
 		      if(isset($vars[$plugin])) {
 						?>
+						<p class='plugin-heading-text'> <?= $vars[$plugin]["heading"]["text"] ?></p>
 								<div class="plugin-summary">
-
-
-								<h3> <?= $vars[$plugin]["heading"]["text"] ?></h3>
 								<?php
 							foreach($vars[$plugin] as $item) {
 									if(! isset($item["text"]) ) {
