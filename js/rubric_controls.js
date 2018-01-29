@@ -13,7 +13,6 @@ app.activateRubricControls = function() {
     $(".chosen-container").hide();
 
 		var el = null;
-		console.log(p);
 		if(typeof p !== 'undefined' && typeof p.length !== 'undefined') {
 				$(p).each(function() {
 						el = this;
@@ -24,12 +23,17 @@ app.activateRubricControls = function() {
 
 		if(el !== null) {
 							$(el.rows).each(function(i, v) {
+								// calculate difference b/w columns and grade_inputs
+								// this allows for header cells within rubric.
+								var giLen = $(".rubricTable .rubricGradingRow:eq("+i+") .grade_input").length;
+								var colLen = $(".rubricTable .rubricGradingRow:eq("+i+") td, .rubricTable .rubricGradingRow:eq("+i+") th").length;
+								var dif = Math.abs(colLen - giLen);
 
-								var col = (this.col - 1);
+								var col = (this.col - dif);
 								var list_q = ".rubricGradingList .rubricGradingRow:eq("+i+") .rubricGradingCell:eq("+col+")";
 								var row_score = this.score;
 
-				                $(".rubricTable .rubricGradingRow:eq("+i+") td:eq("+col+") .grade_input, "+
+				                $(".rubricTable .rubricGradingRow:eq("+i+") .grade_input:eq("+col+"), "+
 				                  list_q +" .grade_input, "+list_q + " .rubricCellRadio").each(function() {
 
 														if(this.tagName == "INPUT") {
@@ -196,8 +200,6 @@ app.activateRubricControls = function() {
 			var pdoc = document;
 			var input_id = $("#rub_onExitClose").data("input_id");
 
-			//$(".grade_input, div.rubricGradingCell").removeClass("_read");
-
 			$(".rubricTable th, .rubricGradingRow > h4").css({border: ''});
 
 			$("#score_"+input_id, pdoc).closest('tr').find('td');
@@ -211,6 +213,11 @@ app.activateRubricControls = function() {
 				var r = $(this).closest("tr").index();
 				var c = $(this).closest("td").index();
 				var tr = -1, div = -1;
+				var n = $(this).val();
+
+				if(!n) {
+						n = $(this)[0].nextSibling.nodeValue;
+				}
 
 				console.log("r: "+r);
 				console.log("c: "+c);
@@ -225,7 +232,7 @@ app.activateRubricControls = function() {
 						error_track(model);
 				}
 
-				console.log("Rubric val: '"+ n+"'");
+				//console.log("Rubric val: '"+ n+"'");
 
 				if(n.trim() == '-' || n.trim() === "") n = 0;
 				var score = parseFloat(n);
@@ -260,9 +267,6 @@ app.activateRubricControls = function() {
 				$("#rubric_"+input_id, pdoc).val(JSON.stringify(model));
 
 				$(".contentPane").css({margin: ''});
-
-
-
 				$(".container-fluid").show();
 				flashRow(input_id);
 
@@ -298,8 +302,6 @@ app.activateRubricControls = function() {
 			$(document).html("<p>There was an error processing your form, try returning to the course and clicking the link again, if this still does not work, please report this incident to the developer at <a href='mailto:paul.sijpkes@newcastle.edu.au?subject="+subject+"&body="+body+"'>The BOLD Team at UoN</a>.</p>");
 			return;
 		};
-
-
 };
 
 app.activateRubricControls();

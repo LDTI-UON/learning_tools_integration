@@ -4,7 +4,7 @@
     var app = app || {};
 
     window.flashRow = function(input_id) {
-        // placeholder function to allow instructor preview rubric to exit
+        // shim function to allow instructor preview rubric to exit
         return;
     };
 
@@ -97,8 +97,6 @@ $(document).on("change", "select[name=\'rubrics\']", function(e) {
                   session_expired(data);
           });
 });
-
-//$("select[name=\'rubrics\']").trigger("change");
 
 <?php if ($disable_instructor_score_setting !== FALSE): ?> // jshint ignore:line
 $(document).ready(function() {

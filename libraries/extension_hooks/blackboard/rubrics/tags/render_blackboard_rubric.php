@@ -56,6 +56,11 @@ $hook_method = function() {
 
     $row = ee()->db->get_where("lti_course_link_resources",array("rubric_id" => $id))
                   ->row();
+
+
+                  echo "<pre>";
+                  var_dump($row);
+
     if($row) {
       $raw = isset($row->resource_settings) ? unserialize($row->resource_settings) : NULL;
 

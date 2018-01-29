@@ -3,30 +3,28 @@
 # @Date:   2017-03-28T16:04:23+11:00
 # @Last modified by:   ps158
 # @Last modified time: 2017-04-21T11:37:20+10:00
-$config['development'] = TRUE;
+$config['development'] = FALSE;
 // cache areas
-$config['lti_cache'] = '/var/www/lti/cache/';
-$config['lti_upload'] = "/var/www/lti/cache/upload/";
-$config['lti_secret'] = '/var/www/lti/cache/secret/';
-$config['lti_ghost'] = '/var/www/lti/cache/ghost/'; // user for creating new users
-$config['lti_cookies'] = '/var/www/lti/cache/cookies/';
+$config['lti_cache'] = '/var/lti';
+$config['lti_upload'] = "'/var/lti/upload/";
+$config['lti_secret'] = '/var/lti/secret/';
+$config['lti_ghost'] = '/var/lti/ghost/'; // user for creating new users
+$config['lti_cookies'] = '/var/lti/cookies/';
 
 // jquery dist.
 $config['jquery_src'] = '//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js';
 $config['chosen_css'] = '//cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.min.css';
 
 //LTI config items
-$config['blackboard_url'] = "https://uonline.newcastle.edu.au/";
+$config['blackboard_url'] = "https://coolu.edu/";
 $config['blackboard_auth_path'] = 'webapps/login/';
 $config['blackboard_gradebook_uri_query'] = '/webapps/gradebook/do/instructor/getJSONData?course_id=';
 
 // pagination buttons
-$config['prev_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_previous.gif";
-$config['next_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_next.gif";
-$config['first_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_rewind.gif";
-$config['last_link_url'] = "//uonline.newcastle.edu.au/images/ci/ng/small_ffwd.gif";
-
-$config['default_rubric_uid'] = "_6912_1";
+$config['prev_link_url'] = "//coolu.edu/images/ci/ng/small_previous.gif";
+$config['next_link_url'] = "//coolu.edu/images/ci/ng/small_next.gif";
+$config['first_link_url'] = "//coolu.edu/images/ci/ng/small_rewind.gif";
+$config['last_link_url'] = "//coolu.edu/images/ci/ng/small_ffwd.gif";
 
 $config['preview_comments'] = array(
          array("comment" =>

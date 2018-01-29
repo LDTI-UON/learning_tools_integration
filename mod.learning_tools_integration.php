@@ -114,6 +114,8 @@ class Learning_tools_integration {
 
     public static $lti_plugins;
 
+    public static $celtic_debug_launch = FALSE;
+
     private $plugin_setup_text;
 
     private $general_message = '';
@@ -170,6 +172,10 @@ class Learning_tools_integration {
 
        if($this->debug) {
           ee()->load->library('logger');
+       }
+
+       if(isset($_REQUEST['custom_celtic'])) {
+          static::$celtic_debug_launch = TRUE;
        }
 
        $this->mod_path = PATH_THIRD.strtolower($this->mod_class);
@@ -419,6 +425,10 @@ class Learning_tools_integration {
 
       		  $pls = ee() -> TMPL -> fetch_param('plugins');
       		  static::$lti_plugins = explode(",", strtolower($pls));
+
+            if(static::$celtic_debug_launch) {
+                  var_dump(static::$lti_plugins);
+            }
         }
 
         $this->plugin_setup_text = array();
@@ -608,10 +618,7 @@ class Learning_tools_integration {
         } else {
           $view_data = $tag_data;
         }
-        /*echo "<pre>";
-        echo htmlspecialchars(print_r(var_export($view_data, TRUE),TRUE));
-        echo "</pre>";
-        exit;*/
+
         return $view_data;
     }
 
@@ -619,21 +626,12 @@ class Learning_tools_integration {
             return "<script>(function() { console.log(\"$str\"); })();</script>";
     }
 
-    private function pagination_config($method, $total_rows, $per_page = -1, $data_segments = NULL) {
+    private function pagination_config($method, $total_rows, $per_page = -1) {
     	$config = array();
-    	$dcount = 0;
-    	$data = "";
 
-    	if($data_segments !== NULL) {
-    		$dcount = count($data_segments);
-    		$data = "/".implode('/', $data_segments);
-    	}
-
-        $config['base_url'] = site_url()."/".$this->base_segment."/".$method.$data;
+        $config['base_url'] = site_url()."/".$this->base_segment."/".$method;
         $config['total_rows'] = $total_rows;
-
         $config['page_query_string'] = FALSE;
-        $config['uri_segment'] = $this->pagination_segment + $dcount;
         $config['full_tag_open'] = '<p id="paginationLinks">';
         $config['full_tag_close'] = '</p>';
 

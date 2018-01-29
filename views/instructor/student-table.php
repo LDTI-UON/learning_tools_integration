@@ -18,7 +18,6 @@ if (isset($students) && count($students) > 0 || isset($_POST['st_search'])) {
 				lang('group_name')
 		 );
 	} else {
-
 			$heading = array(
 					lang('screen_name'),
 					lang('username'),
@@ -48,8 +47,10 @@ if(isset($students)) {
 	    {
 				$class = '';
 				if($student['last_launched_on'] > 0) {
-						$class='success';
+						$class .='success ';
 				}
+
+				//if($student['has_assessed'])
 
 				$row = null;
 				$email_trunc = substr($student['email'], 0, 12);
@@ -74,7 +75,11 @@ if(isset($students)) {
 				if(count($indexes) > 0) {
 						$fields = array();
 						foreach($indexes as $index) {
-								$fields[] = $student[$index];
+							if(isset($student[$index])) {
+										$fields[] = $student[$index];
+							} else {
+										$fields[] = "----";
+							}
 						}
 
 						$row = array_merge($row, $fields);
@@ -86,8 +91,37 @@ if(isset($students)) {
 	} else {
 		 ee()->table->add_row(array('colspan' => 6, 'style' => 'text-align: left', 'data' => "Nothing to show"));
 	}
-?>
 
+
+	foreach($lti_plugins as $plugin) {
+		      if(isset($vars[$plugin])) {
+						?>
+								<div class="plugin-summary">
+
+
+								<h3> <?= $vars[$plugin]["heading"]["text"] ?></h3>
+								<?php
+							foreach($vars[$plugin] as $item) {
+									if(! isset($item["text"]) ) {
+										$id = hash("sha256", json_encode($item));
+										 ?>
+										 <label for="<?= $id ?>">
+											 		<?= $item["label"] ?>
+										 </label>
+										 <p id="<?= $id ?>">
+											 		<?= $item["value"] ?>
+										 </p>
+										 <?php
+									 }
+							}
+						?>
+							</div>
+
+							<hr />
+						<?php
+					}
+		}
+?>
 <div class="<?= $table_wrapper_class ?>">
 <?php	echo ee()->table->generate(); ?>
 </div>
@@ -97,6 +131,7 @@ if(isset($students)) {
     <?= $per_page ?>
 </div>
 <?php
+
 /* add EE actions */
 echo "<script>";
 echo "var acts = $json_actions;";

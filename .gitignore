@@ -8,3 +8,4 @@
 .project
 .on-save.json
 themes/
+config/lti_config.php

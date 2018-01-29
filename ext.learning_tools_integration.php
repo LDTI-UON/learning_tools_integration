@@ -56,9 +56,9 @@ class Learning_tools_integration_ext {
 	public $institution;
 
 	public $institution_id;
-    public $course_id;
+  public $course_id;
 
-    public $tool_consumer_instance_id = 0; // internal context for this institution
+  public $tool_consumer_instance_id = 0; // internal context for this institution
 
     // these variables are obtained as launch parameters from Blackboard
 	public $vle_username = "";
@@ -633,8 +633,7 @@ class Learning_tools_integration_ext {
                                     "is_instructor" => $this -> isInstructor);
 
 
-
-         $sql =    ee() -> db -> insert_string('lti_member_contexts', $context_data) . " ON DUPLICATE KEY UPDATE user_id = '$this->user_id', session_id = '".$this->session_id."', context_label='$this->context_label', course_name= '$this->course_name',
+         $sql =    ee() -> db -> insert_string('lti_member_contexts', $context_data) . " ON DUPLICATE KEY UPDATE user_id = '$this->user_id', session_id = '".$this->session_id."', context_label='$this->context_label', course_name=".ee()->db->escape($this->course_name).",
 												ext_lms = '$this->ext_lms', tool_consumer_instance_name = '$this->tool_consumer_instance_name',
 												is_instructor = '$this->isInstructor', last_launched_on = CURRENT_TIMESTAMP";
 

@@ -217,7 +217,7 @@ class Learning_tools_integration_mcp {
             $vars['contexts'][$row['id']]['member_id'] = $row['member_id'];
             $vars['contexts'][$row['id']]['context_id'] = $row['context_id'];
             $vars['contexts'][$row['id']]['tool_consumer_instance_name'] = $row['tool_consumer_instance_name'];
-            $vars['contexts'][$row['id']]['is_instructor'] = $row['is_instructor'];
+            $vars['contexts'][$row['id']]['is_instructor'] = empty($row['is_instructor'])? '0' : '1';
             $vars['contexts'][$row['id']]['toggle'] = array(
                 'name'      => 'toggle[]',
                 'id'        => 'edit_box_'.$row['id'],
