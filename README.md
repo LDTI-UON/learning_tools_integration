@@ -98,9 +98,7 @@ The gradebook import and group functions require some URIs to Blackboards servic
 cd EE install directory/system/user/addons/learning_tools_integration/config
 ```
 
-## Installation of APEG (Adaptive Peer Evaluation for Groups)##
-
-# Installation
+# Installation of APEG (Adaptive Peer Evaluation for Groups)
 
 ## Requirements
 
