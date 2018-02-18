@@ -11,5 +11,5 @@
              <a href='#' id='hide_error' style='font-size: 10px'>Don't show this again on this device.</a></div>": "" ?>
 
 <style>
-    <?= $css_special ?>
+    <?= !empty($css_special) ? $css_special : "" ?>
 </style>
