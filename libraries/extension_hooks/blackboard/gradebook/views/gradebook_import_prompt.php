@@ -26,7 +26,7 @@ $hook_method = function($view_data) {
 
             if($query->num_rows() == 0) {
 
-               if(!isset($_POST['gradebook_sync_optout']) && $is_super) {
+              /* if(!isset($_POST['gradebook_sync_optout']) && $is_super) {
                   $attr = $this->base_form_attr;
                   $attr['id'] = "optout";
 
@@ -72,8 +72,14 @@ $hook_method = function($view_data) {
                     redirect($this->base_url);
 
                     exit();
-                }
-            } else if($is_super) {
+                }*/
+                // always opt-in
+                $disabled = "0"; //ee()->input->post('optout') == "out" ? 1 : 0;
+                ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => $disabled));
+                redirect($this->base_url);
+
+                exit();
+            } else {
 
                 $password = $query->row()->password;
 
