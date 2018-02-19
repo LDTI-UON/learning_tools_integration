@@ -8,3 +8,4 @@
 .project
 .on-save.json
 config/lti_config.php
+.DS_Store
