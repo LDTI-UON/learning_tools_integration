@@ -189,7 +189,7 @@ $hook_method = function() {
 //  $form .= form_label('Attach this rubric:  ', 'attach', array('for' => 'attach'));
 
   $form .= form_button('Attach Rubric to Assessment', 'attach', "id='attach' class='$this->button_class form-control'");
-  $form .= "<img id='rub_loader' src='".URL_THEMES."/learning_tools_integration/img/loader.gif' style='display:none'/><span id='loader_msg'></span>";
+  $form .= "<img id='rub_loader' src='".URL_THIRD_THEMES."learning_tools_integration/img/loader.gif' style='display:none'/><span id='loader_msg'></span>";
   $form .= "</p>";
   $form .= form_close();
 
