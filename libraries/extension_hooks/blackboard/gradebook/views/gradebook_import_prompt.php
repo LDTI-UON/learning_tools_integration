@@ -213,7 +213,7 @@ $hook_method = function($view_data) {
 
                                     if(!empty($imported['errors']) || !empty($imported['message'])) {
                                         $form .= "<p><b>Group/Student Sync <a target=\"_blank\" href=\"$this->help_url/guides/Instructors#gradebook-syncronisation\">
-                                              <img class=\"contextual_help_inline\" src=\"".URL_THEMES."lti_peer_assessment/Help-48.png\"></a></b>";
+                                              <img class=\"contextual_help_inline\" src=\"".URL_THIRD_THEMES."lti_peer_assessment/Help-48.png\"></a></b>";
 
                                         $form .= "<p><em>Your Groups will automatically sync everytime you access this tool from Blackboard.</em></p>";
                                     }
