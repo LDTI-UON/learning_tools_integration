@@ -25,13 +25,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     lti_M.backdrop = "static";
     bootbox.alert(lti_M);
 
-    let nodes = document.getElementsByClassName('modal-body');
+  //  let nodes = document.getElementsByClassName('modal-body');
 
     // hack to fix bootbox message
-    for(let i = 0; nodes.item(i); i++) {
+  /*  for(let i = 0; nodes.item(i); i++) {
         nodes.item(i).style.backgroundColor = "#eee";
         nodes.item(i).innerHTML = lti_M.message;
-    }
+    }*/
 });
 
 

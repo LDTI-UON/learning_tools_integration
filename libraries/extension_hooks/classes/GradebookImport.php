@@ -327,9 +327,6 @@ private function import_data(& $file_rows, & $errors = "", $group_students, $sta
 						if ($count == 0) {
 							$email_inc = $email_inc + 1;
 							$new_member = ee('Model')->make('Member', array('username' => $row[$this->col_header_indexes['user_name']], 'screen_name' => $fullname, 'group_id' => $this->new_user_group_id, 'email' => "apeg_import_email_$email_inc@apeg.newcastle.edu.au", 'last_visit' => time(), 'last_activity' => time(), 'join_date' => time()));
-
-							//$sql_data = array('username' => $row[$this->col_header_indexes['user_name']], 'screen_name' => $fullname, 'group_id' => $this->new_user_group_id);
-						//	ee() -> db -> insert('members', $sql_data);
 							$new_member->save();
 							$id = $new_member->member_id;
 							++$affr;
