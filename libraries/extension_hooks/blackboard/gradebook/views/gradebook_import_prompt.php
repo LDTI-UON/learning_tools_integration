@@ -226,7 +226,7 @@ $hook_method = function($view_data) {
 
                                 $form = "<p><h1>Bad Password</h1><b>I could not connect to Grade Centre. You will be asked for your password again in 5 seconds.</p>";
                             } else if($auth === 2) {
-                                 $form = "<p><h1>Server Down</h1><b>I could not connect to $this->base_url, using [$decrypted]. The server may be down, please use manual upload for the time being.</p>";
+                                 $form = "<p><h1>Server Down</h1><b>I could not connect to $this->base_url, using your password[********]. The server may be down, please use manual upload for the time being.</p>";
                                  ee()->db->update('lti_instructor_credentials', array('password' => NULL, 'state' => '3'));
                             }
 
