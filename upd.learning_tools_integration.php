@@ -530,7 +530,7 @@
 
                   ee ()->db->insert ( 'actions', $data );
 						}
-						
+
 						// add external rubric import feature
 						if (version_compare($current, '3.2.3', '<')) {
 								$fields = array(
@@ -546,7 +546,7 @@
 									if(count($fields) > 0)
 										ee()->dbforge->add_column('lti_course_link_resources', $fields);
 
-								} catch (Exception $e) {
+								} catch (Error $e) {
 										ee()->logger->developer($e);
 								}
 						}
@@ -574,7 +574,7 @@
 								$fields = $this->sanitizeFields('blti_keys', $fields);
 								if(count($fields) > 0)
 									ee()->dbforge->add_column('blti_keys', $fields);
-							} catch (Exception $e) {
+							} catch (Error $e) {
 									ee()->logger->developer($e);
 							}
 
@@ -584,7 +584,6 @@
 								);
 
 								ee ()->db->insert ( 'actions', $data );
-
 						}
 
 						// bug fix
