@@ -100,6 +100,9 @@ $(document).on("change", "select[name=\'rubrics\']", function(e) {
 
 <?php if ($disable_instructor_score_setting !== FALSE): ?> // jshint ignore:line
 $(document).ready(function() {
+  // init rubric select
+    id = $("select[name=\'rubrics\']").find("option:selected").val();
+
     $("#total_score").prop('disabled', true).after("<em id=scoreOverride>(Overriden by rubric total score)</em>");
     var raw = $("select[name=\'rubrics\']").find("option:selected").val();
     var selected_score = raw.split('|')[1];
