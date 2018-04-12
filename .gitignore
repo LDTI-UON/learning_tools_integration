@@ -9,3 +9,4 @@
 .on-save.json
 config/lti_config.php
 .DS_Store
+._.DS_Store
