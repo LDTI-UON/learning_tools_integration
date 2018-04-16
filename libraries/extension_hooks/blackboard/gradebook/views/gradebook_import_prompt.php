@@ -79,7 +79,8 @@ $hook_method = function($view_data) {
                 redirect($this->base_url);
 
                 exit();
-            } else {
+            } else if($this->resource_link_id !== 'test_link_launch') // for testing launches
+            {
 
                 $password = $query->row()->password;
 
