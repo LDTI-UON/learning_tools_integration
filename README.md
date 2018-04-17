@@ -1,7 +1,7 @@
 # README #
 
 ### LTI Module for ExpressionEngine (EE)  ###
-Tested with up to ExpressionEngine 3.5.3
+Tested with up to ExpressionEngine 4.1.3
 
 ## New in Version 3.4.1 ##
 * Moved pagination icons location references from template to config file
@@ -18,7 +18,7 @@ It has had rudimentary testing in Moodle, further development is desired in this
 
 ### Getting started ###
 
- Get a copy of [EE Core at Ellislabs](https://store.ellislab.com/#ee-core) (note this is limited to 3 back-end administrative and content development users, you will need to pay for the full version if you need more administrators).
+ Get a copy of [EE Core at Ellislab](https://store.ellislab.com/#ee-core) (note this is limited to 3 back-end administrative and content development users, you will need to pay for the full version if you need more administrators).
  Download the zip file of the latest release at [Github](https://github.com/BOLDLab/learning_tools_integration)
  Or clone it with git:
  ```
@@ -109,7 +109,7 @@ cd EE install directory/system/user/addons/learning_tools_integration/config
 
 ## Steps
 
-1. Download and install a webserver (Apache is recommended), PHP 7+, mySQL 5.5+, git and [ExpressionEngine Core CMS](https://store.ellislab.com/#ee-core)
+1. Download and install a webserver (Apache is recommended), PHP 7+, mySQL 5.5+, git and [ExpressionEngine Core CMS](https://store.ellislab.com/#ee-core) for learning purposes only. You will need to get the full version if you are a not-fpr-profit or for-profit organisation.
 
     _There are countless resources on the web to install the above.  The suggested items are all open source or free_
 

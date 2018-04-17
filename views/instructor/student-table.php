@@ -54,7 +54,9 @@ if(isset($students)) {
 
 				$row = null;
 				$email_trunc = substr($student['email'], 0, 12);
-
+				if(strpos($email_trunc, 'apeg_import')) {
+						$email_trunc = 'unknown';
+				}
 				if($include_groups) {
 							$row = array(
 										Utils::add_class_to_cell($student['screen_name'], $class),
