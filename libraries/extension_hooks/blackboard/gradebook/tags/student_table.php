@@ -123,7 +123,8 @@ $hook_method = function () {
 
     $query =   ee() -> db -> get();
 
-    $vars['result_count'] = count($query->result_array());
+    $vars['result_count'] = $query->num_rows();
+    ee()->logger->developer($vars['result_count']);
 
     foreach ($query->result_array() as $row) {
         $vars['students'][$row['member_id']]['member_id'] = $row['member_id'];
