@@ -124,7 +124,9 @@ $hook_method = function () {
     $query =   ee() -> db -> get();
 
     $vars['result_count'] = $query->num_rows();
-    ee()->logger->developer($vars['result_count']);
+
+  //  ee()->logger->developer("\$this->tool_consumer_instance_id ".$this->tool_consumer_instance_id);
+  //  ee()->logger->developer($vars['result_count']);
 
     foreach ($query->result_array() as $row) {
         $vars['students'][$row['member_id']]['member_id'] = $row['member_id'];
