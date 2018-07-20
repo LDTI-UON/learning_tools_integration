@@ -120,7 +120,7 @@ class Learning_tools_integration {
 
     private $general_message = '';
 
-    public $debug = FALSE;
+    public $debug = TRUE;
     public $dev = FALSE;
 
     private $maintenance_message = FALSE;

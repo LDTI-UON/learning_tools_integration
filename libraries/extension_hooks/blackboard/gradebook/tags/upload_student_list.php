@@ -36,7 +36,7 @@ $hook_method = function() {
           $form .= "<h1>Upload Successful</h1>";
 
           // instantiate file import object
-          $importer = new GradebookImport($this->member_id, $this->context_id, $setup);
+          $importer = new GradebookImport($this->member_id, $this->context_id, $setup, $this->lti_module);
 
           $result = $importer->import($group_students, $file_data['full_path']);
         }
