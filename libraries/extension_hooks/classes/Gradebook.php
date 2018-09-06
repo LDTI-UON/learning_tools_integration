@@ -91,7 +91,7 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
   }
 
     public function bb_fetch_gradebook() {
-        if(!empty($this->cachedGradeBook)) return $this->cachedGradeBook;
+        //if(!empty($this->cachedGradeBook)) return $this->cachedGradeBook; DISABLE CACHING
 
         $bb_auth = new Auth($this->lti_module);
 
