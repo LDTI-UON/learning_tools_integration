@@ -411,6 +411,8 @@ private function import_data(& $file_rows, & $errors = "", $group_students, $sta
                                     $gaffr_int += 1;
                                 } else {
                                     ee() -> db -> where($where);
+																		unset($group_data['member_id']);
+																		unset($group_data['internal_context_id']);
                                     ee() -> db -> update('lti_group_contexts', $group_data);
 
                                     if ($success == 1) {

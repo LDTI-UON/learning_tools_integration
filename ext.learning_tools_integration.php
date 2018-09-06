@@ -569,8 +569,8 @@ class Learning_tools_integration_ext {
 				}
 
 				if(!empty($this->vle_username)) {
-
-					if(FALSE !== strpos($this->vle_username, "previewuser")) {
+					$lower = strtolower($this->vle_username);
+					if(FALSE !== strpos($lower, "previewuser")) {
 								$this->email = $this->vle_username."@".$this->session_domain;
 								$this->is_preview_user = TRUE;
 					}
