@@ -134,13 +134,13 @@ $hook_method = function() {
               $filename = explode("|", $item);
               $title = $filename[0];
               $score = $filename[2];
-
-              $id = explode(".", $filename[count($filename)-1])[0];
+              $init_rubric == "del";
+              /*$id = explode(".", $filename[count($filename)-1])[0];
 
                   if($init_rubric == $id) {
                       $init_rubric = $init_rubric."|".$score;
                       $raw_init_id = $id;
-                  }
+                  }*/
 
 
               $row = ee()->db->get_where('lti_course_link_resources', array("rubric_id" => $id))->row();
