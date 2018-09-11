@@ -11,6 +11,7 @@ if (!defined('BASEPATH'))
 
 
 class Learning_tools_integration_ext {
+	private $debug = FALSE;
 
 	var $settings        = array();
 
@@ -79,8 +80,6 @@ class Learning_tools_integration_ext {
 	private $session_domain;
 	private $cookie_name = "ee_lti_plugin";
 	private $use_SSL = TRUE;
-
-	private $debug = TRUE;
 
 	public $lti_error = NULL; //for error tag in templates
 
