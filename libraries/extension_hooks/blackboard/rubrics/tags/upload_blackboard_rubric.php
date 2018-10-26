@@ -165,7 +165,7 @@ $hook_method = function() {
   $form .= "<p> $errors $msg </p>";
   $form .= form_close();
   //$form .= "<br><br>";
-  $form .= form_open_multipart($this->base_url);
+/*  $form .= form_open_multipart($this->base_url);
   $form .= form_label("Available Rubrics:  ", "rubric_dd");
 
   $form .= form_dropdown("rubrics", $options, $init_rubric, "id='rubric_dd' class='form-control'");
@@ -191,7 +191,7 @@ $hook_method = function() {
   $form .= form_button('Attach Rubric to Assessment', 'attach', "id='attach' class='$this->button_class form-control'");
   $form .= "<img id='rub_loader' src='".URL_THIRD_THEMES."learning_tools_integration/img/loader.gif' style='display:none'/><span id='loader_msg'></span>";
   $form .= "</p>";
-  $form .= form_close();
+  $form .= form_close();*/
 
   $vars['form'] = $form;
   $vars['base_url'] = $this->base_url;
