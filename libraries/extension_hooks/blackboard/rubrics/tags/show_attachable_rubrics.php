@@ -1,5 +1,11 @@
-
 <?php
+use LTI\ExtensionHooks\Utils;
+use LTI\ExtensionHooks\BB_Resources;
+use LTI\ExtensionHooks\BB_RubricArchive;
+use LTI\ExtensionHooks\BB_Rubrics;
+
+$hook_method = function() {
+
 if(empty($this->isInstructor)) { return FALSE; }
 
 if(isset($_POST['no_reload'])) { return FALSE; }
@@ -146,5 +152,19 @@ $vars['form'] = $form;
 $vars['base_url'] = $this->base_url;
 
 $vars['disable_instructor_score_setting'] = !empty($init_rubric);
+return ee() -> load -> view('instructor/rubric-interface.php', $vars, TRUE);
+};
 
+/*
+* Generate inline tags for instructor
+*/
+$launch_instructor = function($params) {
+      $tag_data = $params['tag_data'];
+
+      if($data = $this->upload_blackboard_rubric()) {
+            $params['tag_data']['show_attachable_rubrics'] = $data;
+      }
+
+      return $params;
+  };
 ?>

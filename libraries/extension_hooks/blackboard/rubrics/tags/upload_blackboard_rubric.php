@@ -199,7 +199,7 @@ $hook_method = function() {
 
   $vars['disable_instructor_score_setting'] = !empty($init_rubric);
 
-  return ee() -> load -> view('instructor/rubric-interface.php', $vars, TRUE);
+  return ee() -> load -> view('admin/rubric-interface.php', $vars, TRUE);
 };
 
 /*
