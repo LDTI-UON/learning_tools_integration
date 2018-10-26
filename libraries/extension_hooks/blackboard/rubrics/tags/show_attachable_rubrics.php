@@ -161,7 +161,7 @@ return ee() -> load -> view('instructor/rubric-interface.php', $vars, TRUE);
 $launch_instructor = function($params) {
       $tag_data = $params['tag_data'];
 
-      if($data = $this->upload_blackboard_rubric()) {
+      if($data = $this->show_attachable_rubrics()) {
             $params['tag_data']['show_attachable_rubrics'] = $data;
       }
 
