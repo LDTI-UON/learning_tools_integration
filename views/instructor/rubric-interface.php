@@ -42,7 +42,7 @@
 
     var id;
     var show_scores_array =
-        <?= $show_scores ?>; // jshint ignore:line
+        <?= empty($show_scores) ? "{}" : $show_scores ?>; // jshint ignore:line
 
 $(document).on("change", "select[name=\'rubrics\']", function(e) {
            id = $(e.target).find("option:selected").val();
