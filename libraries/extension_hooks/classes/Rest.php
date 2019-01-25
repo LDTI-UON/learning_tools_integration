@@ -17,7 +17,7 @@ class Rest {
 
 
 		try {
-			$response = $request->send();
+			$response = $request->send();// test
 			if (200 == $response->getStatus()) {
 				print " Authorize Application...\n";
 				$token = json_decode($response->getBody());

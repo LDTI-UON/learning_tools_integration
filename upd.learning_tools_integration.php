@@ -104,7 +104,7 @@
 						ee ()->dbforge->create_table ( 'blti_keys', TRUE );
 
 						$table_name = ee ()->db->dbprefix ( "blti_keys" );
-						$sql = "CREATE UNIQUE INDEX url_segment_index ON $table_name(url_segment)";
+						$sql = "CREATE UNIQUE INDEX url_segment_index ON $table_name(url_segment(30))";
 						ee ()->db->query ( $sql );
 
 						$fields = array (
@@ -246,19 +246,19 @@
 						$fields = array (
 								'id' => array (
 										'type' => 'MEDIUMINT',
-										'constraint' => '5',
+										'constraint' => '9',
 										'null' => FALSE,
 										'auto_increment' => TRUE
 								),
 								'member_id' => array (
 										'type' => 'MEDIUMINT',
-										'constraint' => '5',
+										'constraint' => '9',
 										'null' => FALSE,
 										'auto_increment' => FALSE
 								),
 								'internal_context_id' => array (
 										'type' => 'MEDIUMINT',
-										'constraint' => '5',
+										'constraint' => '9',
 										'null' => FALSE
 								),
 								'group_no' => array (
@@ -340,7 +340,7 @@
 
 
 						ee ()->dbforge->add_field ( $fields );
-						ee ()->dbforge->add_key ( 'course_key', TRUE );
+						//ee ()->dbforge->add_key ( 'course_key', TRUE );
 						ee ()->dbforge->add_key ( 'institution_id', TRUE );
 						ee ()->dbforge->create_table ( 'lti_instructor_settings', TRUE );
 
@@ -370,7 +370,7 @@
 						$fields = array (
 								'id' => array (
 										'type' => 'INT',
-										'constraint' => '11',
+										'constraint' => '3',
 										'null' => FALSE,
 								),
 								'guid' => array (
@@ -381,15 +381,15 @@
 						);
 
 						ee ()->dbforge->add_field ( $fields );
-						ee ()->dbforge->add_key ( 'guid', TRUE );
+						//ee ()->dbforge->add_key ( 'guid', TRUE );
 						ee ()->dbforge->create_table ( 'lti_tool_consumer_instances', TRUE );
 
 						$fields = array (
 								'id' => array (
 										'type' => 'INT',
-										'constraint' => '11',
+										'constraint' => '3',
 										'null' => FALSE,
-                                     'auto_increment' => TRUE
+                    'auto_increment' => TRUE
 								),
 								'name' => array (
 										'type' => 'VARCHAR',
@@ -432,7 +432,7 @@
 
 						ee ()->dbforge->add_field ( $fields );
 						ee ()->dbforge->add_key ( 'id', TRUE );
-						ee ()->dbforge->add_key ( 'resource_link_id' );
+						//ee ()->dbforge->add_key ( 'resource_link_id' );
 						ee ()->dbforge->create_table ( 'lti_course_link_resources', TRUE );
 
             $course_table = ee ()->db->dbprefix("lti_course_link_resources");
@@ -444,6 +444,16 @@
 								'class' => $this->mod_class,
 								'method' => 'save_user_grade'
 						);
+
+					/*	@TODO add these
+						/ INSERT INTO `exp_actions` (`class`, `method`, `csrf_exempt`) VALUES
+						('Learning_tools_integration', 'save_user_grade', 0),
+						('Learning_tools_integration', 'read_user_grade', 0),
+						('Learning_tools_integration', 'write_rubric', 0),
+						('Learning_tools_integration', 'message_preference', 0),
+						('Learning_tools_integration', 'create_ghost_session', 0),
+						('Learning_tools_integration', 'create_lti_user', 0),
+						('Learning_tools_integration', 'write_b64_to_file', 0)*/
 
 						ee ()->db->insert ( 'actions', $data );
 
@@ -666,8 +676,8 @@
 
 					ee ()->dbforge->add_field ( $fields );
 					ee ()->dbforge->add_key ( 'member_id', TRUE );
-					ee ()->dbforge->add_key ( 'context_id', TRUE );
-					ee ()->dbforge->add_key ( 'resource_link_id', TRUE );
+					//ee ()->dbforge->add_key ( 'context_id', TRUE );
+					//ee ()->dbforge->add_key ( 'resource_link_id', TRUE );
 					ee ()->dbforge->create_table ( 'lti_instructor_credentials', TRUE );
 
 					break;

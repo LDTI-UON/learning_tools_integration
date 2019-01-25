@@ -14,7 +14,7 @@ $hook_method = function() {
     $plugins_active = $settings["plugins_active"];
     $row_count = $settings["row_count"];
 
-    $table = "lti_instructor_settings";
+    $table = ee()->db->dbprefix.'lti_instructor_settings';
 
     ee() -> load -> helper('form');
     $form = form_open($this->base_url, $this->base_form_attr, array("class" => $this->form_class));
@@ -47,7 +47,8 @@ $hook_method = function() {
             ee() -> db -> update($table, array("enable_group_import" => $enable_group_import, "plugins_active" => serialize($plugins_active)));
         } else {
           if($enable_group_import !== NULL) {
-              ee() -> db -> insert($table, array("course_key" => $this->course_key, "institution_id" => $this->institution_id, "enable_group_import" => $enable_group_import, "plugins_active" => serialize($plugins_active)));
+                  ee() -> db -> insert($table, array("course_key" => $this->course_key, "institution_id" => $this->institution_id, "enable_group_import" => $enable_group_import, "plugins_active" => serialize($plugins_active)));
+
           }
         }
 

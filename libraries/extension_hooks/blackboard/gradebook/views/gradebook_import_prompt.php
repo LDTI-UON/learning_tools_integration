@@ -1,4 +1,7 @@
 <?php
+return;
+/** NOT IMPLEMENTED **/
+
 use LTI\ExtensionHooks\Encryption;
 use LTI\ExtensionHooks\Gradebook;
 use LTI\ExtensionHooks\Auth;
@@ -75,7 +78,7 @@ $hook_method = function($view_data) {
                 }*/
                 // always opt-in
                 $disabled = "0"; //ee()->input->post('optout') == "out" ? 1 : 0;
-                ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => $disabled));
+  ee()->db->insert('lti_instructor_credentials', array('member_id' => $this->member_id, 'context_id' => $this->context_id, 'resource_link_id' => $this->resource_link_id, 'disabled' => $disabled));
                 redirect($this->base_url);
 
                 exit();

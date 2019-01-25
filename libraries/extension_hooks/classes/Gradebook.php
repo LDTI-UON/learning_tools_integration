@@ -19,7 +19,7 @@ public function bb_import_groups_from_gradebook($lastLogEntryTS) {
     $stored_gradebook = NULL;
 
     $row = Settings::get_instructor_settings();
-
+    
     if($row !== FALSE) {
         if(!empty($row->gradebook)) {
             $stored_gradebook = unserialize($row->gradebook);

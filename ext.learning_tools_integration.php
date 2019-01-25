@@ -314,7 +314,7 @@ class Learning_tools_integration_ext {
 			  /* set global variables */
 				$this->set_globals(static::$session_info);
 			} else {
-        			die("<span class='session_expired'>".var_export($_REQUEST, TRUE)."<h2>[$uid] Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
+        			die("<span class='session_expired'><h2>[$uid] Your session has expired. Please return to the course and click the link again [".__LINE__."]</h2></span>");
 			}
 		}
 

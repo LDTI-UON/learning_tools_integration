@@ -165,7 +165,7 @@ class Learning_tools_integration {
      * Constructor
      */
     public function __construct() {
-       static::$instance =& $this;
+       self::$instance =& $this;
        ee()->config->load('lti_config', TRUE);
 
        $this->dev = ee()->config->item('development');
@@ -206,10 +206,10 @@ class Learning_tools_integration {
       }
       $this->base_form_attr = array("class" => $this->form_class, "method" => 'POST');
 
-      $this->return_data = $this->init();
+      include($this->hook_path.'/classes/rest/restdemo.php');
+    //  $this->retu rn_data = self::requireToVar($this->hook_path.'/classes/rest/restdemo.php');
+      $this->return_data .= $this->init();
 	}
-
-
     public function __call($method, $args)
     {
       //echo $method. "is set? ".isset($this->$method)."<BR>";
@@ -367,11 +367,7 @@ class Learning_tools_integration {
    }
 
   public static function get_instance() {
-        if(static::$instance === NULL) {
-            static::$instance = & $this;
-        }
-
-     return static::$instance;
+     return self::$instance;
   }
 
   public function get_base_url() {

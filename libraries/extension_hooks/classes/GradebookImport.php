@@ -99,10 +99,7 @@ public function import_from_blackboard($group_students, $json) {
         $gradeBook = $json['cachedBook'];
     } else {
        if(!isset($json["colDefs"])) {
-            echo "<pre>";
-            var_dump(array_keys($json));
-            var_dump($json);
-            return array("errors" => "<p>ERROR: No grade book found. See JSON output</p>");
+            return array("errors" => "<p>ERROR: No grade book found. See JSON output:<br> <pre>".var_export(array_keys($json), TRUE)."\n".var_export($json, TRUE)."</pre></p>");
         } else {
             $gradeBook = $json;
         }

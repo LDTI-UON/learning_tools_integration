@@ -49,7 +49,7 @@ class Auth {
   }
 
   public function bb_lms_rest($user) {
-
+    
   }
 
    public function bb_lms_login($user, $pass) {
